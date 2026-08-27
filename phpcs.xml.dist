@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<ruleset name="Collectibles">
+	<description>WordPress Coding Standards for the Collectibles plugin.</description>
+
+	<file>collectibles.php</file>
+	<file>src</file>
+	<file>templates</file>
+
+	<exclude-pattern>vendor/*</exclude-pattern>
+
+	<arg name="basepath" value="."/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="8"/>
+
+	<config name="minimum_supported_wp_version" value="6.0"/>
+
+	<rule ref="WordPress"/>
+
+	<!-- Template partials are prefixed with an underscore so they read as
+	     fragments rather than routable templates. -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>templates/_*\.php</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="collectibles"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="coll"/>
+				<element value="collectibles"/>
+				<element value="Collectibles"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

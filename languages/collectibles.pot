@@ -1,0 +1,1212 @@
+# Copyright (C) 2026 Alex Kirk
+# This file is distributed under the same license as the Collectibles plugin.
+msgid ""
+msgstr ""
+"Project-Id-Version: Collectibles 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/collectibles\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-16T15:47:17+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.13.0-alpha\n"
+"X-Domain: collectibles\n"
+
+#. Plugin Name of the plugin
+#: collectibles.php:3
+#: src/class-abilities.php:29
+#: templates/index.php:53
+#: templates/_head.php:17
+msgid "Collectibles"
+msgstr ""
+
+#. Description of the plugin
+#: collectibles.php:4
+msgid "Catalog your collections — coins, stamps, banknotes, cards, records, books, whatever."
+msgstr ""
+
+#. Author of the plugin
+#: collectibles.php:6
+msgid "Alex Kirk"
+msgstr ""
+
+#: src/class-abilities.php:30
+msgid "Look things up in the collectibles catalog."
+msgstr ""
+
+#: src/class-abilities.php:50
+msgid "List Collections"
+msgstr ""
+
+#: src/class-abilities.php:96
+msgid "Search Collectible Items"
+msgstr ""
+
+#: src/class-abilities.php:159
+msgid "Get Collectible Item"
+msgstr ""
+
+#: src/class-abilities.php:277
+msgid "No such item."
+msgstr ""
+
+#: src/class-abilities.php:281
+msgid "You do not have access to this item."
+msgstr ""
+
+#: src/class-app.php:100
+#: src/class-collection.php:28
+#: templates/collection-form.php:139
+#: templates/collection.php:98
+#: templates/index.php:47
+#: templates/index.php:54
+#: templates/index.php:117
+#: templates/search.php:55
+msgid "Collections"
+msgstr ""
+
+#: src/class-app.php:101
+#: templates/search.php:48
+#: templates/search.php:56
+#: templates/search.php:71
+#: templates/search.php:110
+msgid "Search"
+msgstr ""
+
+#: src/class-collection.php:29
+#: templates/collection.php:78
+#: templates/search.php:76
+msgid "Collection"
+msgstr ""
+
+#: src/class-collection.php:30
+msgid "Add New Collection"
+msgstr ""
+
+#: src/class-collection.php:31
+msgid "Edit Collection"
+msgstr ""
+
+#: src/class-collection.php:32
+msgid "New Collection"
+msgstr ""
+
+#: src/class-collection.php:33
+msgid "View Collection"
+msgstr ""
+
+#: src/class-collection.php:34
+msgid "Search Collections"
+msgstr ""
+
+#: src/class-collection.php:36
+msgid "Collections cataloged with Collectibles."
+msgstr ""
+
+#: src/class-csv.php:34
+#: src/class-item.php:650
+#: templates/collection-form.php:154
+#: templates/item-form.php:220
+msgid "Name"
+msgstr ""
+
+#. translators: 1: field label, 2: currency code or unit of measurement
+#: src/class-csv.php:41
+#: src/class-csv.php:44
+#: templates/_field-input.php:29
+#: templates/_field-input.php:32
+#, php-format
+msgid "%1$s (%2$s)"
+msgstr ""
+
+#: src/class-csv.php:50
+#: src/class-item.php:171
+#: templates/item-form.php:236
+msgid "Tags"
+msgstr ""
+
+#: src/class-csv.php:51
+#: templates/collection-form.php:182
+#: templates/item-form.php:241
+#: templates/item.php:184
+msgid "Notes"
+msgstr ""
+
+#: src/class-item.php:43
+#: templates/collection.php:176
+#: templates/search.php:88
+msgid "Status"
+msgstr ""
+
+#: src/class-item.php:49
+msgid "Condition"
+msgstr ""
+
+#: src/class-item.php:56
+msgid "Quantity"
+msgstr ""
+
+#: src/class-item.php:63
+msgid "Year"
+msgstr ""
+
+#: src/class-item.php:66
+msgid "e.g. 1934"
+msgstr ""
+
+#: src/class-item.php:70
+msgid "Origin"
+msgstr ""
+
+#: src/class-item.php:72
+msgid "Country or region"
+msgstr ""
+
+#: src/class-item.php:76
+msgid "Catalog number"
+msgstr ""
+
+#: src/class-item.php:78
+msgid "Michel, Scott, KM, …"
+msgstr ""
+
+#: src/class-item.php:82
+msgid "Stored in"
+msgstr ""
+
+#: src/class-item.php:84
+msgid "Album, box, shelf, …"
+msgstr ""
+
+#: src/class-item.php:88
+msgid "Acquired on"
+msgstr ""
+
+#: src/class-item.php:93
+msgid "Acquired from"
+msgstr ""
+
+#: src/class-item.php:95
+msgid "Dealer, fair, inheritance, …"
+msgstr ""
+
+#: src/class-item.php:99
+msgid "Price paid"
+msgstr ""
+
+#: src/class-item.php:107
+msgid "Estimated value"
+msgstr ""
+
+#: src/class-item.php:143
+#: templates/collection.php:260
+msgid "Items"
+msgstr ""
+
+#: src/class-item.php:144
+#: src/class-schema.php:369
+#: templates/item.php:61
+msgid "Item"
+msgstr ""
+
+#: src/class-item.php:145
+msgid "Add New Item"
+msgstr ""
+
+#: src/class-item.php:146
+msgid "Edit Item"
+msgstr ""
+
+#: src/class-item.php:147
+msgid "New Item"
+msgstr ""
+
+#: src/class-item.php:148
+msgid "View Item"
+msgstr ""
+
+#: src/class-item.php:149
+msgid "Search Items"
+msgstr ""
+
+#: src/class-item.php:151
+msgid "Individual collectibles."
+msgstr ""
+
+#: src/class-item.php:172
+#: templates/collection.php:189
+msgid "Tag"
+msgstr ""
+
+#: src/class-item.php:173
+msgid "Search Tags"
+msgstr ""
+
+#: src/class-item.php:174
+msgid "Add New Tag"
+msgstr ""
+
+#: src/class-item.php:649
+msgid "Recently added"
+msgstr ""
+
+#: src/class-item.php:651
+msgid "Year, newest first"
+msgstr ""
+
+#: src/class-item.php:652
+msgid "Year, oldest first"
+msgstr ""
+
+#: src/class-item.php:653
+msgid "Most valuable"
+msgstr ""
+
+#: src/class-item.php:785
+msgid "You do not have permission to upload photos."
+msgstr ""
+
+#: src/class-schema.php:45
+msgid "Coins"
+msgstr ""
+
+#: src/class-schema.php:46
+msgid "Coin"
+msgstr ""
+
+#: src/class-schema.php:51
+#: src/class-schema.php:160
+msgid "Denomination"
+msgstr ""
+
+#: src/class-schema.php:53
+msgid "e.g. 5 Schilling"
+msgstr ""
+
+#: src/class-schema.php:57
+#: src/class-schema.php:391
+msgid "Mint"
+msgstr ""
+
+#: src/class-schema.php:59
+msgid "e.g. Vienna"
+msgstr ""
+
+#: src/class-schema.php:63
+msgid "Mint mark"
+msgstr ""
+
+#: src/class-schema.php:68
+msgid "Composition"
+msgstr ""
+
+#: src/class-schema.php:70
+msgid "e.g. .900 silver"
+msgstr ""
+
+#: src/class-schema.php:74
+msgid "Weight"
+msgstr ""
+
+#: src/class-schema.php:77
+msgid "g"
+msgstr ""
+
+#: src/class-schema.php:81
+msgid "Diameter"
+msgstr ""
+
+#: src/class-schema.php:84
+msgid "mm"
+msgstr ""
+
+#: src/class-schema.php:88
+msgid "Mint State (MS)"
+msgstr ""
+
+#: src/class-schema.php:89
+#: src/class-schema.php:181
+msgid "About Uncirculated (AU)"
+msgstr ""
+
+#: src/class-schema.php:90
+#: src/class-schema.php:182
+msgid "Extremely Fine (XF)"
+msgstr ""
+
+#: src/class-schema.php:91
+#: src/class-schema.php:183
+msgid "Very Fine (VF)"
+msgstr ""
+
+#: src/class-schema.php:92
+#: src/class-schema.php:184
+msgid "Fine (F)"
+msgstr ""
+
+#: src/class-schema.php:93
+#: src/class-schema.php:185
+#: src/class-schema.php:293
+#: src/class-schema.php:304
+msgid "Very Good (VG)"
+msgstr ""
+
+#: src/class-schema.php:94
+#: src/class-schema.php:186
+#: src/class-schema.php:294
+#: src/class-schema.php:305
+msgid "Good (G)"
+msgstr ""
+
+#: src/class-schema.php:95
+msgid "About Good (AG)"
+msgstr ""
+
+#: src/class-schema.php:96
+#: src/class-schema.php:187
+#: src/class-schema.php:296
+#: src/class-schema.php:307
+msgid "Poor (P)"
+msgstr ""
+
+#: src/class-schema.php:100
+msgid "Stamps"
+msgstr ""
+
+#: src/class-schema.php:101
+msgid "Stamp"
+msgstr ""
+
+#: src/class-schema.php:106
+msgid "Face value"
+msgstr ""
+
+#: src/class-schema.php:108
+msgid "e.g. 50 Groschen"
+msgstr ""
+
+#: src/class-schema.php:112
+msgid "Colour"
+msgstr ""
+
+#: src/class-schema.php:117
+msgid "Perforation"
+msgstr ""
+
+#: src/class-schema.php:119
+msgid "e.g. 12½ × 13"
+msgstr ""
+
+#: src/class-schema.php:123
+msgid "Watermark"
+msgstr ""
+
+#: src/class-schema.php:128
+msgid "Gum"
+msgstr ""
+
+#: src/class-schema.php:131
+msgid "Never hinged"
+msgstr ""
+
+#: src/class-schema.php:132
+msgid "Hinged"
+msgstr ""
+
+#: src/class-schema.php:133
+msgid "No gum"
+msgstr ""
+
+#: src/class-schema.php:134
+msgid "Regummed"
+msgstr ""
+
+#: src/class-schema.php:139
+msgid "Cancellation"
+msgstr ""
+
+#: src/class-schema.php:141
+msgid "e.g. first day, Vienna 1934"
+msgstr ""
+
+#: src/class-schema.php:145
+msgid "Superb"
+msgstr ""
+
+#: src/class-schema.php:146
+msgid "Extremely Fine"
+msgstr ""
+
+#: src/class-schema.php:147
+msgid "Very Fine"
+msgstr ""
+
+#: src/class-schema.php:148
+#: src/class-schema.php:360
+msgid "Fine"
+msgstr ""
+
+#: src/class-schema.php:149
+msgid "Average"
+msgstr ""
+
+#: src/class-schema.php:150
+msgid "Defective"
+msgstr ""
+
+#: src/class-schema.php:154
+msgid "Banknotes"
+msgstr ""
+
+#: src/class-schema.php:155
+msgid "Banknote"
+msgstr ""
+
+#: src/class-schema.php:165
+msgid "Serial number"
+msgstr ""
+
+#: src/class-schema.php:170
+msgid "Printer"
+msgstr ""
+
+#: src/class-schema.php:175
+msgid "Signatures"
+msgstr ""
+
+#: src/class-schema.php:180
+msgid "Uncirculated (UNC)"
+msgstr ""
+
+#: src/class-schema.php:191
+msgid "Trading cards"
+msgstr ""
+
+#: src/class-schema.php:192
+msgid "Card"
+msgstr ""
+
+#: src/class-schema.php:197
+msgid "Set"
+msgstr ""
+
+#: src/class-schema.php:202
+msgid "Card number"
+msgstr ""
+
+#: src/class-schema.php:207
+msgid "Subject"
+msgstr ""
+
+#: src/class-schema.php:209
+msgid "Player, character, …"
+msgstr ""
+
+#: src/class-schema.php:213
+msgid "Manufacturer"
+msgstr ""
+
+#: src/class-schema.php:218
+msgid "Variant"
+msgstr ""
+
+#: src/class-schema.php:220
+msgid "e.g. holo, refractor"
+msgstr ""
+
+#: src/class-schema.php:224
+msgid "Graded by"
+msgstr ""
+
+#: src/class-schema.php:226
+msgid "e.g. PSA, BGS"
+msgstr ""
+
+#: src/class-schema.php:230
+msgid "Gem Mint (10)"
+msgstr ""
+
+#: src/class-schema.php:231
+msgid "Mint (9)"
+msgstr ""
+
+#: src/class-schema.php:232
+msgid "Near Mint–Mint (8)"
+msgstr ""
+
+#: src/class-schema.php:233
+msgid "Near Mint (7)"
+msgstr ""
+
+#: src/class-schema.php:234
+msgid "Excellent–Mint (6)"
+msgstr ""
+
+#: src/class-schema.php:235
+msgid "Excellent (5)"
+msgstr ""
+
+#: src/class-schema.php:236
+msgid "Very Good–Excellent (4)"
+msgstr ""
+
+#: src/class-schema.php:237
+msgid "Very Good (3)"
+msgstr ""
+
+#: src/class-schema.php:238
+msgid "Good (2)"
+msgstr ""
+
+#: src/class-schema.php:239
+msgid "Poor–Fair (1)"
+msgstr ""
+
+#: src/class-schema.php:243
+msgid "Records"
+msgstr ""
+
+#: src/class-schema.php:244
+msgid "Record"
+msgstr ""
+
+#: src/class-schema.php:249
+msgid "Artist"
+msgstr ""
+
+#: src/class-schema.php:254
+msgid "Label"
+msgstr ""
+
+#: src/class-schema.php:259
+msgid "Format"
+msgstr ""
+
+#: src/class-schema.php:262
+msgid "12\" LP"
+msgstr ""
+
+#: src/class-schema.php:263
+msgid "10\" EP"
+msgstr ""
+
+#: src/class-schema.php:264
+msgid "7\" single"
+msgstr ""
+
+#: src/class-schema.php:265
+msgid "78 rpm shellac"
+msgstr ""
+
+#: src/class-schema.php:266
+msgid "Box set"
+msgstr ""
+
+#: src/class-schema.php:271
+msgid "Speed"
+msgstr ""
+
+#: src/class-schema.php:274
+msgid "33⅓ rpm"
+msgstr ""
+
+#: src/class-schema.php:275
+msgid "45 rpm"
+msgstr ""
+
+#: src/class-schema.php:276
+msgid "78 rpm"
+msgstr ""
+
+#: src/class-schema.php:281
+msgid "Pressing"
+msgstr ""
+
+#: src/class-schema.php:283
+msgid "e.g. first pressing, reissue"
+msgstr ""
+
+#: src/class-schema.php:287
+msgid "Sleeve condition"
+msgstr ""
+
+#: src/class-schema.php:290
+#: src/class-schema.php:301
+msgid "Mint (M)"
+msgstr ""
+
+#: src/class-schema.php:291
+#: src/class-schema.php:302
+msgid "Near Mint (NM)"
+msgstr ""
+
+#: src/class-schema.php:292
+#: src/class-schema.php:303
+msgid "Very Good Plus (VG+)"
+msgstr ""
+
+#: src/class-schema.php:295
+#: src/class-schema.php:306
+msgid "Fair (F)"
+msgstr ""
+
+#: src/class-schema.php:311
+msgid "Books"
+msgstr ""
+
+#: src/class-schema.php:312
+msgid "Book"
+msgstr ""
+
+#: src/class-schema.php:317
+msgid "Author"
+msgstr ""
+
+#: src/class-schema.php:322
+msgid "Publisher"
+msgstr ""
+
+#: src/class-schema.php:327
+msgid "Edition"
+msgstr ""
+
+#: src/class-schema.php:329
+msgid "e.g. first edition"
+msgstr ""
+
+#: src/class-schema.php:333
+msgid "ISBN"
+msgstr ""
+
+#: src/class-schema.php:338
+msgid "Binding"
+msgstr ""
+
+#: src/class-schema.php:341
+msgid "Hardcover"
+msgstr ""
+
+#: src/class-schema.php:342
+msgid "Paperback"
+msgstr ""
+
+#: src/class-schema.php:343
+msgid "Leather"
+msgstr ""
+
+#: src/class-schema.php:344
+msgid "Spiral"
+msgstr ""
+
+#: src/class-schema.php:349
+msgid "Dust jacket"
+msgstr ""
+
+#: src/class-schema.php:352
+msgid "Present"
+msgstr ""
+
+#: src/class-schema.php:353
+msgid "Absent"
+msgstr ""
+
+#: src/class-schema.php:354
+msgid "Facsimile"
+msgstr ""
+
+#: src/class-schema.php:359
+msgid "As New"
+msgstr ""
+
+#: src/class-schema.php:361
+msgid "Very Good"
+msgstr ""
+
+#: src/class-schema.php:362
+#: src/class-schema.php:393
+msgid "Good"
+msgstr ""
+
+#: src/class-schema.php:363
+#: src/class-schema.php:394
+msgid "Fair"
+msgstr ""
+
+#: src/class-schema.php:364
+#: src/class-schema.php:395
+msgid "Poor"
+msgstr ""
+
+#: src/class-schema.php:368
+msgid "Anything else"
+msgstr ""
+
+#: src/class-schema.php:374
+msgid "Maker"
+msgstr ""
+
+#: src/class-schema.php:376
+msgid "Manufacturer, artist, …"
+msgstr ""
+
+#: src/class-schema.php:380
+msgid "Material"
+msgstr ""
+
+#: src/class-schema.php:385
+msgid "Dimensions"
+msgstr ""
+
+#: src/class-schema.php:387
+msgid "e.g. 12 × 8 × 3 cm"
+msgstr ""
+
+#: src/class-schema.php:392
+msgid "Excellent"
+msgstr ""
+
+#: src/class-schema.php:537
+msgid "In the collection"
+msgstr ""
+
+#: src/class-schema.php:538
+msgid "On the wishlist"
+msgstr ""
+
+#: src/class-schema.php:539
+msgid "Ordered"
+msgstr ""
+
+#: src/class-schema.php:540
+msgid "Duplicate"
+msgstr ""
+
+#: src/class-schema.php:541
+msgid "For sale"
+msgstr ""
+
+#: src/class-schema.php:542
+msgid "Sold"
+msgstr ""
+
+#: templates/collection-export.php:22
+#: templates/collection-form.php:126
+#: templates/collection.php:86
+msgid "The requested collection is not available."
+msgstr ""
+
+#: templates/collection-export.php:27
+msgid "You do not have permission to export this collection."
+msgstr ""
+
+#: templates/collection-form.php:42
+msgid "The collection could not be removed. Reload and try again."
+msgstr ""
+
+#: templates/collection-form.php:44
+msgid "You do not have permission to remove this collection."
+msgstr ""
+
+#: templates/collection-form.php:46
+msgid "The collection could not be removed."
+msgstr ""
+
+#: templates/collection-form.php:63
+msgid "The collection could not be saved. Reload and try again."
+msgstr ""
+
+#: templates/collection-form.php:65
+msgid "The collection needs a name."
+msgstr ""
+
+#: templates/collection-form.php:116
+#: templates/index.php:58
+#: templates/index.php:160
+msgid "New collection"
+msgstr ""
+
+#: templates/collection-form.php:116
+msgid "Edit collection"
+msgstr ""
+
+#: templates/collection-form.php:125
+#: templates/collection.php:85
+msgid "Collection not found"
+msgstr ""
+
+#: templates/collection-form.php:127
+#: templates/collection-form.php:133
+#: templates/collection.php:87
+#: templates/collection.php:93
+#: templates/item-form.php:193
+#: templates/item-form.php:199
+#: templates/item.php:71
+#: templates/item.php:77
+msgid "Back to collections"
+msgstr ""
+
+#: templates/collection-form.php:131
+#: templates/collection.php:91
+#: templates/item-form.php:197
+#: templates/item.php:75
+msgid "Access denied"
+msgstr ""
+
+#: templates/collection-form.php:132
+msgid "You do not have permission to edit this collection."
+msgstr ""
+
+#: templates/collection-form.php:159
+msgid "What is in it?"
+msgstr ""
+
+#: templates/collection-form.php:160
+msgid "This decides which fields the items in this collection get."
+msgstr ""
+
+#: templates/collection-form.php:171
+msgid "Changing this swaps the fields shown on the items. Values already recorded under the old fields are kept, but hidden until you switch back."
+msgstr ""
+
+#: templates/collection-form.php:176
+msgid "Currency"
+msgstr ""
+
+#: templates/collection-form.php:178
+msgid "Three-letter code used for prices in this collection, e.g. EUR."
+msgstr ""
+
+#: templates/collection-form.php:188
+msgid "Create collection"
+msgstr ""
+
+#: templates/collection-form.php:188
+msgid "Save collection"
+msgstr ""
+
+#: templates/collection-form.php:191
+#: templates/item-form.php:278
+msgid "Cancel"
+msgstr ""
+
+#: templates/collection-form.php:200
+#: templates/collection-form.php:207
+msgid "Delete collection"
+msgstr ""
+
+#: templates/collection-form.php:201
+msgid "This removes the collection, every item in it, and the photos of those items."
+msgstr ""
+
+#: templates/collection-form.php:205
+msgid "Delete this collection and everything in it?"
+msgstr ""
+
+#: templates/collection.php:92
+msgid "You do not have permission to view this collection."
+msgstr ""
+
+#. translators: %s: singular item noun, e.g. "Coin"
+#: templates/collection.php:111
+#: templates/collection.php:232
+#: templates/item-form.php:174
+#, php-format
+msgid "Add %s"
+msgstr ""
+
+#: templates/collection.php:118
+#: templates/item.php:105
+msgid "Edit"
+msgstr ""
+
+#: templates/collection.php:121
+msgid "Export CSV"
+msgstr ""
+
+#: templates/collection.php:128
+msgid "Collection saved."
+msgstr ""
+
+#: templates/collection.php:132
+msgid "Item removed."
+msgstr ""
+
+#: templates/collection.php:139
+msgid "Collection totals"
+msgstr ""
+
+#: templates/collection.php:142
+#: templates/index.php:79
+msgid "entry"
+msgid_plural "entries"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/collection.php:146
+#: templates/index.php:83
+msgid "piece held"
+msgid_plural "pieces held"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/collection.php:151
+msgid "paid in total"
+msgstr ""
+
+#: templates/collection.php:157
+#: templates/index.php:89
+msgid "estimated value"
+msgstr ""
+
+#: templates/collection.php:163
+#: templates/index.php:96
+msgid "on the wishlist"
+msgstr ""
+
+#: templates/collection.php:171
+msgid "Search this collection"
+msgstr ""
+
+#: templates/collection.php:172
+msgid "Search this collection…"
+msgstr ""
+
+#: templates/collection.php:178
+#: templates/search.php:90
+msgid "Any status"
+msgstr ""
+
+#: templates/collection.php:191
+msgid "Any tag"
+msgstr ""
+
+#: templates/collection.php:202
+#: templates/search.php:100
+msgid "Sort by"
+msgstr ""
+
+#: templates/collection.php:212
+msgid "Apply"
+msgstr ""
+
+#: templates/collection.php:216
+msgid "Reset"
+msgstr ""
+
+#: templates/collection.php:225
+msgid "This collection is empty"
+msgstr ""
+
+#: templates/collection.php:226
+msgid "Add the first piece and the totals will start filling in."
+msgstr ""
+
+#: templates/collection.php:241
+msgid "Nothing matches those filters"
+msgstr ""
+
+#: templates/collection.php:242
+msgid "Reset filters"
+msgstr ""
+
+#. translators: 1: number of matching entries, 2: total number of entries
+#: templates/collection.php:251
+#, php-format
+msgid "Showing %1$s of %2$s entries."
+msgstr ""
+
+#: templates/index.php:61
+msgid "Search everything"
+msgstr ""
+
+#: templates/index.php:68
+msgid "Collection removed."
+msgstr ""
+
+#: templates/index.php:72
+msgid "Totals"
+msgstr ""
+
+#: templates/index.php:75
+msgid "collection"
+msgid_plural "collections"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/index.php:105
+msgid "Nothing cataloged yet"
+msgstr ""
+
+#: templates/index.php:106
+msgid "A collection groups items of one kind, so the app knows which fields to ask you for."
+msgstr ""
+
+#: templates/index.php:113
+#: templates/search.php:65
+msgid "Start a collection"
+msgstr ""
+
+#. translators: %s: number of entries
+#: templates/index.php:132
+#, php-format
+msgid "%s entry"
+msgid_plural "%s entries"
+msgstr[0] ""
+msgstr[1] ""
+
+#. translators: %s: number of wishlist entries
+#: templates/index.php:146
+#, php-format
+msgid "%s wanted"
+msgstr ""
+
+#: templates/item-form.php:48
+msgid "The item could not be removed. Reload and try again."
+msgstr ""
+
+#: templates/item-form.php:50
+msgid "You do not have permission to remove this item."
+msgstr ""
+
+#: templates/item-form.php:52
+msgid "The item could not be removed."
+msgstr ""
+
+#: templates/item-form.php:64
+msgid "The item could not be saved. Reload and try again."
+msgstr ""
+
+#: templates/item-form.php:66
+msgid "The item needs a name."
+msgstr ""
+
+#: templates/item-form.php:177
+msgid "Edit item"
+msgstr ""
+
+#: templates/item-form.php:191
+#: templates/item.php:69
+msgid "Item not found"
+msgstr ""
+
+#: templates/item-form.php:192
+#: templates/item.php:70
+msgid "The requested item is not available."
+msgstr ""
+
+#: templates/item-form.php:198
+msgid "You do not have permission to edit items in this collection."
+msgstr ""
+
+#: templates/item-form.php:237
+msgid "Comma separated"
+msgstr ""
+
+#: templates/item-form.php:247
+msgid "Photos"
+msgstr ""
+
+#: templates/item-form.php:249
+msgid "Front, back, detail — whatever helps you recognise the piece."
+msgstr ""
+
+#: templates/item-form.php:255
+msgid "Existing photos"
+msgstr ""
+
+#: templates/item-form.php:262
+msgid "Main"
+msgstr ""
+
+#: templates/item-form.php:266
+msgid "Remove"
+msgstr ""
+
+#: templates/item-form.php:276
+msgid "Add to collection"
+msgstr ""
+
+#: templates/item-form.php:276
+msgid "Save item"
+msgstr ""
+
+#: templates/item-form.php:286
+#: templates/item-form.php:293
+msgid "Delete item"
+msgstr ""
+
+#: templates/item-form.php:287
+msgid "This removes the item and its photos."
+msgstr ""
+
+#: templates/item-form.php:291
+msgid "Delete this item?"
+msgstr ""
+
+#: templates/item.php:76
+msgid "You do not have permission to view this item."
+msgstr ""
+
+#. translators: %s: number of pieces
+#: templates/item.php:94
+#, php-format
+msgid "%s pieces"
+msgstr ""
+
+#: templates/item.php:109
+msgid "Back to collection"
+msgstr ""
+
+#: templates/item.php:116
+msgid "Item saved."
+msgstr ""
+
+#. translators: %s: formatted amount, including sign
+#: templates/item.php:164
+#, php-format
+msgid "%s below what you paid"
+msgstr ""
+
+#. translators: %s: formatted amount, including sign
+#: templates/item.php:164
+#, php-format
+msgid "%s above what you paid"
+msgstr ""
+
+#: templates/search.php:57
+msgid "Titles, notes, tags and every recorded field."
+msgstr ""
+
+#: templates/search.php:63
+msgid "Nothing to search yet"
+msgstr ""
+
+#: templates/search.php:72
+msgid "Search everything…"
+msgstr ""
+
+#: templates/search.php:78
+msgid "All collections"
+msgstr ""
+
+#: templates/search.php:116
+msgid "No matches"
+msgstr ""
+
+#: templates/search.php:117
+msgid "Try a shorter term, or drop the filters."
+msgstr ""
+
+#. translators: %s: number of matching entries
+#: templates/search.php:125
+#, php-format
+msgid "%s match"
+msgid_plural "%s matches"
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/search.php:132
+msgid "Search results"
+msgstr ""

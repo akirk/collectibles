@@ -1,0 +1,46 @@
+{
+    "name": "collectibles/collectibles",
+    "description": "Catalog collections of coins, stamps, banknotes, cards, records, books and whatever else you keep.",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "keywords": [
+        "wordpress",
+        "collection",
+        "catalog",
+        "numismatics",
+        "philately"
+    ],
+    "require": {
+        "php": ">=7.4",
+        "akirk/wp-app": "^1.0"
+    },
+    "version": "1.0.0",
+    "authors": [
+        {
+            "name": "Alex Kirk"
+        }
+    ],
+    "config": {
+        "autoloader-suffix": "collectibles",
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "require-dev": {
+        "squizlabs/php_codesniffer": "^3.13",
+        "wp-coding-standards/wpcs": "^3.3",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.2"
+    },
+    "scripts": {
+        "lint": "phpcs --standard=phpcs.xml.dist",
+        "format": "phpcbf --standard=phpcs.xml.dist",
+        "make-pot": "wp i18n make-pot . languages/collectibles.pot --slug=collectibles",
+        "update-po": "wp i18n update-po languages/collectibles.pot languages/",
+        "make-mo": "wp i18n make-mo languages/",
+        "i18n": [
+            "@make-pot",
+            "@update-po",
+            "@make-mo"
+        ]
+    }
+}
