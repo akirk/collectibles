@@ -27,7 +27,11 @@ class App extends BaseApp {
 				'require_capability'  => 'edit_posts',
 				'app_name'            => 'Collectibles',
 				'app_name_textdomain' => 'collectibles',
-				'my_apps_icon'        => self::get_asset_url( 'icon.svg' ),
+				'app_icon'            => self::get_asset_url( 'icon.svg' ),
+				// Owned content: REST reads are gated with the app's capability and
+				// OpenStation keeps these menus out of its dock.
+				'post_types'          => array( Collection::POST_TYPE, Item::POST_TYPE ),
+				'taxonomies'          => array( Item::TAXONOMY ),
 			)
 		);
 
