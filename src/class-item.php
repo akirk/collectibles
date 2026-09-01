@@ -75,7 +75,7 @@ class Item {
 				'key'         => self::CATALOG_META_KEY,
 				'label'       => __( 'Catalog number', 'collectibles' ),
 				'type'        => 'text',
-				'placeholder' => __( 'Michel, Scott, KM, …', 'collectibles' ),
+				'placeholder' => __( 'Reference in a catalogue', 'collectibles' ),
 			),
 			array(
 				'key'         => self::LOCATION_META_KEY,
@@ -115,17 +115,23 @@ class Item {
 
 	/**
 	 * The full field set for an item of the given kind: common fields first,
-	 * then the fields specific to that kind.
+	 * then the fields specific to that kind. The condition options and the
+	 * catalog number wording come from the kind as well.
 	 *
 	 * @param string $kind Collection kind slug.
 	 * @return array<int, array>
 	 */
 	public static function get_fields_for_kind( string $kind ): array {
-		$fields = self::get_common_fields();
+		$fields  = self::get_common_fields();
+		$catalog = Schema::get_catalog_field( $kind );
 
 		foreach ( $fields as $index => $field ) {
 			if ( ! empty( $field['grades'] ) ) {
 				$fields[ $index ]['options'] = Schema::get_grades( $kind );
+			}
+
+			if ( $catalog && self::CATALOG_META_KEY === $field['key'] ) {
+				$fields[ $index ] = array_merge( $field, $catalog );
 			}
 		}
 
