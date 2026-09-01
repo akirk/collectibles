@@ -28,6 +28,9 @@ class Item {
 	public const PAID_META_KEY      = 'purchase_price';
 	public const VALUE_META_KEY     = 'estimated_value';
 
+	public const FRONT_META_KEY = 'photo_front';
+	public const BACK_META_KEY  = 'photo_back';
+
 	/**
 	 * Common fields, shared by every kind of item.
 	 *
@@ -226,6 +229,129 @@ class Item {
 					'auth_callback'     => $auth_callback,
 				)
 			);
+		}
+
+		// The two named photo slots point at attachments rather than holding a
+		// value of their own.
+		foreach ( array_keys( self::get_photo_sides() ) as $meta_key ) {
+			register_post_meta(
+				self::POST_TYPE,
+				$meta_key,
+				array(
+					'type'              => 'integer',
+					'single'            => true,
+					'show_in_rest'      => true,
+					'sanitize_callback' => 'absint',
+					'auth_callback'     => $auth_callback,
+				)
+			);
+		}
+	}
+
+	/**
+	 * The named photo slots every item has, as meta key => label.
+	 *
+	 * A collectible has two sides worth photographing, and which is which
+	 * matters — so they get a slot each instead of landing in one pile.
+	 *
+	 * @return array<string, string>
+	 */
+	public static function get_photo_sides(): array {
+		return array(
+			self::FRONT_META_KEY => __( 'Front', 'collectibles' ),
+			self::BACK_META_KEY  => __( 'Back', 'collectibles' ),
+		);
+	}
+
+	/**
+	 * The attachment in one of the named slots, if it still exists.
+	 *
+	 * @param int    $item_id  Item post ID.
+	 * @param string $meta_key One of the photo side meta keys.
+	 */
+	public static function get_side_photo_id( int $item_id, string $meta_key ): int {
+		$attachment_id = absint( get_post_meta( $item_id, $meta_key, true ) );
+
+		if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id ) ) {
+			return 0;
+		}
+
+		return $attachment_id;
+	}
+
+	/**
+	 * The label for a photo, when it sits in one of the named slots.
+	 *
+	 * @param int $item_id       Item post ID.
+	 * @param int $attachment_id Attachment ID.
+	 */
+	public static function get_photo_side_label( int $item_id, int $attachment_id ): string {
+		foreach ( self::get_photo_sides() as $meta_key => $label ) {
+			if ( self::get_side_photo_id( $item_id, $meta_key ) === $attachment_id ) {
+				return $label;
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Store an uploaded photo in one of the named slots, replacing whatever was
+	 * there. The front of a piece is what it is recognised by, so it also
+	 * becomes the featured image.
+	 *
+	 * @param int    $item_id  Item post ID.
+	 * @param string $meta_key One of the photo side meta keys.
+	 * @return string Error message, or '' when there was nothing to do or it worked.
+	 */
+	public static function handle_side_upload( int $item_id, string $meta_key ): string {
+		$input = 'coll_' . $meta_key;
+
+		if ( empty( $_FILES[ $input ]['name'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Callers verify the nonce before saving.
+			return '';
+		}
+
+		if ( ! current_user_can( 'upload_files' ) ) {
+			return __( 'You do not have permission to upload photos.', 'collectibles' );
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/media.php';
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		$attachment_id = media_handle_upload( $input, $item_id );
+
+		if ( is_wp_error( $attachment_id ) ) {
+			return $attachment_id->get_error_message();
+		}
+
+		$attachment_id = absint( $attachment_id );
+		$previous      = self::get_side_photo_id( $item_id, $meta_key );
+
+		update_post_meta( $item_id, $meta_key, $attachment_id );
+
+		if ( $previous && $previous !== $attachment_id ) {
+			wp_delete_attachment( $previous, true );
+		}
+
+		if ( self::FRONT_META_KEY === $meta_key || ! get_post_thumbnail_id( $item_id ) ) {
+			set_post_thumbnail( $item_id, $attachment_id );
+		}
+
+		return '';
+	}
+
+	/**
+	 * Forget a photo that is being deleted, so a slot never points at a gap.
+	 *
+	 * @param int $item_id       Item post ID.
+	 * @param int $attachment_id Attachment being removed.
+	 */
+	public static function forget_photo( int $item_id, int $attachment_id ): void {
+		foreach ( array_keys( self::get_photo_sides() ) as $meta_key ) {
+			if ( self::get_side_photo_id( $item_id, $meta_key ) === $attachment_id ) {
+				delete_post_meta( $item_id, $meta_key );
+			}
 		}
 	}
 
@@ -762,14 +888,26 @@ class Item {
 		);
 
 		$attachments = array_map( 'absint', $attachments );
-		$primary     = (int) get_post_thumbnail_id( $item_id );
 
-		if ( $primary && in_array( $primary, $attachments, true ) ) {
-			$attachments = array_values( array_diff( $attachments, array( $primary ) ) );
-			array_unshift( $attachments, $primary );
-		}
+		// The two sides lead, then the featured image, then everything else.
+		$lead = array(
+			self::get_side_photo_id( $item_id, self::FRONT_META_KEY ),
+			self::get_side_photo_id( $item_id, self::BACK_META_KEY ),
+			(int) get_post_thumbnail_id( $item_id ),
+		);
 
-		return $attachments;
+		$lead = array_values(
+			array_unique(
+				array_filter(
+					$lead,
+					static function ( $attachment_id ) use ( $attachments ) {
+						return $attachment_id && in_array( $attachment_id, $attachments, true );
+					}
+				)
+			)
+		);
+
+		return array_merge( $lead, array_values( array_diff( $attachments, $lead ) ) );
 	}
 
 	/**

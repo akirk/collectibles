@@ -45,7 +45,8 @@ if ( ! $coll_not_found && ! $coll_forbidden ) {
 	$coll_value     = (float) get_post_meta( $coll_item_id, Item::VALUE_META_KEY, true );
 
 	foreach ( Item::get_fields_for_kind( $coll_kind ) as $coll_field ) {
-		$coll_display = Item::format_field_value( $coll_field, $coll_values[ $coll_field['key'] ] ?? '', $coll_currency );
+		$coll_raw     = $coll_values[ $coll_field['key'] ] ?? '';
+		$coll_display = Item::format_field_value( $coll_field, $coll_raw, $coll_currency );
 
 		if ( '' === $coll_display ) {
 			continue;
@@ -54,6 +55,8 @@ if ( ! $coll_not_found && ! $coll_forbidden ) {
 		$coll_rows[] = array(
 			'label' => $coll_field['label'],
 			'value' => $coll_display,
+			// A catalogue number that has a canonical page links to it.
+			'url'   => isset( $coll_field['link'] ) ? sprintf( $coll_field['link'], rawurlencode( $coll_raw ) ) : '',
 		);
 	}
 }
@@ -137,6 +140,10 @@ require __DIR__ . '/_head.php';
 									);
 									?>
 								</a>
+								<?php $coll_photo_side = Item::get_photo_side_label( $coll_item_id, $coll_photo_id ); ?>
+								<?php if ( '' !== $coll_photo_side ) : ?>
+									<figcaption><?php echo esc_html( $coll_photo_side ); ?></figcaption>
+								<?php endif; ?>
 							</figure>
 						<?php endforeach; ?>
 					<?php endif; ?>
@@ -148,7 +155,13 @@ require __DIR__ . '/_head.php';
 							<?php foreach ( $coll_rows as $coll_row ) : ?>
 								<div class="spec">
 									<dt><?php echo esc_html( $coll_row['label'] ); ?></dt>
-									<dd><?php echo esc_html( $coll_row['value'] ); ?></dd>
+									<dd>
+										<?php if ( '' !== $coll_row['url'] ) : ?>
+											<a href="<?php echo esc_url( $coll_row['url'] ); ?>" target="_blank" rel="noreferrer noopener"><?php echo esc_html( $coll_row['value'] ); ?></a>
+										<?php else : ?>
+											<?php echo esc_html( $coll_row['value'] ); ?>
+										<?php endif; ?>
+									</dd>
 								</div>
 							<?php endforeach; ?>
 						</dl>

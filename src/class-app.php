@@ -87,6 +87,7 @@ class App extends BaseApp {
 	protected function setup_routes(): void {
 		$this->app->route( '' );
 		$this->app->route( 'search', 'search.php' );
+		$this->app->route( 'settings', 'settings.php' );
 
 		$this->app->route( 'collection/new', 'collection-form.php' );
 		$this->app->route( 'collection/{id}', 'collection.php' );
@@ -104,6 +105,7 @@ class App extends BaseApp {
 	protected function setup_menu(): void {
 		$this->app->add_menu_item( 'collections', __( 'Collections', 'collectibles' ), self::get_url() );
 		$this->app->add_menu_item( 'search', __( 'Search', 'collectibles' ), self::get_url( 'search' ) );
+		$this->app->add_menu_item( 'settings', __( 'Settings', 'collectibles' ), self::get_url( 'settings' ) );
 	}
 
 	/**

@@ -40,10 +40,55 @@ $coll_currency = $coll_not_found ? 'EUR' : Collection::get_currency( $coll_colle
 $coll_fields   = Item::get_fields_for_kind( $coll_kind );
 $coll_action   = isset( $_POST['coll_action'] ) ? sanitize_key( wp_unslash( $_POST['coll_action'] ) ) : '';
 
+// A Numista lookup fills the form in without saving anything.
+$coll_form_notice = '';
+$coll_lookup_ref  = '';
+$coll_prefill     = array();
+$coll_issues      = array();
+$coll_issue_id    = 0;
+$coll_can_look_up = $coll_is_new && Numista::supports_kind( $coll_kind );
+
 if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 	$coll_nonce = isset( $_POST['coll_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_nonce'] ) ) : '';
 
-	if ( 'delete_item' === $coll_action && ! $coll_is_new ) {
+	if ( 'numista_lookup' === $coll_action && $coll_can_look_up ) {
+		$coll_lookup_ref = isset( $_POST['coll_numista_ref'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_numista_ref'] ) ) : '';
+
+		if ( ! wp_verify_nonce( $coll_nonce, 'coll_numista_lookup_' . $coll_collection_id ) ) {
+			$coll_form_error = __( 'The lookup could not be run. Reload and try again.', 'collectibles' );
+		} else {
+			$coll_numista_id = Numista::parse_id( $coll_lookup_ref );
+			$coll_type       = Numista::fetch_type( $coll_numista_id );
+
+			if ( is_wp_error( $coll_type ) ) {
+				$coll_form_error = $coll_type->get_error_message();
+			} else {
+				// Signatures and mint letters belong to an issue, not to the
+				// type, so a complete fill needs both calls.
+				$coll_fetched_issues = Numista::fetch_issues( $coll_numista_id );
+				$coll_issues         = is_wp_error( $coll_fetched_issues ) ? array() : $coll_fetched_issues;
+				$coll_issue_id       = isset( $_POST['coll_numista_issue'] ) ? absint( wp_unslash( $_POST['coll_numista_issue'] ) ) : 0;
+				$coll_issue          = array();
+
+				foreach ( $coll_issues as $coll_candidate ) {
+					if ( absint( $coll_candidate['id'] ?? 0 ) === $coll_issue_id ) {
+						$coll_issue = $coll_candidate;
+					}
+				}
+
+				// One issue is no choice at all, so take it.
+				if ( empty( $coll_issue ) && 1 === count( $coll_issues ) ) {
+					$coll_issue    = reset( $coll_issues );
+					$coll_issue_id = absint( $coll_issue['id'] ?? 0 );
+				}
+
+				$coll_prefill     = Numista::map_type( $coll_type, $coll_kind, $coll_issue );
+				$coll_form_notice = empty( $coll_issue ) && count( $coll_issues ) > 1
+					? __( 'Filled in from Numista. Pick the issue you are holding to add its year and signatures.', 'collectibles' )
+					: __( 'Filled in from Numista. Look it over, then add it to the collection.', 'collectibles' );
+			}
+		}
+	} elseif ( 'delete_item' === $coll_action && ! $coll_is_new ) {
 		if ( ! wp_verify_nonce( $coll_nonce, 'coll_delete_item_' . $coll_item_id ) ) {
 			$coll_form_error = __( 'The item could not be removed. Reload and try again.', 'collectibles' );
 		} elseif ( ! current_user_can( 'delete_post', $coll_item_id ) ) {
@@ -103,11 +148,26 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 
 				foreach ( $coll_removals as $coll_removal_id ) {
 					if ( $coll_removal_id && absint( get_post_field( 'post_parent', $coll_removal_id ) ) === $coll_saved_id ) {
+						Item::forget_photo( $coll_saved_id, $coll_removal_id );
 						wp_delete_attachment( $coll_removal_id, true );
 					}
 				}
 
-				$coll_upload_error = Item::handle_photo_uploads( $coll_saved_id );
+				$coll_upload_error = '';
+
+				foreach ( array_keys( Item::get_photo_sides() ) as $coll_side_key ) {
+					$coll_side_error = Item::handle_side_upload( $coll_saved_id, $coll_side_key );
+
+					if ( '' !== $coll_side_error ) {
+						$coll_upload_error = $coll_side_error;
+					}
+				}
+
+				$coll_other_error = Item::handle_photo_uploads( $coll_saved_id );
+
+				if ( '' !== $coll_other_error ) {
+					$coll_upload_error = $coll_other_error;
+				}
 
 				// Pick the primary photo, falling back to whatever is left.
 				$coll_primary = isset( $_POST['coll_primary_photo'] ) ? absint( wp_unslash( $_POST['coll_primary_photo'] ) ) : 0;
@@ -168,6 +228,23 @@ if ( '' !== $coll_form_error ) {
 	}
 }
 
+if ( ! empty( $coll_prefill ) ) {
+	if ( '' === trim( $coll_name_value ) && '' !== $coll_prefill['title'] ) {
+		$coll_name_value = $coll_prefill['title'];
+	}
+
+	// The catalogue wins for the facts it knows; anything else stays as typed.
+	$coll_values = array_merge( $coll_values, $coll_prefill['values'] );
+
+	if ( '' === trim( $coll_tags_value ) ) {
+		$coll_tags_value = $coll_prefill['tags'];
+	}
+
+	if ( '' !== $coll_prefill['notes'] && false === strpos( $coll_notes_value, $coll_prefill['notes'] ) ) {
+		$coll_notes_value = trim( $coll_notes_value . "\n" . $coll_prefill['notes'] );
+	}
+}
+
 $coll_page_title = $coll_is_new
 	? sprintf(
 		/* translators: %s: singular item noun, e.g. "Coin" */
@@ -212,6 +289,66 @@ require __DIR__ . '/_head.php';
 				<div class="notice notice-error"><?php echo esc_html( $coll_form_error ); ?></div>
 			<?php endif; ?>
 
+			<?php if ( '' !== $coll_form_notice ) : ?>
+				<div class="notice notice-success"><?php echo esc_html( $coll_form_notice ); ?></div>
+			<?php endif; ?>
+
+			<?php if ( $coll_can_look_up && Numista::has_api_key() ) : ?>
+				<form class="panel panel-lookup" method="post" action="<?php echo esc_url( $coll_form_url ); ?>">
+					<input type="hidden" name="coll_action" value="numista_lookup">
+					<?php wp_nonce_field( 'coll_numista_lookup_' . $coll_collection_id, 'coll_nonce' ); ?>
+
+					<div class="field">
+						<label for="coll_numista_ref"><?php echo esc_html__( 'Fill in from Numista', 'collectibles' ); ?></label>
+						<div class="lookup-row">
+							<input
+								id="coll_numista_ref"
+								name="coll_numista_ref"
+								type="text"
+								inputmode="url"
+								value="<?php echo esc_attr( $coll_lookup_ref ); ?>"
+								placeholder="<?php echo esc_attr__( 'Catalogue link, N# reference or number', 'collectibles' ); ?>"
+							>
+							<button class="button" type="submit"><?php echo esc_html__( 'Fetch', 'collectibles' ); ?></button>
+						</div>
+						<p class="field-hint">
+							<?php echo esc_html__( 'The catalogue fills in what it knows and leaves the rest to you.', 'collectibles' ); ?>
+							<?php
+							printf(
+								/* translators: 1: lookups left, 2: monthly allowance */
+								esc_html__( '%1$d of %2$d lookups left this month.', 'collectibles' ),
+								absint( Numista::get_remaining() ),
+								absint( Numista::get_monthly_budget() )
+							);
+							?>
+						</p>
+					</div>
+
+					<?php if ( count( $coll_issues ) > 1 ) : ?>
+						<div class="field">
+							<label for="coll_numista_issue"><?php echo esc_html__( 'Issue', 'collectibles' ); ?></label>
+							<select id="coll_numista_issue" name="coll_numista_issue">
+								<option value=""><?php echo esc_html__( '— which one are you holding? —', 'collectibles' ); ?></option>
+								<?php foreach ( $coll_issues as $coll_issue_option ) : ?>
+									<option
+										value="<?php echo esc_attr( absint( $coll_issue_option['id'] ?? 0 ) ); ?>"
+										<?php selected( $coll_issue_id, absint( $coll_issue_option['id'] ?? 0 ) ); ?>
+									>
+										<?php echo esc_html( Numista::describe_issue( $coll_issue_option ) ); ?>
+									</option>
+								<?php endforeach; ?>
+							</select>
+							<p class="field-hint"><?php echo esc_html__( 'Picking an issue and fetching again is free — the catalogue entry is already here.', 'collectibles' ); ?></p>
+						</div>
+					<?php endif; ?>
+				</form>
+			<?php elseif ( $coll_can_look_up ) : ?>
+				<div class="notice">
+					<?php echo esc_html__( 'Add your Numista credentials to fill items in from the catalogue.', 'collectibles' ); ?>
+					<a href="<?php echo esc_url( App::get_url( 'settings' ) ); ?>"><?php echo esc_html__( 'Settings', 'collectibles' ); ?></a>
+				</div>
+			<?php endif; ?>
+
 			<form class="panel" method="post" action="<?php echo esc_url( $coll_form_url ); ?>" enctype="multipart/form-data">
 				<input type="hidden" name="coll_action" value="<?php echo esc_attr( $coll_is_new ? 'create_item' : 'update_item' ); ?>">
 				<?php wp_nonce_field( $coll_is_new ? 'coll_create_item_' . $coll_collection_id : 'coll_update_item_' . $coll_item_id, 'coll_nonce' ); ?>
@@ -243,10 +380,28 @@ require __DIR__ . '/_head.php';
 				</div>
 
 				<?php if ( current_user_can( 'upload_files' ) ) : ?>
+					<div class="photo-sides">
+						<?php foreach ( Item::get_photo_sides() as $coll_side_key => $coll_side_label ) : ?>
+							<?php $coll_side_id = $coll_item ? Item::get_side_photo_id( $coll_item_id, $coll_side_key ) : 0; ?>
+							<div class="field">
+								<label for="coll_<?php echo esc_attr( $coll_side_key ); ?>"><?php echo esc_html( $coll_side_label ); ?></label>
+								<?php if ( $coll_side_id ) : ?>
+									<div class="photo-side-current">
+										<?php echo wp_kses_post( wp_get_attachment_image( $coll_side_id, 'thumbnail', false, array( 'alt' => '' ) ) ); ?>
+									</div>
+								<?php endif; ?>
+								<input id="coll_<?php echo esc_attr( $coll_side_key ); ?>" name="coll_<?php echo esc_attr( $coll_side_key ); ?>" type="file" accept="image/*">
+								<?php if ( $coll_side_id ) : ?>
+									<p class="field-hint"><?php echo esc_html__( 'Choosing a file replaces the photo above.', 'collectibles' ); ?></p>
+								<?php endif; ?>
+							</div>
+						<?php endforeach; ?>
+					</div>
+
 					<div class="field">
-						<label for="coll_photos"><?php echo esc_html__( 'Photos', 'collectibles' ); ?></label>
+						<label for="coll_photos"><?php echo esc_html__( 'Other photos', 'collectibles' ); ?></label>
 						<input id="coll_photos" name="coll_photos[]" type="file" accept="image/*" multiple>
-						<p class="field-hint"><?php echo esc_html__( 'Front, back, detail — whatever helps you recognise the piece.', 'collectibles' ); ?></p>
+						<p class="field-hint"><?php echo esc_html__( 'Details, edge, signature — whatever else helps you recognise the piece.', 'collectibles' ); ?></p>
 					</div>
 				<?php endif; ?>
 
@@ -257,6 +412,10 @@ require __DIR__ . '/_head.php';
 							<?php foreach ( $coll_photo_ids as $coll_photo_id ) : ?>
 								<div class="photo-manager-item">
 									<?php echo wp_kses_post( wp_get_attachment_image( $coll_photo_id, 'thumbnail', false, array( 'alt' => '' ) ) ); ?>
+									<?php $coll_photo_side = Item::get_photo_side_label( $coll_item_id, $coll_photo_id ); ?>
+									<?php if ( '' !== $coll_photo_side ) : ?>
+										<span class="photo-side-badge"><?php echo esc_html( $coll_photo_side ); ?></span>
+									<?php endif; ?>
 									<label>
 										<input type="radio" name="coll_primary_photo" value="<?php echo esc_attr( $coll_photo_id ); ?>" <?php checked( $coll_primary_id, $coll_photo_id ); ?>>
 										<?php echo esc_html__( 'Main', 'collectibles' ); ?>

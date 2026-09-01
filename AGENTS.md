@@ -49,6 +49,8 @@ records, books, and a generic catch-all kind.
   plus the item statuses.
 - `src/class-collection.php` / `src/class-item.php` — post types, meta
   registration, sanitizing, reading and querying.
+- `src/class-numista.php` — the Numista v3 API client and the mapping from a
+  catalogue entry onto item fields.
 - `src/class-csv.php` — CSV export.
 - `src/class-abilities.php` — read-only Abilities API lookups.
 - `templates/` — one PHP template per route, plus partials prefixed with `_`
@@ -60,7 +62,7 @@ records, books, and a generic catch-all kind.
 
 Registered in `App::setup_routes()`, under `/collectibles/`:
 
-- `` (index), `search`
+- `` (index), `search`, `settings`
 - `collection/new`, `collection/{id}`, `collection/{id}/edit`,
   `collection/{id}/export`
 - `collection/{collection_id}/item/new`,
@@ -70,16 +72,60 @@ Registered in `App::setup_routes()`, under `/collectibles/`:
 Build in-app URLs with `Collectibles\App::get_url( $path )` and asset URLs with
 `App::get_asset_url( $relative )`.
 
+### Numista lookups
+
+Coins and banknotes can be filled in from the Numista catalogue. The public
+catalogue pages sit behind a bot challenge, so the plugin uses the v3 API at
+`api.numista.com`, which needs credentials the user registers for their own
+Numista account: client name, client id and API key, kept in user meta and
+edited at `/collectibles/settings/`. `COLLECTIBLES_NUMISTA_API_KEY` in
+wp-config.php overrides the stored key.
+
+A lookup reads two endpoints, because Numista splits the data in two: the
+**type** says what the piece is (denomination, size, watermark, printer,
+catalogue references), while an **issue** says which one you are holding (year,
+mint letter, signatures, and a more precise catalogue number). Signatures and
+mint letters are *only* on the issue. So a new piece costs two calls, and the
+form offers an issue picker when a type has more than one.
+
+The key is metered at 2000 calls a month, so treat every call as expensive:
+
+- Answers are cached per endpoint and language for a year. Never cache them
+  without an expiry — a non-expiring transient is autoloaded on every request.
+- `Numista::record_call()` counts each request against a per-user monthly
+  budget, and `request()` refuses once it is spent. Cache hits are free and keep
+  working after the budget runs out; a call that never reached the quota (a
+  transport error, or a key Numista rejects) is refunded.
+- When testing, do not call the API. Seed the transients with a record that was
+  already fetched — `wp eval` on the live site can dump one — and the whole form
+  flow runs offline. The synthetic records in the mapping tests exercise
+  `map_type()` for free.
+- The documented base is `https://api.numista.com/v3` and `lang` officially
+  takes `en`, `es` and `fr`, though `de` is served too.
+
+Catalogue photos cannot be imported: `en.numista.com` answers a server-side
+request for an image with the same bot challenge as the rest of the site, and a
+real browser without Numista cookies gets it too, so hotlinking fails as well.
+Photos are the collector's own, uploaded through the form.
+
+Which catalogue number a kind files items under is declared as `codes` on the
+kind's `catalog` entry (`P` for banknotes, `KM` for coins); other references in
+the entry are appended to the item's notes.
+
 ### Storage model
 
 No custom tables:
 
 - `coll_collection` — a collection; meta `kind`, `currency`
 - `coll_item` — an item, child of a collection via `post_parent`; one meta key
-  per field
+  per field, including `numista_id` for coins and banknotes, which links the
+  item back to its catalogue entry
 - `coll_tag` — the shared, flat tag taxonomy on items
-- photos — ordinary attachments parented to the item, the featured image being
-  the main one
+- photos — ordinary attachments parented to the item. `photo_front` and
+  `photo_back` meta point at the two named slots; the front doubles as the
+  featured image, and `Item::get_photo_ids()` leads with front, then back, then
+  the rest. Deleting a photo must go through `Item::forget_photo()` so a slot
+  never points at a gap.
 
 Meta is registered with `show_in_rest` and a per-post `auth_callback` that
 checks `edit_post`.
