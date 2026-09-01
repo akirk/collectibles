@@ -76,7 +76,8 @@ class App extends BaseApp {
 			'collectibles',
 			plugins_url( 'assets/collectibles.css', dirname( __DIR__ ) . '/collectibles.php' ),
 			array(),
-			$version
+			$version,
+			$this->get_url_path()
 		);
 	}
 
