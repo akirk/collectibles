@@ -258,6 +258,71 @@ img { max-width: 100%; height: auto; }
 	color: var(--coll-danger);
 }
 
+.notice-success {
+	border-left-color: var(--coll-patina);
+	color: var(--coll-patina);
+}
+
+/* ---- Photo sides ---- */
+
+.photo-sides {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 16px;
+}
+
+.photo-sides > .field {
+	flex: 1 1 12rem;
+	min-width: 0;
+}
+
+.photo-side-current img {
+	max-width: 100%;
+	height: auto;
+	margin-bottom: 6px;
+	border: 1px solid var(--coll-line);
+	border-radius: var(--coll-radius-sm);
+}
+
+.photo-side-badge {
+	display: inline-block;
+	padding: 1px 7px;
+	border-radius: 999px;
+	background: var(--coll-patina-soft);
+	color: var(--coll-patina);
+	font-size: 0.75rem;
+	font-weight: 600;
+}
+
+.item-photo figcaption {
+	margin-top: 4px;
+	font-size: 0.8rem;
+	letter-spacing: 0.02em;
+	color: var(--coll-ink-faint);
+}
+
+/* ---- Catalogue lookup ---- */
+
+.panel-lookup {
+	border-color: var(--coll-patina);
+	background: var(--coll-patina-soft);
+}
+
+.panel-lookup .field {
+	margin-bottom: 0;
+}
+
+.lookup-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.lookup-row input {
+	flex: 1 1 16rem;
+	min-width: 0;
+}
+
 /* ---- Stats ---- */
 
 .stat-strip {
@@ -618,6 +683,7 @@ input[type="text"],
 input[type="search"],
 input[type="number"],
 input[type="date"],
+input[type="password"],
 select,
 textarea {
 	width: 100%;

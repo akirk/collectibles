@@ -49,6 +49,7 @@ class Schema {
 				'catalog' => array(
 					'label'       => __( 'Catalog number', 'collectibles' ),
 					'placeholder' => __( 'e.g. KM# 2889', 'collectibles' ),
+					'codes'       => array( 'KM' ),
 				),
 				'fields'  => array(
 					array(
@@ -88,6 +89,7 @@ class Schema {
 						'step'  => '0.1',
 						'unit'  => __( 'mm', 'collectibles' ),
 					),
+					self::get_numista_field(),
 				),
 				'grades'  => array(
 					'ms' => __( 'Mint State (MS)', 'collectibles' ),
@@ -166,6 +168,7 @@ class Schema {
 				'catalog' => array(
 					'label'       => __( 'Pick number', 'collectibles' ),
 					'placeholder' => __( 'e.g. P-129a', 'collectibles' ),
+					'codes'       => array( 'P' ),
 				),
 				'fields'  => array(
 					array(
@@ -188,6 +191,24 @@ class Schema {
 						'label' => __( 'Signatures', 'collectibles' ),
 						'type'  => 'text',
 					),
+					array(
+						'key'   => 'watermark',
+						'label' => __( 'Watermark', 'collectibles' ),
+						'type'  => 'text',
+					),
+					array(
+						'key'         => 'series',
+						'label'       => __( 'Series', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. 1966 Series', 'collectibles' ),
+					),
+					array(
+						'key'         => 'dimensions',
+						'label'       => __( 'Dimensions', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. 132 × 65 mm', 'collectibles' ),
+					),
+					self::get_numista_field(),
 				),
 				'grades'  => array(
 					'unc' => __( 'Uncirculated (UNC)', 'collectibles' ),
@@ -424,6 +445,24 @@ class Schema {
 	}
 
 	/**
+	 * The shared definition of the Numista number field.
+	 *
+	 * Coins and banknotes both carry it, and it is what lets an item link back
+	 * to the catalogue entry it was filled in from.
+	 *
+	 * @return array<string, string>
+	 */
+	private static function get_numista_field(): array {
+		return array(
+			'key'         => 'numista_id',
+			'label'       => __( 'Numista number', 'collectibles' ),
+			'type'        => 'text',
+			'placeholder' => __( 'e.g. 202650', 'collectibles' ),
+			'link'        => 'https://en.numista.com/catalogue/pieces%s.html',
+		);
+	}
+
+	/**
 	 * Whether the given slug is a known collection kind.
 	 *
 	 * @param string $kind Kind slug.
@@ -533,7 +572,33 @@ class Schema {
 	 * @return array<string, string>
 	 */
 	public static function get_catalog_field( string $kind ): array {
-		return self::get_kind( $kind )['catalog'] ?? array();
+		$catalog = self::get_kind( $kind )['catalog'] ?? array();
+
+		// Only the wording belongs on a field definition; the codes are for
+		// matching catalogue references.
+		return array_intersect_key(
+			$catalog,
+			array(
+				'label'       => '',
+				'placeholder' => '',
+			)
+		);
+	}
+
+	/**
+	 * The catalogue codes a kind files its items under, as Numista names them.
+	 *
+	 * A Numista entry lists a reference for every catalogue that covers the
+	 * piece; these are the ones whose number belongs in the catalog number
+	 * field rather than in the notes.
+	 *
+	 * @param string $kind Kind slug.
+	 * @return string[]
+	 */
+	public static function get_catalog_codes( string $kind ): array {
+		$catalog = self::get_kind( $kind )['catalog'] ?? array();
+
+		return isset( $catalog['codes'] ) ? array_map( 'strval', (array) $catalog['codes'] ) : array();
 	}
 
 	/**

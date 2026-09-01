@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-09-01T15:34:59+00:00\n"
+"POT-Creation-Date: 2026-09-01T16:13:49+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: collectibles\n"
@@ -56,7 +56,7 @@ msgstr ""
 msgid "You do not have access to this item."
 msgstr ""
 
-#: src/class-app.php:105
+#: src/class-app.php:106
 #: src/class-collection.php:28
 #: templates/collection-form.php:139
 #: templates/collection.php:98
@@ -64,15 +64,22 @@ msgstr ""
 #: templates/index.php:54
 #: templates/index.php:117
 #: templates/search.php:55
+#: templates/settings.php:50
 msgid "Collections"
 msgstr ""
 
-#: src/class-app.php:106
+#: src/class-app.php:107
 #: templates/search.php:48
 #: templates/search.php:56
 #: templates/search.php:71
 #: templates/search.php:110
 msgid "Search"
+msgstr ""
+
+#: src/class-app.php:108
+#: templates/item-form.php:348
+#: templates/settings.php:42
+msgid "Settings"
 msgstr ""
 
 #: src/class-collection.php:29
@@ -106,9 +113,9 @@ msgid "Collections cataloged with Collectibles."
 msgstr ""
 
 #: src/class-csv.php:34
-#: src/class-item.php:656
+#: src/class-item.php:782
 #: templates/collection-form.php:154
-#: templates/item-form.php:220
+#: templates/item-form.php:357
 msgid "Name"
 msgstr ""
 
@@ -122,155 +129,244 @@ msgid "%1$s (%2$s)"
 msgstr ""
 
 #: src/class-csv.php:50
-#: src/class-item.php:177
-#: templates/item-form.php:236
+#: src/class-item.php:180
+#: templates/item-form.php:373
 msgid "Tags"
 msgstr ""
 
 #: src/class-csv.php:51
 #: templates/collection-form.php:182
-#: templates/item-form.php:241
-#: templates/item.php:184
+#: templates/item-form.php:378
+#: templates/item.php:197
 msgid "Notes"
 msgstr ""
 
-#: src/class-item.php:43
+#: src/class-item.php:46
 #: templates/collection.php:176
 #: templates/search.php:88
 msgid "Status"
 msgstr ""
 
-#: src/class-item.php:49
+#: src/class-item.php:52
 msgid "Condition"
 msgstr ""
 
-#: src/class-item.php:56
+#: src/class-item.php:59
 msgid "Quantity"
 msgstr ""
 
-#: src/class-item.php:63
+#: src/class-item.php:66
 msgid "Year"
 msgstr ""
 
-#: src/class-item.php:66
+#: src/class-item.php:69
 msgid "e.g. 1934"
 msgstr ""
 
-#: src/class-item.php:70
+#: src/class-item.php:73
 msgid "Origin"
 msgstr ""
 
-#: src/class-item.php:72
+#: src/class-item.php:75
 msgid "Country or region"
 msgstr ""
 
-#: src/class-item.php:76
+#: src/class-item.php:79
 #: src/class-schema.php:50
-#: src/class-schema.php:109
-#: src/class-schema.php:208
-#: src/class-schema.php:264
-#: src/class-schema.php:336
+#: src/class-schema.php:111
+#: src/class-schema.php:229
+#: src/class-schema.php:285
+#: src/class-schema.php:357
 msgid "Catalog number"
 msgstr ""
 
-#: src/class-item.php:78
+#: src/class-item.php:81
 msgid "Reference in a catalogue"
 msgstr ""
 
-#: src/class-item.php:82
+#: src/class-item.php:85
 msgid "Stored in"
 msgstr ""
 
-#: src/class-item.php:84
+#: src/class-item.php:87
 msgid "Album, box, shelf, …"
 msgstr ""
 
-#: src/class-item.php:88
+#: src/class-item.php:91
 msgid "Acquired on"
 msgstr ""
 
-#: src/class-item.php:93
+#: src/class-item.php:96
 msgid "Acquired from"
 msgstr ""
 
-#: src/class-item.php:95
+#: src/class-item.php:98
 msgid "Dealer, fair, inheritance, …"
 msgstr ""
 
-#: src/class-item.php:99
+#: src/class-item.php:102
 msgid "Price paid"
 msgstr ""
 
-#: src/class-item.php:107
+#: src/class-item.php:110
 msgid "Estimated value"
 msgstr ""
 
-#: src/class-item.php:149
+#: src/class-item.php:152
 #: templates/collection.php:260
 msgid "Items"
 msgstr ""
 
-#: src/class-item.php:150
-#: src/class-schema.php:394
-#: templates/item.php:61
+#: src/class-item.php:153
+#: src/class-schema.php:415
+#: templates/item.php:64
 msgid "Item"
 msgstr ""
 
-#: src/class-item.php:151
+#: src/class-item.php:154
 msgid "Add New Item"
 msgstr ""
 
-#: src/class-item.php:152
+#: src/class-item.php:155
 msgid "Edit Item"
 msgstr ""
 
-#: src/class-item.php:153
+#: src/class-item.php:156
 msgid "New Item"
 msgstr ""
 
-#: src/class-item.php:154
+#: src/class-item.php:157
 msgid "View Item"
 msgstr ""
 
-#: src/class-item.php:155
+#: src/class-item.php:158
 msgid "Search Items"
 msgstr ""
 
-#: src/class-item.php:157
+#: src/class-item.php:160
 msgid "Individual collectibles."
 msgstr ""
 
-#: src/class-item.php:178
+#: src/class-item.php:181
 #: templates/collection.php:189
 msgid "Tag"
 msgstr ""
 
-#: src/class-item.php:179
+#: src/class-item.php:182
 msgid "Search Tags"
 msgstr ""
 
-#: src/class-item.php:180
+#: src/class-item.php:183
 msgid "Add New Tag"
 msgstr ""
 
-#: src/class-item.php:655
+#: src/class-item.php:261
+msgid "Front"
+msgstr ""
+
+#: src/class-item.php:262
+#: templates/settings.php:116
+msgid "Back"
+msgstr ""
+
+#: src/class-item.php:315
+#: src/class-item.php:929
+msgid "You do not have permission to upload photos."
+msgstr ""
+
+#: src/class-item.php:781
 msgid "Recently added"
 msgstr ""
 
-#: src/class-item.php:657
+#: src/class-item.php:783
 msgid "Year, newest first"
 msgstr ""
 
-#: src/class-item.php:658
+#: src/class-item.php:784
 msgid "Year, oldest first"
 msgstr ""
 
-#: src/class-item.php:659
+#: src/class-item.php:785
 msgid "Most valuable"
 msgstr ""
 
-#: src/class-item.php:791
-msgid "You do not have permission to upload photos."
+#: src/class-numista.php:209
+msgid "That does not look like a Numista link or number."
+msgstr ""
+
+#: src/class-numista.php:222
+#: src/class-numista.php:308
+msgid "Numista answered with something unexpected."
+msgstr ""
+
+#: src/class-numista.php:251
+msgid "No Numista API key is configured yet."
+msgstr ""
+
+#. translators: %d: number of lookups allowed per month
+#: src/class-numista.php:260
+#, php-format
+msgid "All %d Numista lookups for this month are used up. The catalogue entries you already fetched stay available."
+msgstr ""
+
+#. translators: %s: mint letter on a coin
+#: src/class-numista.php:357
+#, php-format
+msgid "mint letter %s"
+msgstr ""
+
+#. translators: %d: Numista issue ID
+#: src/class-numista.php:374
+#, php-format
+msgid "Issue %d"
+msgstr ""
+
+#: src/class-numista.php:522
+msgid "Numista rejected the API key. Check it in the settings."
+msgstr ""
+
+#: src/class-numista.php:525
+msgid "Numista has no catalogue entry with that number."
+msgstr ""
+
+#: src/class-numista.php:528
+msgid "Numista is rate limiting the lookups. Try again in a while."
+msgstr ""
+
+#. translators: %d: HTTP status code
+#: src/class-numista.php:536
+#, php-format
+msgid "Numista answered with status %d."
+msgstr ""
+
+#. translators: 1: width in millimetres, 2: height in millimetres
+#: src/class-numista.php:681
+#, php-format
+msgid "%1$s × %2$s mm"
+msgstr ""
+
+#. translators: %s: diameter in millimetres
+#: src/class-numista.php:693
+#, php-format
+msgid "%s mm"
+msgstr ""
+
+#. translators: %s: description of the front of the piece
+#: src/class-numista.php:752
+#, php-format
+msgid "Obverse: %s"
+msgstr ""
+
+#. translators: %s: description of the back of the piece
+#: src/class-numista.php:757
+#, php-format
+msgid "Reverse: %s"
+msgstr ""
+
+#. translators: %s: comma separated catalogue references, e.g. "TBB# 246, KK# 250"
+#: src/class-numista.php:762
+#, php-format
+msgid "Also catalogued as %s."
 msgstr ""
 
 #: src/class-schema.php:46
@@ -285,542 +381,564 @@ msgstr ""
 msgid "e.g. KM# 2889"
 msgstr ""
 
-#: src/class-schema.php:56
-#: src/class-schema.php:173
+#: src/class-schema.php:57
+#: src/class-schema.php:176
 msgid "Denomination"
 msgstr ""
 
-#: src/class-schema.php:58
+#: src/class-schema.php:59
 msgid "e.g. 5 Schilling"
 msgstr ""
 
-#: src/class-schema.php:62
-#: src/class-schema.php:416
+#: src/class-schema.php:63
+#: src/class-schema.php:437
 msgid "Mint"
 msgstr ""
 
-#: src/class-schema.php:64
+#: src/class-schema.php:65
 msgid "e.g. Vienna"
 msgstr ""
 
-#: src/class-schema.php:68
+#: src/class-schema.php:69
 msgid "Mint mark"
 msgstr ""
 
-#: src/class-schema.php:73
+#: src/class-schema.php:74
 msgid "Composition"
 msgstr ""
 
-#: src/class-schema.php:75
+#: src/class-schema.php:76
 msgid "e.g. .900 silver"
 msgstr ""
 
-#: src/class-schema.php:79
+#: src/class-schema.php:80
 msgid "Weight"
 msgstr ""
 
-#: src/class-schema.php:82
+#: src/class-schema.php:83
 msgid "g"
 msgstr ""
 
-#: src/class-schema.php:86
+#: src/class-schema.php:87
 msgid "Diameter"
 msgstr ""
 
-#: src/class-schema.php:89
+#: src/class-schema.php:90
 msgid "mm"
 msgstr ""
 
-#: src/class-schema.php:93
+#: src/class-schema.php:95
 msgid "Mint State (MS)"
 msgstr ""
 
-#: src/class-schema.php:94
-#: src/class-schema.php:194
+#: src/class-schema.php:96
+#: src/class-schema.php:215
 msgid "About Uncirculated (AU)"
 msgstr ""
 
-#: src/class-schema.php:95
-#: src/class-schema.php:195
+#: src/class-schema.php:97
+#: src/class-schema.php:216
 msgid "Extremely Fine (XF)"
 msgstr ""
 
-#: src/class-schema.php:96
-#: src/class-schema.php:196
+#: src/class-schema.php:98
+#: src/class-schema.php:217
 msgid "Very Fine (VF)"
 msgstr ""
 
-#: src/class-schema.php:97
-#: src/class-schema.php:197
+#: src/class-schema.php:99
+#: src/class-schema.php:218
 msgid "Fine (F)"
 msgstr ""
 
-#: src/class-schema.php:98
-#: src/class-schema.php:198
-#: src/class-schema.php:314
-#: src/class-schema.php:325
+#: src/class-schema.php:100
+#: src/class-schema.php:219
+#: src/class-schema.php:335
+#: src/class-schema.php:346
 msgid "Very Good (VG)"
 msgstr ""
 
-#: src/class-schema.php:99
-#: src/class-schema.php:199
-#: src/class-schema.php:315
-#: src/class-schema.php:326
+#: src/class-schema.php:101
+#: src/class-schema.php:220
+#: src/class-schema.php:336
+#: src/class-schema.php:347
 msgid "Good (G)"
 msgstr ""
 
-#: src/class-schema.php:100
+#: src/class-schema.php:102
 msgid "About Good (AG)"
 msgstr ""
 
-#: src/class-schema.php:101
-#: src/class-schema.php:200
-#: src/class-schema.php:317
-#: src/class-schema.php:328
+#: src/class-schema.php:103
+#: src/class-schema.php:221
+#: src/class-schema.php:338
+#: src/class-schema.php:349
 msgid "Poor (P)"
 msgstr ""
 
-#: src/class-schema.php:105
+#: src/class-schema.php:107
 msgid "Stamps"
 msgstr ""
 
-#: src/class-schema.php:106
+#: src/class-schema.php:108
 msgid "Stamp"
 msgstr ""
 
-#: src/class-schema.php:110
+#: src/class-schema.php:112
 msgid "e.g. Michel 578, Scott 364"
 msgstr ""
 
-#: src/class-schema.php:115
+#: src/class-schema.php:117
 msgid "Face value"
 msgstr ""
 
-#: src/class-schema.php:117
+#: src/class-schema.php:119
 msgid "e.g. 50 Groschen"
 msgstr ""
 
-#: src/class-schema.php:121
+#: src/class-schema.php:123
 msgid "Colour"
 msgstr ""
 
-#: src/class-schema.php:126
+#: src/class-schema.php:128
 msgid "Perforation"
 msgstr ""
 
-#: src/class-schema.php:128
+#: src/class-schema.php:130
 msgid "e.g. 12½ × 13"
 msgstr ""
 
-#: src/class-schema.php:132
+#: src/class-schema.php:134
+#: src/class-schema.php:196
 msgid "Watermark"
 msgstr ""
 
-#: src/class-schema.php:137
+#: src/class-schema.php:139
 msgid "Gum"
 msgstr ""
 
-#: src/class-schema.php:140
+#: src/class-schema.php:142
 msgid "Never hinged"
 msgstr ""
 
-#: src/class-schema.php:141
+#: src/class-schema.php:143
 msgid "Hinged"
 msgstr ""
 
-#: src/class-schema.php:142
+#: src/class-schema.php:144
 msgid "No gum"
 msgstr ""
 
-#: src/class-schema.php:143
+#: src/class-schema.php:145
 msgid "Regummed"
 msgstr ""
 
-#: src/class-schema.php:148
+#: src/class-schema.php:150
 msgid "Cancellation"
 msgstr ""
 
-#: src/class-schema.php:150
+#: src/class-schema.php:152
 msgid "e.g. first day, Vienna 1934"
 msgstr ""
 
-#: src/class-schema.php:154
+#: src/class-schema.php:156
 msgid "Superb"
 msgstr ""
 
-#: src/class-schema.php:155
+#: src/class-schema.php:157
 msgid "Extremely Fine"
 msgstr ""
 
-#: src/class-schema.php:156
+#: src/class-schema.php:158
 msgid "Very Fine"
 msgstr ""
 
-#: src/class-schema.php:157
-#: src/class-schema.php:385
+#: src/class-schema.php:159
+#: src/class-schema.php:406
 msgid "Fine"
 msgstr ""
 
-#: src/class-schema.php:158
+#: src/class-schema.php:160
 msgid "Average"
 msgstr ""
 
-#: src/class-schema.php:159
+#: src/class-schema.php:161
 msgid "Defective"
 msgstr ""
 
-#: src/class-schema.php:163
+#: src/class-schema.php:165
 msgid "Banknotes"
 msgstr ""
 
-#: src/class-schema.php:164
+#: src/class-schema.php:166
 msgid "Banknote"
 msgstr ""
 
-#: src/class-schema.php:167
+#: src/class-schema.php:169
 msgid "Pick number"
 msgstr ""
 
-#: src/class-schema.php:168
+#: src/class-schema.php:170
 msgid "e.g. P-129a"
 msgstr ""
 
-#: src/class-schema.php:178
+#: src/class-schema.php:181
 msgid "Serial number"
 msgstr ""
 
-#: src/class-schema.php:183
+#: src/class-schema.php:186
 msgid "Printer"
 msgstr ""
 
-#: src/class-schema.php:188
+#: src/class-schema.php:191
 msgid "Signatures"
 msgstr ""
 
-#: src/class-schema.php:193
-msgid "Uncirculated (UNC)"
+#: src/class-schema.php:201
+msgid "Series"
 msgstr ""
 
-#: src/class-schema.php:204
-msgid "Trading cards"
+#: src/class-schema.php:203
+msgid "e.g. 1966 Series"
 msgstr ""
 
-#: src/class-schema.php:205
-msgid "Card"
-msgstr ""
-
-#: src/class-schema.php:209
-msgid "e.g. Beckett 12"
-msgstr ""
-
-#: src/class-schema.php:214
-msgid "Set"
-msgstr ""
-
-#: src/class-schema.php:219
-msgid "Card number"
-msgstr ""
-
-#: src/class-schema.php:224
-msgid "Subject"
-msgstr ""
-
-#: src/class-schema.php:226
-msgid "Player, character, …"
-msgstr ""
-
-#: src/class-schema.php:230
-msgid "Manufacturer"
-msgstr ""
-
-#: src/class-schema.php:235
-msgid "Variant"
-msgstr ""
-
-#: src/class-schema.php:237
-msgid "e.g. holo, refractor"
-msgstr ""
-
-#: src/class-schema.php:241
-msgid "Graded by"
-msgstr ""
-
-#: src/class-schema.php:243
-msgid "e.g. PSA, BGS"
-msgstr ""
-
-#: src/class-schema.php:247
-msgid "Gem Mint (10)"
-msgstr ""
-
-#: src/class-schema.php:248
-msgid "Mint (9)"
-msgstr ""
-
-#: src/class-schema.php:249
-msgid "Near Mint–Mint (8)"
-msgstr ""
-
-#: src/class-schema.php:250
-msgid "Near Mint (7)"
-msgstr ""
-
-#: src/class-schema.php:251
-msgid "Excellent–Mint (6)"
-msgstr ""
-
-#: src/class-schema.php:252
-msgid "Excellent (5)"
-msgstr ""
-
-#: src/class-schema.php:253
-msgid "Very Good–Excellent (4)"
-msgstr ""
-
-#: src/class-schema.php:254
-msgid "Very Good (3)"
-msgstr ""
-
-#: src/class-schema.php:255
-msgid "Good (2)"
-msgstr ""
-
-#: src/class-schema.php:256
-msgid "Poor–Fair (1)"
-msgstr ""
-
-#: src/class-schema.php:260
-msgid "Records"
-msgstr ""
-
-#: src/class-schema.php:261
-msgid "Record"
-msgstr ""
-
-#: src/class-schema.php:265
-msgid "e.g. Blue Note BLP 1577"
-msgstr ""
-
-#: src/class-schema.php:270
-msgid "Artist"
-msgstr ""
-
-#: src/class-schema.php:275
-msgid "Label"
-msgstr ""
-
-#: src/class-schema.php:280
-msgid "Format"
-msgstr ""
-
-#: src/class-schema.php:283
-msgid "12\" LP"
-msgstr ""
-
-#: src/class-schema.php:284
-msgid "10\" EP"
-msgstr ""
-
-#: src/class-schema.php:285
-msgid "7\" single"
-msgstr ""
-
-#: src/class-schema.php:286
-msgid "78 rpm shellac"
-msgstr ""
-
-#: src/class-schema.php:287
-msgid "Box set"
-msgstr ""
-
-#: src/class-schema.php:292
-msgid "Speed"
-msgstr ""
-
-#: src/class-schema.php:295
-msgid "33⅓ rpm"
-msgstr ""
-
-#: src/class-schema.php:296
-msgid "45 rpm"
-msgstr ""
-
-#: src/class-schema.php:297
-msgid "78 rpm"
-msgstr ""
-
-#: src/class-schema.php:302
-msgid "Pressing"
-msgstr ""
-
-#: src/class-schema.php:304
-msgid "e.g. first pressing, reissue"
-msgstr ""
-
-#: src/class-schema.php:308
-msgid "Sleeve condition"
-msgstr ""
-
-#: src/class-schema.php:311
-#: src/class-schema.php:322
-msgid "Mint (M)"
-msgstr ""
-
-#: src/class-schema.php:312
-#: src/class-schema.php:323
-msgid "Near Mint (NM)"
-msgstr ""
-
-#: src/class-schema.php:313
-#: src/class-schema.php:324
-msgid "Very Good Plus (VG+)"
-msgstr ""
-
-#: src/class-schema.php:316
-#: src/class-schema.php:327
-msgid "Fair (F)"
-msgstr ""
-
-#: src/class-schema.php:332
-msgid "Books"
-msgstr ""
-
-#: src/class-schema.php:333
-msgid "Book"
-msgstr ""
-
-#: src/class-schema.php:337
-msgid "e.g. LCCN, OCLC"
-msgstr ""
-
-#: src/class-schema.php:342
-msgid "Author"
-msgstr ""
-
-#: src/class-schema.php:347
-msgid "Publisher"
-msgstr ""
-
-#: src/class-schema.php:352
-msgid "Edition"
-msgstr ""
-
-#: src/class-schema.php:354
-msgid "e.g. first edition"
-msgstr ""
-
-#: src/class-schema.php:358
-msgid "ISBN"
-msgstr ""
-
-#: src/class-schema.php:363
-msgid "Binding"
-msgstr ""
-
-#: src/class-schema.php:366
-msgid "Hardcover"
-msgstr ""
-
-#: src/class-schema.php:367
-msgid "Paperback"
-msgstr ""
-
-#: src/class-schema.php:368
-msgid "Leather"
-msgstr ""
-
-#: src/class-schema.php:369
-msgid "Spiral"
-msgstr ""
-
-#: src/class-schema.php:374
-msgid "Dust jacket"
-msgstr ""
-
-#: src/class-schema.php:377
-msgid "Present"
-msgstr ""
-
-#: src/class-schema.php:378
-msgid "Absent"
-msgstr ""
-
-#: src/class-schema.php:379
-msgid "Facsimile"
-msgstr ""
-
-#: src/class-schema.php:384
-msgid "As New"
-msgstr ""
-
-#: src/class-schema.php:386
-msgid "Very Good"
-msgstr ""
-
-#: src/class-schema.php:387
-#: src/class-schema.php:418
-msgid "Good"
-msgstr ""
-
-#: src/class-schema.php:388
-#: src/class-schema.php:419
-msgid "Fair"
-msgstr ""
-
-#: src/class-schema.php:389
-#: src/class-schema.php:420
-msgid "Poor"
-msgstr ""
-
-#: src/class-schema.php:393
-msgid "Anything else"
-msgstr ""
-
-#: src/class-schema.php:399
-msgid "Maker"
-msgstr ""
-
-#: src/class-schema.php:401
-msgid "Manufacturer, artist, …"
-msgstr ""
-
-#: src/class-schema.php:405
-msgid "Material"
-msgstr ""
-
-#: src/class-schema.php:410
+#: src/class-schema.php:207
+#: src/class-schema.php:431
 msgid "Dimensions"
 msgstr ""
 
-#: src/class-schema.php:412
+#: src/class-schema.php:209
+msgid "e.g. 132 × 65 mm"
+msgstr ""
+
+#: src/class-schema.php:214
+msgid "Uncirculated (UNC)"
+msgstr ""
+
+#: src/class-schema.php:225
+msgid "Trading cards"
+msgstr ""
+
+#: src/class-schema.php:226
+msgid "Card"
+msgstr ""
+
+#: src/class-schema.php:230
+msgid "e.g. Beckett 12"
+msgstr ""
+
+#: src/class-schema.php:235
+msgid "Set"
+msgstr ""
+
+#: src/class-schema.php:240
+msgid "Card number"
+msgstr ""
+
+#: src/class-schema.php:245
+msgid "Subject"
+msgstr ""
+
+#: src/class-schema.php:247
+msgid "Player, character, …"
+msgstr ""
+
+#: src/class-schema.php:251
+msgid "Manufacturer"
+msgstr ""
+
+#: src/class-schema.php:256
+msgid "Variant"
+msgstr ""
+
+#: src/class-schema.php:258
+msgid "e.g. holo, refractor"
+msgstr ""
+
+#: src/class-schema.php:262
+msgid "Graded by"
+msgstr ""
+
+#: src/class-schema.php:264
+msgid "e.g. PSA, BGS"
+msgstr ""
+
+#: src/class-schema.php:268
+msgid "Gem Mint (10)"
+msgstr ""
+
+#: src/class-schema.php:269
+msgid "Mint (9)"
+msgstr ""
+
+#: src/class-schema.php:270
+msgid "Near Mint–Mint (8)"
+msgstr ""
+
+#: src/class-schema.php:271
+msgid "Near Mint (7)"
+msgstr ""
+
+#: src/class-schema.php:272
+msgid "Excellent–Mint (6)"
+msgstr ""
+
+#: src/class-schema.php:273
+msgid "Excellent (5)"
+msgstr ""
+
+#: src/class-schema.php:274
+msgid "Very Good–Excellent (4)"
+msgstr ""
+
+#: src/class-schema.php:275
+msgid "Very Good (3)"
+msgstr ""
+
+#: src/class-schema.php:276
+msgid "Good (2)"
+msgstr ""
+
+#: src/class-schema.php:277
+msgid "Poor–Fair (1)"
+msgstr ""
+
+#: src/class-schema.php:281
+msgid "Records"
+msgstr ""
+
+#: src/class-schema.php:282
+msgid "Record"
+msgstr ""
+
+#: src/class-schema.php:286
+msgid "e.g. Blue Note BLP 1577"
+msgstr ""
+
+#: src/class-schema.php:291
+msgid "Artist"
+msgstr ""
+
+#: src/class-schema.php:296
+msgid "Label"
+msgstr ""
+
+#: src/class-schema.php:301
+msgid "Format"
+msgstr ""
+
+#: src/class-schema.php:304
+msgid "12\" LP"
+msgstr ""
+
+#: src/class-schema.php:305
+msgid "10\" EP"
+msgstr ""
+
+#: src/class-schema.php:306
+msgid "7\" single"
+msgstr ""
+
+#: src/class-schema.php:307
+msgid "78 rpm shellac"
+msgstr ""
+
+#: src/class-schema.php:308
+msgid "Box set"
+msgstr ""
+
+#: src/class-schema.php:313
+msgid "Speed"
+msgstr ""
+
+#: src/class-schema.php:316
+msgid "33⅓ rpm"
+msgstr ""
+
+#: src/class-schema.php:317
+msgid "45 rpm"
+msgstr ""
+
+#: src/class-schema.php:318
+msgid "78 rpm"
+msgstr ""
+
+#: src/class-schema.php:323
+msgid "Pressing"
+msgstr ""
+
+#: src/class-schema.php:325
+msgid "e.g. first pressing, reissue"
+msgstr ""
+
+#: src/class-schema.php:329
+msgid "Sleeve condition"
+msgstr ""
+
+#: src/class-schema.php:332
+#: src/class-schema.php:343
+msgid "Mint (M)"
+msgstr ""
+
+#: src/class-schema.php:333
+#: src/class-schema.php:344
+msgid "Near Mint (NM)"
+msgstr ""
+
+#: src/class-schema.php:334
+#: src/class-schema.php:345
+msgid "Very Good Plus (VG+)"
+msgstr ""
+
+#: src/class-schema.php:337
+#: src/class-schema.php:348
+msgid "Fair (F)"
+msgstr ""
+
+#: src/class-schema.php:353
+msgid "Books"
+msgstr ""
+
+#: src/class-schema.php:354
+msgid "Book"
+msgstr ""
+
+#: src/class-schema.php:358
+msgid "e.g. LCCN, OCLC"
+msgstr ""
+
+#: src/class-schema.php:363
+msgid "Author"
+msgstr ""
+
+#: src/class-schema.php:368
+msgid "Publisher"
+msgstr ""
+
+#: src/class-schema.php:373
+msgid "Edition"
+msgstr ""
+
+#: src/class-schema.php:375
+msgid "e.g. first edition"
+msgstr ""
+
+#: src/class-schema.php:379
+msgid "ISBN"
+msgstr ""
+
+#: src/class-schema.php:384
+msgid "Binding"
+msgstr ""
+
+#: src/class-schema.php:387
+msgid "Hardcover"
+msgstr ""
+
+#: src/class-schema.php:388
+msgid "Paperback"
+msgstr ""
+
+#: src/class-schema.php:389
+msgid "Leather"
+msgstr ""
+
+#: src/class-schema.php:390
+msgid "Spiral"
+msgstr ""
+
+#: src/class-schema.php:395
+msgid "Dust jacket"
+msgstr ""
+
+#: src/class-schema.php:398
+msgid "Present"
+msgstr ""
+
+#: src/class-schema.php:399
+msgid "Absent"
+msgstr ""
+
+#: src/class-schema.php:400
+msgid "Facsimile"
+msgstr ""
+
+#: src/class-schema.php:405
+msgid "As New"
+msgstr ""
+
+#: src/class-schema.php:407
+msgid "Very Good"
+msgstr ""
+
+#: src/class-schema.php:408
+#: src/class-schema.php:439
+msgid "Good"
+msgstr ""
+
+#: src/class-schema.php:409
+#: src/class-schema.php:440
+msgid "Fair"
+msgstr ""
+
+#: src/class-schema.php:410
+#: src/class-schema.php:441
+msgid "Poor"
+msgstr ""
+
+#: src/class-schema.php:414
+msgid "Anything else"
+msgstr ""
+
+#: src/class-schema.php:420
+msgid "Maker"
+msgstr ""
+
+#: src/class-schema.php:422
+msgid "Manufacturer, artist, …"
+msgstr ""
+
+#: src/class-schema.php:426
+msgid "Material"
+msgstr ""
+
+#: src/class-schema.php:433
 msgid "e.g. 12 × 8 × 3 cm"
 msgstr ""
 
-#: src/class-schema.php:417
+#: src/class-schema.php:438
 msgid "Excellent"
 msgstr ""
 
-#: src/class-schema.php:579
+#: src/class-schema.php:458
+msgid "Numista number"
+msgstr ""
+
+#: src/class-schema.php:460
+msgid "e.g. 202650"
+msgstr ""
+
+#: src/class-schema.php:644
 msgid "In the collection"
 msgstr ""
 
-#: src/class-schema.php:580
+#: src/class-schema.php:645
 msgid "On the wishlist"
 msgstr ""
 
-#: src/class-schema.php:581
+#: src/class-schema.php:646
 msgid "Ordered"
 msgstr ""
 
-#: src/class-schema.php:582
+#: src/class-schema.php:647
 msgid "Duplicate"
 msgstr ""
 
-#: src/class-schema.php:583
+#: src/class-schema.php:648
 msgid "For sale"
 msgstr ""
 
-#: src/class-schema.php:584
+#: src/class-schema.php:649
 msgid "Sold"
 msgstr ""
 
@@ -873,17 +991,17 @@ msgstr ""
 #: templates/collection-form.php:133
 #: templates/collection.php:87
 #: templates/collection.php:93
-#: templates/item-form.php:193
-#: templates/item-form.php:199
-#: templates/item.php:71
-#: templates/item.php:77
+#: templates/item-form.php:270
+#: templates/item-form.php:276
+#: templates/item.php:74
+#: templates/item.php:80
 msgid "Back to collections"
 msgstr ""
 
 #: templates/collection-form.php:131
 #: templates/collection.php:91
-#: templates/item-form.php:197
-#: templates/item.php:75
+#: templates/item-form.php:274
+#: templates/item.php:78
 msgid "Access denied"
 msgstr ""
 
@@ -920,7 +1038,7 @@ msgid "Save collection"
 msgstr ""
 
 #: templates/collection-form.php:191
-#: templates/item-form.php:278
+#: templates/item-form.php:437
 msgid "Cancel"
 msgstr ""
 
@@ -944,13 +1062,13 @@ msgstr ""
 #. translators: %s: singular item noun, e.g. "Coin"
 #: templates/collection.php:111
 #: templates/collection.php:232
-#: templates/item-form.php:174
+#: templates/item-form.php:251
 #, php-format
 msgid "Add %s"
 msgstr ""
 
 #: templates/collection.php:118
-#: templates/item.php:105
+#: templates/item.php:108
 msgid "Edit"
 msgstr ""
 
@@ -1095,115 +1213,169 @@ msgstr[1] ""
 msgid "%s wanted"
 msgstr ""
 
-#: templates/item-form.php:48
+#: templates/item-form.php:58
+msgid "The lookup could not be run. Reload and try again."
+msgstr ""
+
+#: templates/item-form.php:87
+msgid "Filled in from Numista. Pick the issue you are holding to add its year and signatures."
+msgstr ""
+
+#: templates/item-form.php:88
+msgid "Filled in from Numista. Look it over, then add it to the collection."
+msgstr ""
+
+#: templates/item-form.php:93
 msgid "The item could not be removed. Reload and try again."
 msgstr ""
 
-#: templates/item-form.php:50
+#: templates/item-form.php:95
 msgid "You do not have permission to remove this item."
 msgstr ""
 
-#: templates/item-form.php:52
+#: templates/item-form.php:97
 msgid "The item could not be removed."
 msgstr ""
 
-#: templates/item-form.php:64
+#: templates/item-form.php:109
 msgid "The item could not be saved. Reload and try again."
 msgstr ""
 
-#: templates/item-form.php:66
+#: templates/item-form.php:111
 msgid "The item needs a name."
 msgstr ""
 
-#: templates/item-form.php:177
+#: templates/item-form.php:254
 msgid "Edit item"
 msgstr ""
 
-#: templates/item-form.php:191
-#: templates/item.php:69
+#: templates/item-form.php:268
+#: templates/item.php:72
 msgid "Item not found"
 msgstr ""
 
-#: templates/item-form.php:192
-#: templates/item.php:70
+#: templates/item-form.php:269
+#: templates/item.php:73
 msgid "The requested item is not available."
 msgstr ""
 
-#: templates/item-form.php:198
+#: templates/item-form.php:275
 msgid "You do not have permission to edit items in this collection."
 msgstr ""
 
-#: templates/item-form.php:237
+#: templates/item-form.php:302
+msgid "Fill in from Numista"
+msgstr ""
+
+#: templates/item-form.php:310
+msgid "Catalogue link, N# reference or number"
+msgstr ""
+
+#: templates/item-form.php:312
+msgid "Fetch"
+msgstr ""
+
+#: templates/item-form.php:315
+msgid "The catalogue fills in what it knows and leaves the rest to you."
+msgstr ""
+
+#. translators: 1: lookups left, 2: monthly allowance
+#: templates/item-form.php:319
+#, php-format
+msgid "%1$d of %2$d lookups left this month."
+msgstr ""
+
+#: templates/item-form.php:329
+msgid "Issue"
+msgstr ""
+
+#: templates/item-form.php:331
+msgid "— which one are you holding? —"
+msgstr ""
+
+#: templates/item-form.php:341
+msgid "Picking an issue and fetching again is free — the catalogue entry is already here."
+msgstr ""
+
+#: templates/item-form.php:347
+msgid "Add your Numista credentials to fill items in from the catalogue."
+msgstr ""
+
+#: templates/item-form.php:374
 msgid "Comma separated"
 msgstr ""
 
-#: templates/item-form.php:247
-msgid "Photos"
+#: templates/item-form.php:395
+msgid "Choosing a file replaces the photo above."
 msgstr ""
 
-#: templates/item-form.php:249
-msgid "Front, back, detail — whatever helps you recognise the piece."
+#: templates/item-form.php:402
+msgid "Other photos"
 msgstr ""
 
-#: templates/item-form.php:255
+#: templates/item-form.php:404
+msgid "Details, edge, signature — whatever else helps you recognise the piece."
+msgstr ""
+
+#: templates/item-form.php:410
 msgid "Existing photos"
 msgstr ""
 
-#: templates/item-form.php:262
+#: templates/item-form.php:421
 msgid "Main"
 msgstr ""
 
-#: templates/item-form.php:266
+#: templates/item-form.php:425
 msgid "Remove"
 msgstr ""
 
-#: templates/item-form.php:276
+#: templates/item-form.php:435
 msgid "Add to collection"
 msgstr ""
 
-#: templates/item-form.php:276
+#: templates/item-form.php:435
 msgid "Save item"
 msgstr ""
 
-#: templates/item-form.php:286
-#: templates/item-form.php:293
+#: templates/item-form.php:445
+#: templates/item-form.php:452
 msgid "Delete item"
 msgstr ""
 
-#: templates/item-form.php:287
+#: templates/item-form.php:446
 msgid "This removes the item and its photos."
 msgstr ""
 
-#: templates/item-form.php:291
+#: templates/item-form.php:450
 msgid "Delete this item?"
 msgstr ""
 
-#: templates/item.php:76
+#: templates/item.php:79
 msgid "You do not have permission to view this item."
 msgstr ""
 
 #. translators: %s: number of pieces
-#: templates/item.php:94
+#: templates/item.php:97
 #, php-format
 msgid "%s pieces"
 msgstr ""
 
-#: templates/item.php:109
+#: templates/item.php:112
 msgid "Back to collection"
 msgstr ""
 
-#: templates/item.php:116
+#: templates/item.php:119
 msgid "Item saved."
 msgstr ""
 
 #. translators: %s: formatted amount, including sign
-#: templates/item.php:164
+#: templates/item.php:177
 #, php-format
 msgid "%s below what you paid"
 msgstr ""
 
 #. translators: %s: formatted amount, including sign
-#: templates/item.php:164
+#: templates/item.php:177
 #, php-format
 msgid "%s above what you paid"
 msgstr ""
@@ -1242,4 +1414,66 @@ msgstr[1] ""
 
 #: templates/search.php:132
 msgid "Search results"
+msgstr ""
+
+#: templates/settings.php:22
+msgid "The settings could not be saved. Reload and try again."
+msgstr ""
+
+#: templates/settings.php:32
+msgid "Settings saved."
+msgstr ""
+
+#: templates/settings.php:67
+msgid "Numista"
+msgstr ""
+
+#: templates/settings.php:69
+msgid "Coins and banknotes can be filled in from the Numista catalogue. Register a client on Numista to get these three; they belong to your account, not to the site."
+msgstr ""
+
+#: templates/settings.php:71
+msgid "Numista API documentation"
+msgstr ""
+
+#: templates/settings.php:76
+msgid "Client name"
+msgstr ""
+
+#: templates/settings.php:84
+msgid "The name you registered the client under. It identifies the lookups as yours."
+msgstr ""
+
+#: templates/settings.php:88
+msgid "Client ID"
+msgstr ""
+
+#: templates/settings.php:99
+msgid "API key"
+msgstr ""
+
+#: templates/settings.php:110
+msgid "The key is set in wp-config.php, so it cannot be changed here."
+msgstr ""
+
+#: templates/settings.php:115
+msgid "Save settings"
+msgstr ""
+
+#: templates/settings.php:121
+msgid "Lookups this month"
+msgstr ""
+
+#. translators: 1: lookups used, 2: monthly allowance
+#: templates/settings.php:126
+#, php-format
+msgid "%1$d of %2$d used."
+msgstr ""
+
+#: templates/settings.php:132
+msgid "Lookups resume at the start of next month."
+msgstr ""
+
+#: templates/settings.php:136
+msgid "Every catalogue entry is kept once it has been fetched, so looking the same piece up again is free. Only a new entry costs a lookup."
 msgstr ""
