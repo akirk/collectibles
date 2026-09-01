@@ -338,6 +338,52 @@ class Numista {
 	}
 
 	/**
+	 * Place one issuer from what it calls itself.
+	 *
+	 * The slug is tried first: it is the French name of the place and, unlike
+	 * the display name, it does not change with the language of the request.
+	 *
+	 * @param array $issuer One issuer, or the inline issuer of a type.
+	 * @return string ISO territory code, or '' when it names no territory.
+	 */
+	private static function place_issuer( array $issuer ): string {
+		$slug = (string) ( $issuer['code'] ?? '' );
+
+		if ( '' !== $slug ) {
+			// Numista groups a country's issuers under "<country>_section".
+			$slug      = (string) preg_replace( '/_(section|notgeld|colonies?)$/', '', $slug );
+			$territory = Geography::find_by_name( str_replace( array( '_', '-' ), ' ', $slug ), 'fr' );
+
+			if ( '' !== $territory ) {
+				return $territory;
+			}
+		}
+
+		$name = (string) ( $issuer['name'] ?? '' );
+
+		if ( '' === $name ) {
+			return '';
+		}
+
+		// The name can also land on a historic issuer, which is how
+		// Czechoslovakia and the Ottoman Empire keep a row of their own.
+		$territory = Geography::find_by_name( $name, self::get_language() );
+
+		if ( '' !== $territory ) {
+			return $territory;
+		}
+
+		// Names written back to front: "Bahamas, The".
+		$comma = strpos( $name, ',' );
+
+		if ( false !== $comma ) {
+			return Geography::find_by_name( trim( substr( $name, 0, $comma ) ) );
+		}
+
+		return '';
+	}
+
+	/**
 	 * A one-line description of an issue, for the picker.
 	 *
 	 * @param array $issue One issue from the API.
@@ -540,7 +586,7 @@ class Numista {
 	 * The language to request, from the site locale, or an empty string to let
 	 * the API pick its default.
 	 */
-	private static function get_language(): string {
+	public static function get_language(): string {
 		$locale   = strtolower( (string) get_locale() );
 		$language = substr( $locale, 0, 2 );
 
@@ -578,7 +624,14 @@ class Numista {
 			$values[ Item::YEAR_META_KEY ] = $year;
 		}
 
-		$values[ Item::ORIGIN_META_KEY ] = self::first_scalar( $type, array( 'issuer.name', 'issuer.code' ) );
+		// Numista's "issuer" is the country the piece is catalogued under, and
+		// its "issuing entity" is the bank or authority behind it.
+		$values[ Item::COUNTRY_META_KEY ] = self::map_country( $type );
+
+		$values[ Item::ISSUER_META_KEY ] = self::first_scalar(
+			$type,
+			array( 'issuing_entity.name', 'secondary_issuing_entity.name' )
+		);
 		$values['denomination']          = self::first_scalar( $type, array( 'value.text', 'value.currency.name' ) );
 		$values['series']                = self::first_scalar( $type, array( 'series' ) );
 		$values['composition']           = self::first_scalar( $type, array( 'composition.text', 'composition.name' ) );
@@ -625,6 +678,23 @@ class Numista {
 			'notes'  => self::map_notes( $type, $references['notes'] ),
 			'url'    => '' !== $url ? $url : ( $id ? self::get_type_url( $id ) : '' ),
 		);
+	}
+
+	/**
+	 * Work out which territory a type belongs to.
+	 *
+	 * Numista identifies its issuers by a slug that turns out to be the French
+	 * name of the place — "estonie", "autriche", "etats-unis" — and, unlike the
+	 * display name, it reads the same whatever language the catalogue answered
+	 * in. So the slug is tried first and the name after it. Neither is an ISO
+	 * code, which is why both go through the same name matching.
+	 *
+	 * @param array $type Decoded type.
+	 */
+	private static function map_country( array $type ): string {
+		$issuer = isset( $type['issuer'] ) && is_array( $type['issuer'] ) ? $type['issuer'] : array();
+
+		return self::place_issuer( $issuer );
 	}
 
 	/**

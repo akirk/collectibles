@@ -12,6 +12,13 @@
 	--coll-brass-deep: #7d5518;
 	--coll-patina: #3e6f63;
 	--coll-patina-soft: #e6f1ee;
+	--coll-map-land: #e6ded0;
+	--coll-map-line: #cfc3ae;
+	--coll-map-1: #e5cfa8;
+	--coll-map-2: #d9b478;
+	--coll-map-3: #c9974a;
+	--coll-map-4: #a9762b;
+	--coll-map-5: #7d5518;
 
 	--coll-bg: #f7f4ee;
 	--coll-bg-alt: #efe9df;
@@ -44,6 +51,13 @@
 		--coll-brass-deep: #e6bd7c;
 		--coll-patina: #7fb6a7;
 		--coll-patina-soft: #1b2b28;
+		--coll-map-land: #2b2823;
+		--coll-map-line: #423c33;
+		--coll-map-1: #4a3a20;
+		--coll-map-2: #6d5227;
+		--coll-map-3: #96712f;
+		--coll-map-4: #c2933f;
+		--coll-map-5: #e6bd7c;
 
 		--coll-bg: #14130f;
 		--coll-bg-alt: #1a1814;
@@ -261,6 +275,92 @@ img { max-width: 100%; height: auto; }
 .notice-success {
 	border-left-color: var(--coll-patina);
 	color: var(--coll-patina);
+}
+
+/* ---- Origins ---- */
+
+.origins-map svg {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.origins-map path {
+	fill: var(--coll-map-land);
+	stroke: var(--coll-map-line);
+	stroke-width: 1;
+	vector-effect: non-scaling-stroke;
+}
+
+.origins-map-panel .field-hint {
+	margin-top: 10px;
+}
+
+.origin-list {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.origin-row + .origin-row {
+	border-top: 1px solid var(--coll-line);
+}
+
+.origin-row a {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 7px 4px;
+	color: inherit;
+	text-decoration: none;
+}
+
+.origin-row a:hover,
+.origin-row a:focus-visible {
+	background: var(--coll-paper-alt);
+}
+
+.origin-flag {
+	font-size: 1.1rem;
+	line-height: 1;
+}
+
+.origin-name {
+	flex: 0 1 12rem;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.origin-bar {
+	flex: 1 1 auto;
+	height: 8px;
+	min-width: 2rem;
+	border-radius: 999px;
+	background: var(--coll-paper-alt);
+}
+
+.origin-bar-fill {
+	display: block;
+	height: 100%;
+	min-width: 4px;
+	border-radius: 999px;
+	background: var(--coll-brass);
+}
+
+.origin-number {
+	min-width: 2.5rem;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	color: var(--coll-ink-soft);
+}
+
+.origin-count {
+	margin-left: 8px;
+	font-size: 0.85rem;
+	font-weight: 400;
+	color: var(--coll-ink-faint);
 }
 
 /* ---- Photo sides ---- */

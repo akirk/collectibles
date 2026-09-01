@@ -19,7 +19,8 @@ class Item {
 	public const STATUS_META_KEY    = 'status';
 	public const QUANTITY_META_KEY  = 'quantity';
 	public const YEAR_META_KEY      = 'year';
-	public const ORIGIN_META_KEY    = 'origin';
+	public const COUNTRY_META_KEY   = 'origin_code';
+	public const ISSUER_META_KEY    = 'issuer';
 	public const CONDITION_META_KEY = 'condition_grade';
 	public const CATALOG_META_KEY   = 'catalog_number';
 	public const LOCATION_META_KEY  = 'storage_location';
@@ -69,10 +70,10 @@ class Item {
 				'placeholder' => __( 'e.g. 1934', 'collectibles' ),
 			),
 			array(
-				'key'         => self::ORIGIN_META_KEY,
-				'label'       => __( 'Origin', 'collectibles' ),
-				'type'        => 'text',
-				'placeholder' => __( 'Country or region', 'collectibles' ),
+				'key'     => self::COUNTRY_META_KEY,
+				'label'   => __( 'Origin', 'collectibles' ),
+				'type'    => 'select',
+				'options' => Geography::get_options(),
 			),
 			array(
 				'key'         => self::CATALOG_META_KEY,
@@ -540,6 +541,52 @@ class Item {
 	}
 
 	/**
+	 * Count a set of items by where they come from.
+	 *
+	 * Rows are keyed by the stored country code, so a historic issuer keeps a
+	 * row of its own; items without a country are gathered under ''.
+	 *
+	 * @param \WP_Post[] $items Items to summarize.
+	 * @return array<string, array{items: int, pieces: int}> Sorted by item count, descending.
+	 */
+	public static function summarize_origins( array $items ): array {
+		$summary = array();
+
+		foreach ( $items as $item ) {
+			$code = Geography::to_stored_code( (string) get_post_meta( $item->ID, self::COUNTRY_META_KEY, true ) );
+
+			if ( '' !== $code && ! Geography::is_known( $code ) ) {
+				$code = '';
+			}
+
+			if ( ! isset( $summary[ $code ] ) ) {
+				$summary[ $code ] = array(
+					'items'  => 0,
+					'pieces' => 0,
+				);
+			}
+
+			++$summary[ $code ]['items'];
+
+			$quantity = (int) get_post_meta( $item->ID, self::QUANTITY_META_KEY, true );
+			$status   = self::get_status( $item->ID );
+
+			if ( in_array( $status, Schema::get_owned_statuses(), true ) ) {
+				$summary[ $code ]['pieces'] += max( 1, $quantity );
+			}
+		}
+
+		uasort(
+			$summary,
+			static function ( $a, $b ) {
+				return $b['items'] <=> $a['items'];
+			}
+		);
+
+		return $summary;
+	}
+
+	/**
 	 * Load an item post, or null when the ID is not an item.
 	 *
 	 * @param int $item_id Item post ID.
@@ -581,6 +628,7 @@ class Item {
 				'search'     => '',
 				'status'     => '',
 				'tag'        => '',
+				'country'    => '',
 				'orderby'    => 'recent',
 			)
 		);
@@ -624,6 +672,26 @@ class Item {
 					$items,
 					function ( $item ) use ( $args ) {
 						return self::get_status( $item->ID ) === $args['status'];
+					}
+				)
+			);
+		}
+
+		if ( '' !== $args['country'] ) {
+			// "none" asks for the items that have not been placed anywhere.
+			$country = 'none' === $args['country'] ? '' : Geography::to_stored_code( (string) $args['country'] );
+
+			$items = array_values(
+				array_filter(
+					$items,
+					static function ( $item ) use ( $country ) {
+						$stored = Geography::to_stored_code( (string) get_post_meta( $item->ID, self::COUNTRY_META_KEY, true ) );
+
+						if ( '' !== $stored && ! Geography::is_known( $stored ) ) {
+							$stored = '';
+						}
+
+						return $stored === $country;
 					}
 				)
 			);

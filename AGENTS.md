@@ -51,6 +51,8 @@ records, books, and a generic catch-all kind.
   registration, sanitizing, reading and querying.
 - `src/class-numista.php` — the Numista v3 API client and the mapping from a
   catalogue entry onto item fields.
+- `src/class-geography.php` — territories, continents, flags and the world map
+  used by the Origins page.
 - `src/class-csv.php` — CSV export.
 - `src/class-abilities.php` — read-only Abilities API lookups.
 - `templates/` — one PHP template per route, plus partials prefixed with `_`
@@ -62,7 +64,7 @@ records, books, and a generic catch-all kind.
 
 Registered in `App::setup_routes()`, under `/collectibles/`:
 
-- `` (index), `search`, `settings`
+- `` (index), `search`, `origins`, `settings`
 - `collection/new`, `collection/{id}`, `collection/{id}/edit`,
   `collection/{id}/export`
 - `collection/{collection_id}/item/new`,
@@ -111,6 +113,54 @@ Photos are the collector's own, uploaded through the form.
 Which catalogue number a kind files items under is declared as `codes` on the
 kind's `catalog` entry (`P` for banknotes, `KM` for coins); other references in
 the entry are appended to the item's notes.
+
+### Geography
+
+Where an item comes from is one field: `origin_code`, a stored (lowercased,
+because `sanitize_key()` lowercases select values) territory code picked from a
+list — either an ISO 3166-1 country or one of the historic issuers in
+`Geography::get_historic_issuers()`. Who issued it is a separate fact, the
+`issuer` field on coins and banknotes: the bank or authority behind the piece,
+which Numista calls the issuing entity.
+
+A historic issuer keeps a row of its own under its own name and carries the
+present-day territory it sat in, so Austria-Hungary is listed separately but
+shades Austria on the map. The list counts issuers; the map counts territories,
+so the two numbers differ where both exist.
+
+- The country/continent table is generated from ICU's `territoryContainment`
+  data, with English names embedded as a fallback for installs without `intl`.
+  Regenerate it rather than editing entries by hand.
+- Names are localized through `Locale::getDisplayRegion()` for the *reader's*
+  locale; flags are built from the code's regional indicator letters.
+- `Geography::find_by_name()` matches a name against every territory in the
+  reader's language and in the languages Numista answers in, with accents
+  folded so "Osterreich" still finds Austria. Naming 252 territories is
+  hundreds of ICU calls, so the folded index is built once per language per
+  request — keep it that way, and never build a `Transliterator` inside a loop.
+
+Placing a Numista issuer goes through `Numista::place_issuer()`, which tries
+the **issuer slug** first and the **display name** second:
+
+- The slug is the French name of the place — `estonie`, `autriche`,
+  `etats-unis`, with a `_section` suffix where Numista groups a country's
+  issuers. Unlike the display name it reads the same whatever language the
+  catalogue answered in, and it does nearly all the work: of the catalogue's
+  top-level issuers, 190 resolve by slug against 7 by English name.
+- The name catches the rest, including `tchecoslovaquie` and `ottoman`, which
+  land on the curated historic issuers rather than on nothing.
+
+Numista also has a `/issuers` endpoint whose tree would place the issuers a
+name cannot — a provincial mint, or East Germany under Germany. That was built
+and then removed: it cost ~150 lines, a 290KB cached map and a yearly call to
+place items nobody had yet. If deep issuers start arriving unplaced often
+enough to annoy, that is where to look; the shape of the data is that every
+issuer has a `parent`, and level-1 roots resolve by the same name matching.
+Until then an unplaced item simply waits for someone to pick its origin from
+the dropdown.
+- `assets/world.svg` is generated from Natural Earth's public domain boundaries
+  (see the comment at the top of the file). The Origins page inlines it and
+  emits one CSS rule per shaded territory.
 
 ### Storage model
 
