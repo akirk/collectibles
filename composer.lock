@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "akirk/wp-app",
-            "version": "v1.4.0",
+            "version": "v1.6.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/akirk/wp-app.git",
-                "reference": "bd78815fec4e90804f1d3be33207279deaafc6a9"
+                "reference": "cf74bc8023e4351be5c2a11098eeb8ddb49fdc22"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/akirk/wp-app/zipball/bd78815fec4e90804f1d3be33207279deaafc6a9",
-                "reference": "bd78815fec4e90804f1d3be33207279deaafc6a9",
+                "url": "https://api.github.com/repos/akirk/wp-app/zipball/cf74bc8023e4351be5c2a11098eeb8ddb49fdc22",
+                "reference": "cf74bc8023e4351be5c2a11098eeb8ddb49fdc22",
                 "shasum": ""
             },
             "require": {
@@ -31,6 +31,7 @@
             "type": "library",
             "autoload": {
                 "files": [
+                    "src/class-openstation.php",
                     "src/class-registry.php",
                     "src/class-settings.php",
                     "src/class-pwa.php",
@@ -40,7 +41,8 @@
                     "src/class-client-encrypted-fields.php",
                     "src/BaseStorage.php",
                     "src/abstract-baseapp.php",
-                    "src/functions.php"
+                    "src/functions.php",
+                    "src/rest/class-access.php"
                 ]
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -52,12 +54,12 @@
                     "name": "Alex Kirk"
                 }
             ],
-            "description": "A lightweight framework for building web applications on WordPress with routing, admin bar integration, and theme isolation",
+            "description": "A framework to build frontend apps on WordPress with routing, admin bar integration, and theme isolation",
             "support": {
                 "issues": "https://github.com/akirk/wp-app/issues",
-                "source": "https://github.com/akirk/wp-app/tree/v1.4.0"
+                "source": "https://github.com/akirk/wp-app/tree/v1.6.4"
             },
-            "time": "2026-08-14T06:43:04+00:00"
+            "time": "2026-09-01T13:42:19+00:00"
         }
     ],
     "packages-dev": [
