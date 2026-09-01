@@ -35,17 +35,22 @@ class Schema {
 	 * All collection kinds, keyed by slug.
 	 *
 	 * Each kind provides a label, an icon, the extra fields its items carry,
-	 * and the condition scale those items are graded on.
+	 * the condition scale those items are graded on, and optionally the wording
+	 * for the shared catalog number field.
 	 *
 	 * @return array<string, array>
 	 */
 	public static function get_kinds(): array {
 		return array(
 			self::KIND_COINS     => array(
-				'label'  => __( 'Coins', 'collectibles' ),
-				'noun'   => __( 'Coin', 'collectibles' ),
-				'icon'   => '🪙',
-				'fields' => array(
+				'label'   => __( 'Coins', 'collectibles' ),
+				'noun'    => __( 'Coin', 'collectibles' ),
+				'icon'    => '🪙',
+				'catalog' => array(
+					'label'       => __( 'Catalog number', 'collectibles' ),
+					'placeholder' => __( 'e.g. KM# 2889', 'collectibles' ),
+				),
+				'fields'  => array(
 					array(
 						'key'         => 'denomination',
 						'label'       => __( 'Denomination', 'collectibles' ),
@@ -84,7 +89,7 @@ class Schema {
 						'unit'  => __( 'mm', 'collectibles' ),
 					),
 				),
-				'grades' => array(
+				'grades'  => array(
 					'ms' => __( 'Mint State (MS)', 'collectibles' ),
 					'au' => __( 'About Uncirculated (AU)', 'collectibles' ),
 					'xf' => __( 'Extremely Fine (XF)', 'collectibles' ),
@@ -97,10 +102,14 @@ class Schema {
 				),
 			),
 			self::KIND_STAMPS    => array(
-				'label'  => __( 'Stamps', 'collectibles' ),
-				'noun'   => __( 'Stamp', 'collectibles' ),
-				'icon'   => '✉️',
-				'fields' => array(
+				'label'   => __( 'Stamps', 'collectibles' ),
+				'noun'    => __( 'Stamp', 'collectibles' ),
+				'icon'    => '✉️',
+				'catalog' => array(
+					'label'       => __( 'Catalog number', 'collectibles' ),
+					'placeholder' => __( 'e.g. Michel 578, Scott 364', 'collectibles' ),
+				),
+				'fields'  => array(
 					array(
 						'key'         => 'denomination',
 						'label'       => __( 'Face value', 'collectibles' ),
@@ -141,7 +150,7 @@ class Schema {
 						'placeholder' => __( 'e.g. first day, Vienna 1934', 'collectibles' ),
 					),
 				),
-				'grades' => array(
+				'grades'  => array(
 					'superb'    => __( 'Superb', 'collectibles' ),
 					'xf'        => __( 'Extremely Fine', 'collectibles' ),
 					'vf'        => __( 'Very Fine', 'collectibles' ),
@@ -151,10 +160,14 @@ class Schema {
 				),
 			),
 			self::KIND_BANKNOTES => array(
-				'label'  => __( 'Banknotes', 'collectibles' ),
-				'noun'   => __( 'Banknote', 'collectibles' ),
-				'icon'   => '💵',
-				'fields' => array(
+				'label'   => __( 'Banknotes', 'collectibles' ),
+				'noun'    => __( 'Banknote', 'collectibles' ),
+				'icon'    => '💵',
+				'catalog' => array(
+					'label'       => __( 'Pick number', 'collectibles' ),
+					'placeholder' => __( 'e.g. P-129a', 'collectibles' ),
+				),
+				'fields'  => array(
 					array(
 						'key'   => 'denomination',
 						'label' => __( 'Denomination', 'collectibles' ),
@@ -176,7 +189,7 @@ class Schema {
 						'type'  => 'text',
 					),
 				),
-				'grades' => array(
+				'grades'  => array(
 					'unc' => __( 'Uncirculated (UNC)', 'collectibles' ),
 					'au'  => __( 'About Uncirculated (AU)', 'collectibles' ),
 					'xf'  => __( 'Extremely Fine (XF)', 'collectibles' ),
@@ -188,10 +201,14 @@ class Schema {
 				),
 			),
 			self::KIND_CARDS     => array(
-				'label'  => __( 'Trading cards', 'collectibles' ),
-				'noun'   => __( 'Card', 'collectibles' ),
-				'icon'   => '🃏',
-				'fields' => array(
+				'label'   => __( 'Trading cards', 'collectibles' ),
+				'noun'    => __( 'Card', 'collectibles' ),
+				'icon'    => '🃏',
+				'catalog' => array(
+					'label'       => __( 'Catalog number', 'collectibles' ),
+					'placeholder' => __( 'e.g. Beckett 12', 'collectibles' ),
+				),
+				'fields'  => array(
 					array(
 						'key'   => 'set_name',
 						'label' => __( 'Set', 'collectibles' ),
@@ -226,7 +243,7 @@ class Schema {
 						'placeholder' => __( 'e.g. PSA, BGS', 'collectibles' ),
 					),
 				),
-				'grades' => array(
+				'grades'  => array(
 					'gem_mint'  => __( 'Gem Mint (10)', 'collectibles' ),
 					'mint'      => __( 'Mint (9)', 'collectibles' ),
 					'nm_mt'     => __( 'Near Mint–Mint (8)', 'collectibles' ),
@@ -240,10 +257,14 @@ class Schema {
 				),
 			),
 			self::KIND_RECORDS   => array(
-				'label'  => __( 'Records', 'collectibles' ),
-				'noun'   => __( 'Record', 'collectibles' ),
-				'icon'   => '💿',
-				'fields' => array(
+				'label'   => __( 'Records', 'collectibles' ),
+				'noun'    => __( 'Record', 'collectibles' ),
+				'icon'    => '💿',
+				'catalog' => array(
+					'label'       => __( 'Catalog number', 'collectibles' ),
+					'placeholder' => __( 'e.g. Blue Note BLP 1577', 'collectibles' ),
+				),
+				'fields'  => array(
 					array(
 						'key'   => 'artist',
 						'label' => __( 'Artist', 'collectibles' ),
@@ -297,7 +318,7 @@ class Schema {
 						),
 					),
 				),
-				'grades' => array(
+				'grades'  => array(
 					'm'       => __( 'Mint (M)', 'collectibles' ),
 					'nm'      => __( 'Near Mint (NM)', 'collectibles' ),
 					'vg_plus' => __( 'Very Good Plus (VG+)', 'collectibles' ),
@@ -308,10 +329,14 @@ class Schema {
 				),
 			),
 			self::KIND_BOOKS     => array(
-				'label'  => __( 'Books', 'collectibles' ),
-				'noun'   => __( 'Book', 'collectibles' ),
-				'icon'   => '📚',
-				'fields' => array(
+				'label'   => __( 'Books', 'collectibles' ),
+				'noun'    => __( 'Book', 'collectibles' ),
+				'icon'    => '📚',
+				'catalog' => array(
+					'label'       => __( 'Catalog number', 'collectibles' ),
+					'placeholder' => __( 'e.g. LCCN, OCLC', 'collectibles' ),
+				),
+				'fields'  => array(
 					array(
 						'key'   => 'author',
 						'label' => __( 'Author', 'collectibles' ),
@@ -355,7 +380,7 @@ class Schema {
 						),
 					),
 				),
-				'grades' => array(
+				'grades'  => array(
 					'as_new' => __( 'As New', 'collectibles' ),
 					'fine'   => __( 'Fine', 'collectibles' ),
 					'vg'     => __( 'Very Good', 'collectibles' ),
@@ -492,6 +517,23 @@ class Schema {
 		$grades = self::get_grades( $kind );
 
 		return $grades[ $grade ] ?? $grade;
+	}
+
+	/**
+	 * Wording for the shared catalog number field, for one kind.
+	 *
+	 * Every kind is catalogued somewhere, but not in the same catalogue: world
+	 * paper money is identified by its Pick number, coins by KM numbers, stamps
+	 * by Michel or Scott. The field stays common to all items so that search and
+	 * export keep one key; only its label and placeholder vary by kind. Kinds
+	 * without a standard catalogue return an empty array and keep the generic
+	 * wording.
+	 *
+	 * @param string $kind Kind slug.
+	 * @return array<string, string>
+	 */
+	public static function get_catalog_field( string $kind ): array {
+		return self::get_kind( $kind )['catalog'] ?? array();
 	}
 
 	/**

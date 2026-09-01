@@ -20,10 +20,13 @@ records, books, and a generic catch-all kind.
   scale they are graded on.
 - An **item** is one physical piece (or a stack of identical ones — it has a
   quantity). Items are children of a collection via `post_parent`.
-- **Kinds, their fields and their grading scales are declared in one place**,
-  `Schema::get_kinds()`. Adding a kind is one array entry; the forms, detail
-  view, CSV export and meta registration all derive from it. Resist adding
-  kind-specific branches to templates.
+- **Kinds, their fields, their grading scales and the wording of the shared
+  catalog number field are declared in one place**, `Schema::get_kinds()`. The
+  catalog number stays one meta key for every kind — only its label and
+  placeholder change, so banknotes ask for a Pick number and coins for a KM
+  number. Adding a kind is one array entry; the forms, detail view, CSV export
+  and meta registration all derive from it. Resist adding kind-specific
+  branches to templates.
 - Items of every kind share one post type, so post meta is registered on the
   *union* of all kinds' fields (`Schema::get_all_fields()`). Two kinds may
   reuse a key on purpose — coins and banknotes both have a `denomination`.
