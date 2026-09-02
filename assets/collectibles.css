@@ -395,10 +395,11 @@ img { max-width: 100%; height: auto; }
 }
 
 .item-photo figcaption {
-	margin-top: 4px;
+	margin-top: 6px;
 	font-size: 0.8rem;
 	letter-spacing: 0.02em;
 	color: var(--coll-ink-faint);
+	text-align: center;
 }
 
 /* ---- Catalogue lookup ---- */
@@ -625,7 +626,9 @@ img { max-width: 100%; height: auto; }
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	aspect-ratio: 4 / 3;
+	aspect-ratio: var(--coll-thumb-ratio, 4 / 3);
+	max-height: 320px;
+	padding: 10px;
 	overflow: hidden;
 	background: var(--coll-bg-alt);
 }
@@ -633,7 +636,8 @@ img { max-width: 100%; height: auto; }
 .item-card-thumb img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	object-fit: contain;
+	filter: drop-shadow(0 1px 3px rgba(30, 28, 24, 0.28));
 }
 
 .item-card-thumb.is-empty {
@@ -934,16 +938,13 @@ input[type="file"] {
 
 .item-photo {
 	margin: 0;
-	overflow: hidden;
-	border: 1px solid var(--coll-line);
-	border-radius: var(--coll-radius);
-	background: var(--coll-paper);
-	box-shadow: var(--coll-shadow-sm);
 }
 
 .item-photo img {
 	display: block;
 	width: 100%;
+	height: auto;
+	border-radius: var(--coll-radius-sm);
 }
 
 .item-photo-empty {
@@ -951,7 +952,9 @@ input[type="file"] {
 	align-items: center;
 	justify-content: center;
 	aspect-ratio: 4 / 3;
-	border-style: dashed;
+	border: 1px dashed var(--coll-line);
+	border-radius: var(--coll-radius);
+	background: var(--coll-paper);
 }
 
 .item-photo-empty .kind-icon {

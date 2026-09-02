@@ -30,7 +30,7 @@ $coll_card_condition       = Schema::get_grade_label( $coll_card_kind, (string) 
 $coll_card_value           = (string) get_post_meta( $coll_card_item->ID, Item::VALUE_META_KEY, true );
 $coll_card_facts           = array_values( array_filter( array( $coll_card_year, $coll_card_origin, $coll_card_condition ) ) );
 ?>
-<article class="item-card">
+<article class="item-card" style="--coll-thumb-ratio: <?php echo esc_attr( Schema::get_thumb_ratio( $coll_card_kind ) ); ?>">
 	<a class="item-card-thumb<?php echo $coll_card_photo ? '' : ' is-empty'; ?>" href="<?php echo esc_url( $coll_card_url ); ?>" aria-hidden="true" tabindex="-1">
 		<?php if ( $coll_card_photo ) : ?>
 			<?php echo wp_kses_post( wp_get_attachment_image( $coll_card_photo, 'medium', false, array( 'alt' => '' ) ) ); ?>

@@ -46,6 +46,7 @@ class Schema {
 				'label'   => __( 'Coins', 'collectibles' ),
 				'noun'    => __( 'Coin', 'collectibles' ),
 				'icon'    => '🪙',
+				'thumb'   => '1 / 1',
 				'catalog' => array(
 					'label'       => __( 'Catalog number', 'collectibles' ),
 					'placeholder' => __( 'e.g. KM# 2889', 'collectibles' ),
@@ -113,6 +114,7 @@ class Schema {
 				'label'   => __( 'Stamps', 'collectibles' ),
 				'noun'    => __( 'Stamp', 'collectibles' ),
 				'icon'    => '✉️',
+				'thumb'   => '4 / 5',
 				'catalog' => array(
 					'label'       => __( 'Catalog number', 'collectibles' ),
 					'placeholder' => __( 'e.g. Michel 578, Scott 364', 'collectibles' ),
@@ -171,6 +173,7 @@ class Schema {
 				'label'   => __( 'Banknotes', 'collectibles' ),
 				'noun'    => __( 'Banknote', 'collectibles' ),
 				'icon'    => '💵',
+				'thumb'   => '2 / 1',
 				'catalog' => array(
 					'label'       => __( 'Pick number', 'collectibles' ),
 					'placeholder' => __( 'e.g. P-129a', 'collectibles' ),
@@ -237,6 +240,7 @@ class Schema {
 				'label'   => __( 'Trading cards', 'collectibles' ),
 				'noun'    => __( 'Card', 'collectibles' ),
 				'icon'    => '🃏',
+				'thumb'   => '5 / 7',
 				'catalog' => array(
 					'label'       => __( 'Catalog number', 'collectibles' ),
 					'placeholder' => __( 'e.g. Beckett 12', 'collectibles' ),
@@ -293,6 +297,7 @@ class Schema {
 				'label'   => __( 'Records', 'collectibles' ),
 				'noun'    => __( 'Record', 'collectibles' ),
 				'icon'    => '💿',
+				'thumb'   => '1 / 1',
 				'catalog' => array(
 					'label'       => __( 'Catalog number', 'collectibles' ),
 					'placeholder' => __( 'e.g. Blue Note BLP 1577', 'collectibles' ),
@@ -365,6 +370,7 @@ class Schema {
 				'label'   => __( 'Books', 'collectibles' ),
 				'noun'    => __( 'Book', 'collectibles' ),
 				'icon'    => '📚',
+				'thumb'   => '3 / 4',
 				'catalog' => array(
 					'label'       => __( 'Catalog number', 'collectibles' ),
 					'placeholder' => __( 'e.g. LCCN, OCLC', 'collectibles' ),
@@ -426,6 +432,7 @@ class Schema {
 				'label'  => __( 'Anything else', 'collectibles' ),
 				'noun'   => __( 'Item', 'collectibles' ),
 				'icon'   => '📦',
+				'thumb'  => '4 / 3',
 				'fields' => array(
 					array(
 						'key'         => 'maker',
@@ -531,6 +538,19 @@ class Schema {
 	 */
 	public static function get_kind_icon( string $kind ): string {
 		return self::get_kind( $kind )['icon'];
+	}
+
+	/**
+	 * The aspect ratio a kind's thumbnails are boxed in.
+	 *
+	 * A banknote is twice as wide as it is tall, a trading card is portrait, a
+	 * coin is round: giving each kind its own box keeps a grid of one kind tidy
+	 * without cropping anything, since the photo is contained, not covered.
+	 *
+	 * @param string $kind Kind slug.
+	 */
+	public static function get_thumb_ratio( string $kind ): string {
+		return self::get_kind( $kind )['thumb'] ?? '4 / 3';
 	}
 
 	/**
