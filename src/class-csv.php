@@ -34,17 +34,7 @@ class Csv {
 		$header = array( __( 'Name', 'collectibles' ) );
 
 		foreach ( $fields as $field ) {
-			$label = $field['label'];
-
-			if ( ! empty( $field['money'] ) ) {
-				/* translators: 1: field label, 2: currency code or unit of measurement */
-				$label = sprintf( __( '%1$s (%2$s)', 'collectibles' ), $label, $currency );
-			} elseif ( isset( $field['unit'] ) ) {
-				/* translators: 1: field label, 2: currency code or unit of measurement */
-				$label = sprintf( __( '%1$s (%2$s)', 'collectibles' ), $label, $field['unit'] );
-			}
-
-			$header[] = $label;
+			$header[] = Item::get_field_label( $field, $currency );
 		}
 
 		$header[] = __( 'Tags', 'collectibles' );
@@ -53,22 +43,31 @@ class Csv {
 		$rows = array( $header );
 
 		foreach ( $items as $item ) {
-			$row = array( get_the_title( $item ) );
+			$tags  = implode( ', ', wp_list_pluck( Item::get_tags( $item->ID ), 'name' ) );
+			$notes = wp_strip_all_tags( $item->post_content );
 
-			foreach ( $fields as $field ) {
-				$value = (string) get_post_meta( $item->ID, $field['key'], true );
+			// An item holding pieces in several conditions is several lines,
+			// alike but for the lot columns — the shape a spreadsheet can sum.
+			foreach ( Item::get_lots( $item->ID ) as $lot ) {
+				$row = array( get_the_title( $item ) );
 
-				if ( 'select' === $field['type'] && '' !== $value ) {
-					$value = $field['options'][ $value ] ?? $value;
+				foreach ( $fields as $field ) {
+					$value = Item::is_lot_field( $field )
+						? (string) $lot[ $field['key'] ]
+						: (string) get_post_meta( $item->ID, $field['key'], true );
+
+					if ( 'select' === $field['type'] && '' !== $value ) {
+						$value = $field['options'][ $value ] ?? $value;
+					}
+
+					$row[] = $value;
 				}
 
-				$row[] = $value;
+				$row[] = $tags;
+				$row[] = $notes;
+
+				$rows[] = $row;
 			}
-
-			$row[] = implode( ', ', wp_list_pluck( Item::get_tags( $item->ID ), 'name' ) );
-			$row[] = wp_strip_all_tags( $item->post_content );
-
-			$rows[] = $row;
 		}
 
 		return self::to_string( $rows );

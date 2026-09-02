@@ -26,11 +26,11 @@ $coll_card_status          = Item::get_status( $coll_card_item->ID );
 $coll_card_quantity        = Item::get_quantity( $coll_card_item->ID );
 $coll_card_year            = (string) get_post_meta( $coll_card_item->ID, Item::YEAR_META_KEY, true );
 $coll_card_origin          = Geography::get_name( (string) get_post_meta( $coll_card_item->ID, Item::COUNTRY_META_KEY, true ) );
-$coll_card_condition       = Schema::get_grade_label( $coll_card_kind, (string) get_post_meta( $coll_card_item->ID, Item::CONDITION_META_KEY, true ) );
-$coll_card_value           = (string) get_post_meta( $coll_card_item->ID, Item::VALUE_META_KEY, true );
+$coll_card_condition       = Item::describe_conditions( $coll_card_item->ID, $coll_card_kind );
+$coll_card_value           = Item::get_totals( $coll_card_item->ID )['value'];
 $coll_card_facts           = array_values( array_filter( array( $coll_card_year, $coll_card_origin, $coll_card_condition ) ) );
 ?>
-<article class="item-card">
+<article class="item-card" style="--coll-thumb-ratio: <?php echo esc_attr( Schema::get_thumb_ratio( $coll_card_kind ) ); ?>">
 	<a class="item-card-thumb<?php echo $coll_card_photo ? '' : ' is-empty'; ?>" href="<?php echo esc_url( $coll_card_url ); ?>" aria-hidden="true" tabindex="-1">
 		<?php if ( $coll_card_photo ) : ?>
 			<?php echo wp_kses_post( wp_get_attachment_image( $coll_card_photo, 'medium', false, array( 'alt' => '' ) ) ); ?>
@@ -62,8 +62,8 @@ $coll_card_facts           = array_values( array_filter( array( $coll_card_year,
 				<span class="pill pill-<?php echo esc_attr( $coll_card_status ); ?>"><?php echo esc_html( Schema::get_status_label( $coll_card_status ) ); ?></span>
 			<?php endif; ?>
 
-			<?php if ( '' !== $coll_card_value ) : ?>
-				<span class="item-card-value"><?php echo esc_html( Item::format_money( (float) $coll_card_value, $coll_card_currency ) ); ?></span>
+			<?php if ( $coll_card_value > 0 ) : ?>
+				<span class="item-card-value"><?php echo esc_html( Item::format_money( $coll_card_value, $coll_card_currency ) ); ?></span>
 			<?php endif; ?>
 		</div>
 	</div>

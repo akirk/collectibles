@@ -29,6 +29,8 @@ class Item {
 	public const PAID_META_KEY      = 'purchase_price';
 	public const VALUE_META_KEY     = 'estimated_value';
 
+	public const LOTS_META_KEY = 'lots';
+
 	public const FRONT_META_KEY = 'photo_front';
 	public const BACK_META_KEY  = 'photo_back';
 
@@ -53,14 +55,16 @@ class Item {
 				'label'   => __( 'Condition', 'collectibles' ),
 				'type'    => 'select',
 				'grades'  => true,
+				'lot'     => true,
 				'options' => array(),
 			),
 			array(
 				'key'   => self::QUANTITY_META_KEY,
-				'label' => __( 'Quantity', 'collectibles' ),
+				'label' => __( 'Pieces', 'collectibles' ),
 				'type'  => 'number',
 				'step'  => '1',
 				'min'   => '0',
+				'lot'   => true,
 			),
 			array(
 				'key'         => self::YEAR_META_KEY,
@@ -105,6 +109,7 @@ class Item {
 				'step'  => '0.01',
 				'min'   => '0',
 				'money' => true,
+				'lot'   => true,
 			),
 			array(
 				'key'   => self::VALUE_META_KEY,
@@ -113,6 +118,7 @@ class Item {
 				'step'  => '0.01',
 				'min'   => '0',
 				'money' => true,
+				'lot'   => true,
 			),
 		);
 	}
@@ -231,6 +237,31 @@ class Item {
 				)
 			);
 		}
+
+		// The lots of an item that holds more than one condition. Items with a
+		// single lot keep the four scalar keys above instead.
+		register_post_meta(
+			self::POST_TYPE,
+			self::LOTS_META_KEY,
+			array(
+				'type'          => 'array',
+				'single'        => true,
+				'show_in_rest'  => array(
+					'schema' => array(
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								self::CONDITION_META_KEY => array( 'type' => 'string' ),
+								self::QUANTITY_META_KEY  => array( 'type' => 'string' ),
+								self::PAID_META_KEY      => array( 'type' => 'string' ),
+								self::VALUE_META_KEY     => array( 'type' => 'string' ),
+							),
+						),
+					),
+				),
+				'auth_callback' => $auth_callback,
+			)
+		);
 
 		// The two named photo slots point at attachments rather than holding a
 		// value of their own.
@@ -438,6 +469,16 @@ class Item {
 			$values[ $field['key'] ] = (string) get_post_meta( $item_id, $field['key'], true );
 		}
 
+		// Lot fields have no single value once an item holds several lots, so
+		// a caller that wants one gets the first lot's.
+		$lot = self::get_lots( $item_id )[0];
+
+		foreach ( self::get_lot_field_keys() as $key ) {
+			if ( array_key_exists( $key, $values ) ) {
+				$values[ $key ] = (string) $lot[ $key ];
+			}
+		}
+
 		return $values;
 	}
 
@@ -453,6 +494,11 @@ class Item {
 	 */
 	public static function save_values( int $item_id, string $kind, array $source ): void {
 		foreach ( self::get_fields_for_kind( $kind ) as $field ) {
+			// The lot rows carry these, one set per condition.
+			if ( self::is_lot_field( $field ) ) {
+				continue;
+			}
+
 			$input = 'coll_field_' . $field['key'];
 			$value = self::sanitize_field_value( $field, $source[ $input ] ?? '' );
 
@@ -463,6 +509,8 @@ class Item {
 
 			update_post_meta( $item_id, $field['key'], $value );
 		}
+
+		self::save_lots( $item_id, $kind, $source );
 	}
 
 	/**
@@ -498,6 +546,26 @@ class Item {
 		}
 
 		return $formatted . ' ' . $currency;
+	}
+
+	/**
+	 * The label of a field, with the currency or unit it is measured in.
+	 *
+	 * @param array  $field    Field definition.
+	 * @param string $currency Collection currency code.
+	 */
+	public static function get_field_label( array $field, string $currency = '' ): string {
+		if ( ! empty( $field['money'] ) && '' !== $currency ) {
+			/* translators: 1: field label, 2: currency code or unit of measurement */
+			return sprintf( __( '%1$s (%2$s)', 'collectibles' ), $field['label'], $currency );
+		}
+
+		if ( isset( $field['unit'] ) ) {
+			/* translators: 1: field label, 2: currency code or unit of measurement */
+			return sprintf( __( '%1$s (%2$s)', 'collectibles' ), $field['label'], $field['unit'] );
+		}
+
+		return $field['label'];
 	}
 
 	/**
@@ -568,11 +636,8 @@ class Item {
 
 			++$summary[ $code ]['items'];
 
-			$quantity = (int) get_post_meta( $item->ID, self::QUANTITY_META_KEY, true );
-			$status   = self::get_status( $item->ID );
-
-			if ( in_array( $status, Schema::get_owned_statuses(), true ) ) {
-				$summary[ $code ]['pieces'] += max( 1, $quantity );
+			if ( in_array( self::get_status( $item->ID ), Schema::get_owned_statuses(), true ) ) {
+				$summary[ $code ]['pieces'] += self::get_quantity( $item->ID );
 			}
 		}
 
@@ -760,6 +825,12 @@ class Item {
 						}
 					}
 
+					foreach ( self::get_lots( $item->ID ) as $lot ) {
+						foreach ( $lot as $lot_value ) {
+							$haystack[] = (string) $lot_value;
+						}
+					}
+
 					foreach ( self::get_tags( $item->ID ) as $tag ) {
 						$haystack[] = $tag->name;
 					}
@@ -823,8 +894,8 @@ class Item {
 				usort(
 					$items,
 					function ( $a, $b ) {
-						$value_a = (float) get_post_meta( $a->ID, self::VALUE_META_KEY, true );
-						$value_b = (float) get_post_meta( $b->ID, self::VALUE_META_KEY, true );
+						$value_a = self::get_totals( $a->ID )['value'];
+						$value_b = self::get_totals( $b->ID )['value'];
 
 						if ( $value_a === $value_b ) {
 							return strnatcasecmp( $a->post_title, $b->post_title );
@@ -866,18 +937,259 @@ class Item {
 	}
 
 	/**
-	 * The quantity of an item, defaulting to one.
+	 * The meta keys that describe a lot rather than the piece itself.
+	 *
+	 * A stack of the same note is not one homogeneous thing: one copy can be
+	 * uncirculated and two well used, bought at different times for different
+	 * money. Those four facts therefore belong to a lot, and an item holds one
+	 * or more lots.
+	 *
+	 * @return string[]
+	 */
+	public static function get_lot_field_keys(): array {
+		return array(
+			self::CONDITION_META_KEY,
+			self::QUANTITY_META_KEY,
+			self::PAID_META_KEY,
+			self::VALUE_META_KEY,
+		);
+	}
+
+	/**
+	 * Whether a field definition describes a lot.
+	 *
+	 * @param array $field Field definition.
+	 */
+	public static function is_lot_field( array $field ): bool {
+		return ! empty( $field['lot'] );
+	}
+
+	/**
+	 * The lot field definitions for a kind, in the order a lot row shows them.
+	 *
+	 * @param string $kind Collection kind slug.
+	 * @return array<int, array>
+	 */
+	public static function get_lot_fields( string $kind ): array {
+		$order  = array_flip( self::get_lot_field_keys() );
+		$fields = array();
+
+		foreach ( self::get_fields_for_kind( $kind ) as $field ) {
+			if ( self::is_lot_field( $field ) && isset( $order[ $field['key'] ] ) ) {
+				$fields[ $order[ $field['key'] ] ] = $field;
+			}
+		}
+
+		ksort( $fields );
+
+		return array_values( $fields );
+	}
+
+	/**
+	 * The lots of an item, never fewer than one.
+	 *
+	 * An item with a single lot keeps its four values in plain meta, exactly
+	 * as every item did before lots existed; only an item that holds pieces in
+	 * more than one condition gets the array. Reading goes through here so the
+	 * rest of the plugin never has to know which of the two it is looking at.
+	 *
+	 * @param int $item_id Item post ID.
+	 * @return array<int, array<string, mixed>>
+	 */
+	public static function get_lots( int $item_id ): array {
+		$stored = get_post_meta( $item_id, self::LOTS_META_KEY, true );
+		$lots   = array();
+
+		if ( is_array( $stored ) ) {
+			foreach ( $stored as $lot ) {
+				if ( is_array( $lot ) ) {
+					$lots[] = self::normalize_lot( $lot );
+				}
+			}
+		}
+
+		if ( empty( $lots ) ) {
+			$single = array();
+
+			foreach ( self::get_lot_field_keys() as $key ) {
+				$single[ $key ] = get_post_meta( $item_id, $key, true );
+			}
+
+			$lots[] = self::normalize_lot( $single );
+		}
+
+		return $lots;
+	}
+
+	/**
+	 * Fill in every key of a lot, so callers can read it without guarding.
+	 *
+	 * The money stays a string the way meta holds it; only the piece count is
+	 * cast, because an unset count means one piece rather than none.
+	 *
+	 * @param array $lot Raw lot.
+	 * @return array<string, mixed>
+	 */
+	private static function normalize_lot( array $lot ): array {
+		$quantity = $lot[ self::QUANTITY_META_KEY ] ?? '';
+
+		return array(
+			self::CONDITION_META_KEY => (string) ( $lot[ self::CONDITION_META_KEY ] ?? '' ),
+			self::QUANTITY_META_KEY  => ( '' === $quantity || ! is_numeric( $quantity ) ) ? 1 : max( 0, (int) $quantity ),
+			self::PAID_META_KEY      => (string) ( $lot[ self::PAID_META_KEY ] ?? '' ),
+			self::VALUE_META_KEY     => (string) ( $lot[ self::VALUE_META_KEY ] ?? '' ),
+		);
+	}
+
+	/**
+	 * What an item adds up to: pieces held, money spent, money it is worth.
+	 *
+	 * Prices are recorded per piece, so a lot contributes its price times its
+	 * count.
+	 *
+	 * @param int $item_id Item post ID.
+	 * @return array{pieces:int,paid:float,value:float}
+	 */
+	public static function get_totals( int $item_id ): array {
+		$totals = array(
+			'pieces' => 0,
+			'paid'   => 0.0,
+			'value'  => 0.0,
+		);
+
+		foreach ( self::get_lots( $item_id ) as $lot ) {
+			$pieces = (int) $lot[ self::QUANTITY_META_KEY ];
+
+			$totals['pieces'] += $pieces;
+			$totals['paid']   += (float) $lot[ self::PAID_META_KEY ] * $pieces;
+			$totals['value']  += (float) $lot[ self::VALUE_META_KEY ] * $pieces;
+		}
+
+		return $totals;
+	}
+
+	/**
+	 * How many pieces an item stands for, across all its lots.
 	 *
 	 * @param int $item_id Item post ID.
 	 */
 	public static function get_quantity( int $item_id ): int {
-		$quantity = get_post_meta( $item_id, self::QUANTITY_META_KEY, true );
+		return self::get_totals( $item_id )['pieces'];
+	}
 
-		if ( '' === $quantity || ! is_numeric( $quantity ) ) {
-			return 1;
+	/**
+	 * The distinct condition grades an item holds, in lot order.
+	 *
+	 * @param int $item_id Item post ID.
+	 * @return string[] Grade slugs.
+	 */
+	public static function get_conditions( int $item_id ): array {
+		$grades = array();
+
+		foreach ( self::get_lots( $item_id ) as $lot ) {
+			$grade = (string) $lot[ self::CONDITION_META_KEY ];
+
+			if ( '' !== $grade && ! in_array( $grade, $grades, true ) ) {
+				$grades[] = $grade;
+			}
 		}
 
-		return max( 0, (int) $quantity );
+		return $grades;
+	}
+
+	/**
+	 * The conditions of an item as one readable string, "UNC, VF".
+	 *
+	 * @param int    $item_id Item post ID.
+	 * @param string $kind    Collection kind slug.
+	 */
+	public static function describe_conditions( int $item_id, string $kind ): string {
+		$labels = array();
+
+		foreach ( self::get_conditions( $item_id ) as $grade ) {
+			$labels[] = Schema::get_grade_label( $kind, $grade );
+		}
+
+		return implode( ', ', $labels );
+	}
+
+	/**
+	 * Read the submitted lot rows, dropping the ones left blank.
+	 *
+	 * @param string $kind   Collection kind slug.
+	 * @param array  $source Unslashed request data.
+	 * @return array<int, array<string, string>>
+	 */
+	private static function read_lots( string $kind, array $source ): array {
+		$rows   = isset( $source['coll_lot'] ) && is_array( $source['coll_lot'] ) ? $source['coll_lot'] : array();
+		$fields = self::get_lot_fields( $kind );
+		$lots   = array();
+
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			$lot   = array();
+			$empty = true;
+
+			foreach ( $fields as $field ) {
+				$value                = self::sanitize_field_value( $field, $row[ $field['key'] ] ?? '' );
+				$lot[ $field['key'] ] = $value;
+
+				if ( '' !== $value ) {
+					$empty = false;
+				}
+			}
+
+			// A row nobody filled in is how a lot is removed.
+			if ( ! $empty ) {
+				$lots[] = $lot;
+			}
+		}
+
+		return $lots;
+	}
+
+	/**
+	 * Store the submitted lots of an item.
+	 *
+	 * One lot is written as the four plain meta values, so the common case
+	 * stores exactly what it always did; several lots are written as the array
+	 * and the scalar keys are dropped, because they cannot describe more than
+	 * one condition without lying about the others.
+	 *
+	 * @param int    $item_id Item post ID.
+	 * @param string $kind    Collection kind slug.
+	 * @param array  $source  Unslashed request data.
+	 */
+	public static function save_lots( int $item_id, string $kind, array $source ): void {
+		$lots = self::read_lots( $kind, $source );
+
+		if ( count( $lots ) > 1 ) {
+			update_post_meta( $item_id, self::LOTS_META_KEY, $lots );
+
+			foreach ( self::get_lot_field_keys() as $key ) {
+				delete_post_meta( $item_id, $key );
+			}
+
+			return;
+		}
+
+		delete_post_meta( $item_id, self::LOTS_META_KEY );
+
+		$lot = empty( $lots ) ? array() : reset( $lots );
+
+		foreach ( self::get_lot_field_keys() as $key ) {
+			$value = (string) ( $lot[ $key ] ?? '' );
+
+			if ( '' === $value ) {
+				delete_post_meta( $item_id, $key );
+				continue;
+			}
+
+			update_post_meta( $item_id, $key, $value );
+		}
 	}
 
 	/**
@@ -922,13 +1234,11 @@ class Item {
 				continue;
 			}
 
-			$quantity = self::get_quantity( $item->ID );
-			$paid     = (float) get_post_meta( $item->ID, self::PAID_META_KEY, true );
-			$value    = (float) get_post_meta( $item->ID, self::VALUE_META_KEY, true );
+			$totals = self::get_totals( $item->ID );
 
-			$summary['pieces'] += $quantity;
-			$summary['paid']   += $paid * $quantity;
-			$summary['value']  += $value * $quantity;
+			$summary['pieces'] += $totals['pieces'];
+			$summary['paid']   += $totals['paid'];
+			$summary['value']  += $totals['value'];
 		}
 
 		return $summary;

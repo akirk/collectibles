@@ -22,15 +22,7 @@ if ( ! isset( $coll_field ) || ! is_array( $coll_field ) ) {
 $coll_field_value    = isset( $coll_field_value ) ? (string) $coll_field_value : '';
 $coll_field_currency = isset( $coll_field_currency ) ? (string) $coll_field_currency : '';
 $coll_field_id       = 'coll_field_' . $coll_field['key'];
-$coll_field_label    = $coll_field['label'];
-
-if ( ! empty( $coll_field['money'] ) && '' !== $coll_field_currency ) {
-	/* translators: 1: field label, 2: currency code or unit of measurement */
-	$coll_field_label = sprintf( __( '%1$s (%2$s)', 'collectibles' ), $coll_field_label, $coll_field_currency );
-} elseif ( isset( $coll_field['unit'] ) ) {
-	/* translators: 1: field label, 2: currency code or unit of measurement */
-	$coll_field_label = sprintf( __( '%1$s (%2$s)', 'collectibles' ), $coll_field_label, $coll_field['unit'] );
-}
+$coll_field_label    = Item::get_field_label( $coll_field, $coll_field_currency );
 ?>
 <div class="field field-<?php echo esc_attr( $coll_field['type'] ); ?>">
 	<label for="<?php echo esc_attr( $coll_field_id ); ?>"><?php echo esc_html( $coll_field_label ); ?></label>
