@@ -28,23 +28,34 @@ if ( $coll_not_found ) {
 	status_header( 403 );
 }
 
-$coll_kind      = $coll_not_found ? Schema::KIND_OTHER : Collection::get_kind( $coll_collection_id );
-$coll_currency  = $coll_not_found ? 'EUR' : Collection::get_currency( $coll_collection_id );
-$coll_values    = array();
-$coll_rows      = array();
-$coll_photo_ids = array();
-$coll_tags      = array();
-$coll_paid      = 0.0;
-$coll_value     = 0.0;
+$coll_kind       = $coll_not_found ? Schema::KIND_OTHER : Collection::get_kind( $coll_collection_id );
+$coll_currency   = $coll_not_found ? 'EUR' : Collection::get_currency( $coll_collection_id );
+$coll_values     = array();
+$coll_rows       = array();
+$coll_photo_ids  = array();
+$coll_tags       = array();
+$coll_lots       = array();
+$coll_lot_fields = array();
+$coll_paid       = 0.0;
+$coll_value      = 0.0;
 
 if ( ! $coll_not_found && ! $coll_forbidden ) {
-	$coll_values    = Item::get_values( $coll_item_id, $coll_kind );
-	$coll_photo_ids = Item::get_photo_ids( $coll_item_id );
-	$coll_tags      = Item::get_tags( $coll_item_id );
-	$coll_paid      = (float) get_post_meta( $coll_item_id, Item::PAID_META_KEY, true );
-	$coll_value     = (float) get_post_meta( $coll_item_id, Item::VALUE_META_KEY, true );
+	$coll_values     = Item::get_values( $coll_item_id, $coll_kind );
+	$coll_photo_ids  = Item::get_photo_ids( $coll_item_id );
+	$coll_tags       = Item::get_tags( $coll_item_id );
+	$coll_lots       = Item::get_lots( $coll_item_id );
+	$coll_lot_fields = Item::get_lot_fields( $coll_kind );
+	$coll_totals     = Item::get_totals( $coll_item_id );
+	$coll_paid       = $coll_totals['paid'];
+	$coll_value      = $coll_totals['value'];
 
 	foreach ( Item::get_fields_for_kind( $coll_kind ) as $coll_field ) {
+		// With one lot the four lot values are simply fields of the item; with
+		// several they get a table of their own below.
+		if ( Item::is_lot_field( $coll_field ) && count( $coll_lots ) > 1 ) {
+			continue;
+		}
+
 		$coll_raw     = $coll_values[ $coll_field['key'] ] ?? '';
 		$coll_display = Item::format_field_value( $coll_field, $coll_raw, $coll_currency );
 
@@ -165,6 +176,52 @@ require __DIR__ . '/_head.php';
 								</div>
 							<?php endforeach; ?>
 						</dl>
+					<?php endif; ?>
+
+					<?php if ( count( $coll_lots ) > 1 ) : ?>
+						<div class="lot-table-scroll">
+						<table class="lot-table">
+							<thead>
+								<tr>
+									<?php foreach ( $coll_lot_fields as $coll_lot_field ) : ?>
+										<th scope="col"><?php echo esc_html( Item::get_field_label( $coll_lot_field, $coll_currency ) ); ?></th>
+									<?php endforeach; ?>
+								</tr>
+							</thead>
+							<tbody>
+								<?php foreach ( $coll_lots as $coll_lot ) : ?>
+									<tr>
+										<?php foreach ( $coll_lot_fields as $coll_lot_field ) : ?>
+											<?php
+											$coll_lot_display = Item::format_field_value(
+												$coll_lot_field,
+												(string) $coll_lot[ $coll_lot_field['key'] ],
+												$coll_currency
+											);
+											?>
+											<td data-label="<?php echo esc_attr( Item::get_field_label( $coll_lot_field, $coll_currency ) ); ?>">
+												<?php echo '' === $coll_lot_display ? '&mdash;' : esc_html( $coll_lot_display ); ?>
+											</td>
+										<?php endforeach; ?>
+									</tr>
+								<?php endforeach; ?>
+							</tbody>
+							<tfoot>
+								<tr>
+									<th scope="row"><?php echo esc_html__( 'Total', 'collectibles' ); ?></th>
+									<td data-label="<?php echo esc_attr( Item::get_field_label( $coll_lot_fields[1], $coll_currency ) ); ?>">
+										<?php echo esc_html( number_format_i18n( $coll_totals['pieces'] ) ); ?>
+									</td>
+									<td data-label="<?php echo esc_attr( Item::get_field_label( $coll_lot_fields[2], $coll_currency ) ); ?>">
+										<?php echo esc_html( $coll_paid > 0 ? Item::format_money( $coll_paid, $coll_currency ) : '' ); ?>
+									</td>
+									<td data-label="<?php echo esc_attr( Item::get_field_label( $coll_lot_fields[3], $coll_currency ) ); ?>">
+										<?php echo esc_html( $coll_value > 0 ? Item::format_money( $coll_value, $coll_currency ) : '' ); ?>
+									</td>
+								</tr>
+							</tfoot>
+						</table>
+						</div>
 					<?php endif; ?>
 
 					<?php if ( $coll_paid > 0 && $coll_value > 0 ) : ?>

@@ -209,6 +209,8 @@ $coll_tags_value  = $coll_item ? implode( ', ', wp_list_pluck( Item::get_tags( $
 $coll_values      = $coll_item ? Item::get_values( $coll_item_id, $coll_kind ) : array();
 $coll_photo_ids   = $coll_item ? Item::get_photo_ids( $coll_item_id ) : array();
 $coll_primary_id  = $coll_item ? absint( get_post_thumbnail_id( $coll_item_id ) ) : 0;
+$coll_lot_fields  = Item::get_lot_fields( $coll_kind );
+$coll_lot_rows    = $coll_item ? Item::get_lots( $coll_item_id ) : array();
 
 if ( '' !== $coll_form_error ) {
 	// Keep what was typed so a validation error does not throw the form away.
@@ -224,6 +226,23 @@ if ( '' !== $coll_form_error ) {
 				$coll_field_def,
 				wp_unslash( $_POST[ $coll_input_name ] ) // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Item::sanitize_field_value() sanitizes by field definition.
 			);
+		}
+	}
+
+	if ( isset( $_POST['coll_lot'] ) && is_array( $_POST['coll_lot'] ) ) {
+		$coll_lot_rows = array();
+
+		foreach ( wp_unslash( $_POST['coll_lot'] ) as $coll_posted_lot ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Item::sanitize_field_value() sanitizes by field definition.
+			$coll_lot_row = array();
+
+			foreach ( $coll_lot_fields as $coll_lot_field_def ) {
+				$coll_lot_row[ $coll_lot_field_def['key'] ] = Item::sanitize_field_value(
+					$coll_lot_field_def,
+					is_array( $coll_posted_lot ) ? ( $coll_posted_lot[ $coll_lot_field_def['key'] ] ?? '' ) : ''
+				);
+			}
+
+			$coll_lot_rows[] = $coll_lot_row;
 		}
 	}
 }
@@ -358,9 +377,16 @@ require __DIR__ . '/_head.php';
 					<input id="coll_name" name="coll_name" type="text" value="<?php echo esc_attr( $coll_name_value ); ?>" required autofocus>
 				</div>
 
+				<?php require __DIR__ . '/_lots.php'; ?>
+
 				<div class="field-grid">
 					<?php
 					foreach ( $coll_fields as $coll_field ) {
+						// Condition, pieces and money are per lot, not per item.
+						if ( Item::is_lot_field( $coll_field ) ) {
+							continue;
+						}
+
 						$coll_field_value    = $coll_values[ $coll_field['key'] ] ?? '';
 						$coll_field_currency = $coll_currency;
 

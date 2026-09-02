@@ -177,12 +177,18 @@ class Abilities {
 						'title'      => array( 'type' => 'string' ),
 						'collection' => array( 'type' => 'string' ),
 						'kind'       => array( 'type' => 'string' ),
+						'pieces'     => array( 'type' => 'integer' ),
 						'notes'      => array( 'type' => 'string' ),
 						'tags'       => array(
 							'type'  => 'array',
 							'items' => array( 'type' => 'string' ),
 						),
 						'fields'     => array( 'type' => 'object' ),
+						'lots'       => array(
+							'type'        => 'array',
+							'description' => 'Present when the item holds pieces in more than one condition.',
+							'items'       => array( 'type' => 'object' ),
+						),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'get_item' ),
@@ -287,7 +293,15 @@ class Abilities {
 		$values        = Item::get_values( $item_id, $kind );
 		$fields        = array();
 
+		$lots = Item::get_lots( $item_id );
+
 		foreach ( Item::get_fields_for_kind( $kind ) as $field ) {
+			// Several lots have no single condition or price to report; they
+			// are listed separately below.
+			if ( Item::is_lot_field( $field ) && count( $lots ) > 1 ) {
+				continue;
+			}
+
 			$value = Item::format_field_value( $field, $values[ $field['key'] ] ?? '', $currency );
 
 			if ( '' !== $value ) {
@@ -295,14 +309,31 @@ class Abilities {
 			}
 		}
 
-		return array(
+		$result = array(
 			'id'         => $item_id,
 			'title'      => get_the_title( $item ),
 			'collection' => get_the_title( $collection_id ),
 			'kind'       => $kind,
+			'pieces'     => Item::get_quantity( $item_id ),
 			'notes'      => wp_strip_all_tags( $item->post_content ),
 			'tags'       => wp_list_pluck( Item::get_tags( $item_id ), 'name' ),
 			'fields'     => $fields,
 		);
+
+		if ( count( $lots ) > 1 ) {
+			$result['lots'] = array();
+
+			foreach ( $lots as $lot ) {
+				$row = array();
+
+				foreach ( Item::get_lot_fields( $kind ) as $field ) {
+					$row[ $field['key'] ] = Item::format_field_value( $field, (string) $lot[ $field['key'] ], $currency );
+				}
+
+				$result['lots'][] = $row;
+			}
+		}
+
+		return $result;
 	}
 }

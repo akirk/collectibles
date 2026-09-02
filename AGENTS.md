@@ -20,8 +20,9 @@ records, books, and a generic catch-all kind.
   scale they are graded on.
 - An **item** is one physical piece (or a stack of identical ones — it has a
   quantity). Items are children of a collection via `post_parent`.
-- **Kinds, their fields, their grading scales and the wording of the shared
-  catalog number field are declared in one place**, `Schema::get_kinds()`. The
+- **Kinds, their fields, their grading scales, the aspect ratio their
+  thumbnails are boxed in and the wording of the shared catalog number field
+  are declared in one place**, `Schema::get_kinds()`. The
   catalog number stays one meta key for every kind — only its label and
   placeholder change, so banknotes ask for a Pick number and coins for a KM
   number. Adding a kind is one array entry; the forms, detail view, CSV export
@@ -37,6 +38,38 @@ records, books, and a generic catch-all kind.
   totals; a wishlist entry is not a possession.
 - Prices are recorded per collection currency, not per item, so totals never
   mix currencies.
+- An item holds one or more **lots**. A stack of the same note is not one
+  homogeneous thing — one copy can be uncirculated and two well used, bought at
+  different times for different money — so condition, piece count, price paid
+  and estimated value belong to a lot rather than to the item. Everything else
+  (what the piece is, where it comes from, its photos) stays on the item.
+
+### Lots
+
+`Item::get_lot_field_keys()` names the four keys; a field definition carrying
+`'lot' => true` is one of them, which is how the templates know to leave them
+out of the ordinary field grid.
+
+Storage has two shapes and exactly one reader, `Item::get_lots()`, which always
+returns at least one lot:
+
+- **One lot** — the four values sit in plain meta, exactly as every item stored
+  them before lots existed. Nothing migrates, and the common case reads and
+  writes the same rows it always did.
+- **Several lots** — the `lots` meta holds the array and the four scalar keys
+  are deleted, because they cannot describe more than one condition without
+  lying about the others.
+
+`Item::save_lots()` (called from `save_values()`) picks the shape from what was
+submitted, so an item moves between the two by editing. Read totals through
+`Item::get_totals()` and never by multiplying a single price by a quantity:
+prices are per piece, per lot. `Item::get_values()` reports the first lot for
+its four keys so a caller that wants one value per field still gets one.
+
+Consequences worth knowing: a piece count of 0 means zero pieces, an unset one
+means one piece; the CSV writes one row per lot, alike but for the four lot
+columns; and sorting by value, the card's price and the "above what you paid"
+line are all about the item as a whole, not one piece of it.
 
 ## Architecture
 
@@ -45,8 +78,8 @@ records, books, and a generic catch-all kind.
 - `src/class-app.php` — `App extends WpApp\BaseApp`. Builds the `WpApp`
   instance, registers post types, taxonomy and meta, enqueues the stylesheet on
   app requests, declares routes and menu items, and cascades deletions.
-- `src/class-schema.php` — the kind definitions: labels, icons, fields, grades,
-  plus the item statuses.
+- `src/class-schema.php` — the kind definitions: labels, icons, thumbnail
+  ratios, fields, grades, plus the item statuses.
 - `src/class-collection.php` / `src/class-item.php` — post types, meta
   registration, sanitizing, reading and querying.
 - `src/class-numista.php` — the Numista v3 API client and the mapping from a
