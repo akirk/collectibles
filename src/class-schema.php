@@ -70,6 +70,12 @@ class Schema {
 						'type'  => 'text',
 					),
 					array(
+						'key'         => 'issuer',
+						'label'       => __( 'Issued by', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'The bank or authority', 'collectibles' ),
+					),
+					array(
 						'key'         => 'composition',
 						'label'       => __( 'Composition', 'collectibles' ),
 						'type'        => 'text',
@@ -180,6 +186,12 @@ class Schema {
 						'key'   => 'serial_number',
 						'label' => __( 'Serial number', 'collectibles' ),
 						'type'  => 'text',
+					),
+					array(
+						'key'         => 'issuer',
+						'label'       => __( 'Issued by', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'The bank or authority', 'collectibles' ),
 					),
 					array(
 						'key'   => 'printer',

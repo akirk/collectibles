@@ -16,7 +16,8 @@ $coll_search    = isset( $_GET['q'] ) ? sanitize_text_field( wp_unslash( $_GET['
 $coll_status    = isset( $_GET['status'] ) ? sanitize_key( wp_unslash( $_GET['status'] ) ) : '';
 $coll_scope     = isset( $_GET['collection'] ) ? absint( wp_unslash( $_GET['collection'] ) ) : 0;
 $coll_sort      = isset( $_GET['sort'] ) ? sanitize_key( wp_unslash( $_GET['sort'] ) ) : 'recent';
-$coll_has_query = isset( $_GET['q'] ) || isset( $_GET['status'] ) || isset( $_GET['collection'] );
+$coll_origin    = isset( $_GET['origin'] ) ? sanitize_key( wp_unslash( $_GET['origin'] ) ) : '';
+$coll_has_query = isset( $_GET['q'] ) || isset( $_GET['status'] ) || isset( $_GET['collection'] ) || isset( $_GET['origin'] );
 // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 if ( ! array_key_exists( $coll_status, Schema::get_statuses() ) ) {
@@ -25,6 +26,10 @@ if ( ! array_key_exists( $coll_status, Schema::get_statuses() ) ) {
 
 if ( ! array_key_exists( $coll_sort, Item::get_sort_options() ) ) {
 	$coll_sort = 'recent';
+}
+
+if ( '' !== $coll_origin && 'none' !== $coll_origin && ! Geography::is_known( $coll_origin ) ) {
+	$coll_origin = '';
 }
 
 $coll_collections = Collection::get_for_current_user();
@@ -40,10 +45,14 @@ $coll_items = $coll_has_query
 			'collection' => $coll_scope,
 			'search'     => $coll_search,
 			'status'     => $coll_status,
+			'country'    => $coll_origin,
 			'orderby'    => $coll_sort,
 		)
 	)
 	: array();
+
+// Only offer the places this catalogue actually holds something from.
+$coll_origin_options = Item::summarize_origins( Item::query( array( 'orderby' => 'recent' ) ) );
 
 $coll_page_title = __( 'Search', 'collectibles' );
 
@@ -95,6 +104,26 @@ require __DIR__ . '/_head.php';
 						<?php endforeach; ?>
 					</select>
 				</div>
+
+				<?php if ( ! empty( $coll_origin_options ) ) : ?>
+					<div class="toolbar-field">
+						<label class="screen-reader-text" for="coll_origin"><?php echo esc_html__( 'Origin', 'collectibles' ); ?></label>
+						<select id="coll_origin" name="origin">
+							<option value=""><?php echo esc_html__( 'Anywhere', 'collectibles' ); ?></option>
+							<?php foreach ( $coll_origin_options as $coll_origin_code => $coll_origin_counts ) : ?>
+								<option value="<?php echo esc_attr( '' === $coll_origin_code ? 'none' : $coll_origin_code ); ?>" <?php selected( '' === $coll_origin_code ? 'none' : $coll_origin_code, $coll_origin ); ?>>
+									<?php
+									echo esc_html(
+										'' === $coll_origin_code
+											? __( 'Not placed', 'collectibles' )
+											: Geography::get_flag( $coll_origin_code ) . ' ' . Geography::get_name( $coll_origin_code )
+									);
+									?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</div>
+				<?php endif; ?>
 
 				<div class="toolbar-field">
 					<label class="screen-reader-text" for="coll_sort"><?php echo esc_html__( 'Sort by', 'collectibles' ); ?></label>
