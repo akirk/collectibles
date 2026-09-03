@@ -22,6 +22,7 @@ class Schema {
 	public const KIND_CARDS     = 'cards';
 	public const KIND_RECORDS   = 'records';
 	public const KIND_BOOKS     = 'books';
+	public const KIND_COMICS    = 'comics';
 	public const KIND_OTHER     = 'other';
 
 	public const STATUS_OWNED     = 'owned';
@@ -426,6 +427,92 @@ class Schema {
 					'good'   => __( 'Good', 'collectibles' ),
 					'fair'   => __( 'Fair', 'collectibles' ),
 					'poor'   => __( 'Poor', 'collectibles' ),
+				),
+			),
+			self::KIND_COMICS    => array(
+				'label'   => __( 'Comics', 'collectibles' ),
+				'noun'    => __( 'Comic', 'collectibles' ),
+				'icon'    => '💥',
+				'thumb'   => '2 / 3',
+				'catalog' => array(
+					'label'       => __( 'Catalog number', 'collectibles' ),
+					'placeholder' => __( 'e.g. JUL230123, or an ISBN for a collected edition', 'collectibles' ),
+				),
+				'fields'  => array(
+					array(
+						'key'         => 'series',
+						'label'       => __( 'Series', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. Detective Comics', 'collectibles' ),
+					),
+					array(
+						'key'         => 'issue_number',
+						'label'       => __( 'Issue', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. 27', 'collectibles' ),
+					),
+					array(
+						'key'         => 'volume',
+						'label'       => __( 'Volume', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. 2', 'collectibles' ),
+					),
+					array(
+						'key'   => 'publisher',
+						'label' => __( 'Publisher', 'collectibles' ),
+						'type'  => 'text',
+					),
+					array(
+						'key'   => 'writer',
+						'label' => __( 'Writer', 'collectibles' ),
+						'type'  => 'text',
+					),
+					array(
+						'key'   => 'artist',
+						'label' => __( 'Artist', 'collectibles' ),
+						'type'  => 'text',
+					),
+					array(
+						'key'     => 'format',
+						'label'   => __( 'Format', 'collectibles' ),
+						'type'    => 'select',
+						'options' => array(
+							'issue'     => __( 'Single issue', 'collectibles' ),
+							'annual'    => __( 'Annual or special', 'collectibles' ),
+							'paperback' => __( 'Trade paperback', 'collectibles' ),
+							'hardcover' => __( 'Hardcover', 'collectibles' ),
+							'omnibus'   => __( 'Omnibus', 'collectibles' ),
+							'magazine'  => __( 'Magazine', 'collectibles' ),
+						),
+					),
+					array(
+						'key'         => 'variant',
+						'label'       => __( 'Variant', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. 1:25 incentive cover', 'collectibles' ),
+					),
+					array(
+						'key'         => 'grader',
+						'label'       => __( 'Graded by', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. CGC, CBCS', 'collectibles' ),
+					),
+				),
+				'grades'  => array(
+					'gm'    => __( 'Gem Mint (10.0)', 'collectibles' ),
+					'm'     => __( 'Mint (9.9)', 'collectibles' ),
+					'nm_m'  => __( 'Near Mint/Mint (9.8)', 'collectibles' ),
+					'nm'    => __( 'Near Mint (9.4)', 'collectibles' ),
+					'vf_nm' => __( 'Very Fine/Near Mint (9.0)', 'collectibles' ),
+					'vf'    => __( 'Very Fine (8.0)', 'collectibles' ),
+					'fn_vf' => __( 'Fine/Very Fine (7.0)', 'collectibles' ),
+					'fn'    => __( 'Fine (6.0)', 'collectibles' ),
+					'vg_fn' => __( 'Very Good/Fine (5.0)', 'collectibles' ),
+					'vg'    => __( 'Very Good (4.0)', 'collectibles' ),
+					'gd_vg' => __( 'Good/Very Good (3.0)', 'collectibles' ),
+					'gd'    => __( 'Good (2.0)', 'collectibles' ),
+					'fr'    => __( 'Fair (1.0)', 'collectibles' ),
+					'pr'    => __( 'Poor (0.5)', 'collectibles' ),
 				),
 			),
 			self::KIND_OTHER     => array(
