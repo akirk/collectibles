@@ -25,8 +25,9 @@ records, books, comics, watches, and a generic catch-all kind.
   are declared in one place**, `Schema::get_kinds()`. The
   catalog number stays one meta key for every kind — only its label and
   placeholder change, so banknotes ask for a Pick number and coins for a KM
-  number. Adding a kind is one array entry; the forms, detail view, CSV export
-  and meta registration all derive from it. Resist adding kind-specific
+  number. Adding a kind is one array entry; the forms, detail view, CSV export,
+  meta registration and the preview under the kind picker on the collection
+  form all derive from it. Resist adding kind-specific
   branches to templates.
 - Items of every kind share one post type, so post meta is registered on the
   *union* of all kinds' fields (`Schema::get_all_fields()`). Two kinds may

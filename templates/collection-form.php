@@ -167,6 +167,96 @@ require __DIR__ . '/_head.php';
 							</label>
 						<?php endforeach; ?>
 					</div>
+
+					<style>
+						<?php
+						// One rule per kind, so the panel below the picker
+						// follows the radio without any script. Adding a kind
+						// stays a single entry in the schema.
+						foreach ( Schema::get_kinds() as $coll_preview_slug => $coll_preview_def ) {
+							printf(
+								'.kind-picker:has(input[value="%1$s"]:checked) ~ .kind-previews .kind-preview-%1$s{display:block}',
+								esc_attr( $coll_preview_slug )
+							);
+						}
+						?>
+					</style>
+
+					<p class="field-hint"><?php echo esc_html__( 'What an item of that kind can record, beyond its name and notes:', 'collectibles' ); ?></p>
+
+					<div class="kind-previews">
+						<?php foreach ( Schema::get_kinds() as $coll_preview_slug => $coll_preview_def ) : ?>
+							<?php
+							$coll_preview_catalog = Schema::get_catalog_field( $coll_preview_slug );
+							$coll_preview_fields  = Schema::get_fields( $coll_preview_slug );
+							$coll_preview_grades  = array_values( Schema::get_grades( $coll_preview_slug ) );
+
+							if ( $coll_preview_catalog ) {
+								array_unshift( $coll_preview_fields, $coll_preview_catalog + array( 'type' => 'text' ) );
+							}
+							?>
+							<div class="kind-preview kind-preview-<?php echo esc_attr( $coll_preview_slug ); ?>">
+								<ul class="kind-preview-fields">
+									<?php foreach ( $coll_preview_fields as $coll_preview_field ) : ?>
+										<?php
+										// The example is whatever the field itself
+										// offers: the options of a select, the unit
+										// of a measurement, else its placeholder.
+										$coll_preview_eg = '';
+
+										if ( ! empty( $coll_preview_field['options'] ) ) {
+											$coll_preview_labels = array_values( $coll_preview_field['options'] );
+											$coll_preview_eg     = implode( ', ', array_slice( $coll_preview_labels, 0, 3 ) );
+
+											if ( count( $coll_preview_labels ) > 3 ) {
+												$coll_preview_eg .= ' …';
+											}
+										} elseif ( ! empty( $coll_preview_field['unit'] ) ) {
+											$coll_preview_eg = sprintf(
+												/* translators: %s: unit of measurement, e.g. "mm". */
+												__( 'in %s', 'collectibles' ),
+												$coll_preview_field['unit']
+											);
+										} elseif ( ! empty( $coll_preview_field['placeholder'] ) ) {
+											$coll_preview_eg = $coll_preview_field['placeholder'];
+										}
+										?>
+										<li>
+											<span class="kind-preview-field"><?php echo esc_html( $coll_preview_field['label'] ); ?></span>
+											<?php if ( '' !== $coll_preview_eg ) : ?>
+												<span class="kind-preview-eg"><?php echo esc_html( $coll_preview_eg ); ?></span>
+											<?php endif; ?>
+										</li>
+									<?php endforeach; ?>
+								</ul>
+
+								<p class="kind-preview-note">
+									<?php
+									printf(
+										esc_html(
+											/* translators: 1: best condition on the scale, 2: worst condition, 3: how many steps the scale has. */
+											_n(
+												'Graded from %1$s down to %2$s — %3$s step.',
+												'Graded from %1$s down to %2$s — %3$s steps.',
+												count( $coll_preview_grades ),
+												'collectibles'
+											)
+										),
+										esc_html( reset( $coll_preview_grades ) ),
+										esc_html( end( $coll_preview_grades ) ),
+										esc_html( number_format_i18n( count( $coll_preview_grades ) ) )
+									);
+									?>
+									<?php if ( Numista::supports_kind( $coll_preview_slug ) ) : ?>
+										<?php echo esc_html__( 'A catalogue lookup can fill most of it in for you.', 'collectibles' ); ?>
+									<?php endif; ?>
+								</p>
+							</div>
+						<?php endforeach; ?>
+					</div>
+
+					<p class="field-hint"><?php echo esc_html__( 'Whichever kind you pick, every item also keeps its status, year, origin, where it is stored, when and where you got it, photos of front and back, tags, and — for each lot of identical pieces — how many, what you paid and what it is worth.', 'collectibles' ); ?></p>
+
 					<?php if ( ! $coll_is_new ) : ?>
 						<p class="field-hint"><?php echo esc_html__( 'Changing this swaps the fields shown on the items. Values already recorded under the old fields are kept, but hidden until you switch back.', 'collectibles' ); ?></p>
 					<?php endif; ?>
