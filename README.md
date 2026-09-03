@@ -1,7 +1,7 @@
 # Collectibles
 
 A WordPress app for cataloging collections — coins, stamps, banknotes, trading
-cards, records, books, or whatever else you keep in a drawer. Built on
+cards, records, books, comics, or whatever else you keep in a drawer. Built on
 [WpApp](https://github.com/akirk/wp-app), so it runs as its own app at
 `/collectibles/` instead of inside wp-admin.
 
