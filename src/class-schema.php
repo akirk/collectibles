@@ -23,6 +23,7 @@ class Schema {
 	public const KIND_RECORDS   = 'records';
 	public const KIND_BOOKS     = 'books';
 	public const KIND_COMICS    = 'comics';
+	public const KIND_WATCHES   = 'watches';
 	public const KIND_OTHER     = 'other';
 
 	public const STATUS_OWNED     = 'owned';
@@ -513,6 +514,98 @@ class Schema {
 					'gd'    => __( 'Good (2.0)', 'collectibles' ),
 					'fr'    => __( 'Fair (1.0)', 'collectibles' ),
 					'pr'    => __( 'Poor (0.5)', 'collectibles' ),
+				),
+			),
+			self::KIND_WATCHES   => array(
+				'label'   => __( 'Watches', 'collectibles' ),
+				'noun'    => __( 'Watch', 'collectibles' ),
+				'icon'    => '⌚',
+				'thumb'   => '1 / 1',
+				'catalog' => array(
+					'label'       => __( 'Reference number', 'collectibles' ),
+					'placeholder' => __( 'e.g. 145.022-69', 'collectibles' ),
+				),
+				'fields'  => array(
+					array(
+						'key'         => 'manufacturer',
+						'label'       => __( 'Brand', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. Seiko', 'collectibles' ),
+					),
+					array(
+						'key'         => 'model',
+						'label'       => __( 'Model', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. Speedmaster', 'collectibles' ),
+					),
+					array(
+						'key'   => 'serial_number',
+						'label' => __( 'Serial number', 'collectibles' ),
+						'type'  => 'text',
+					),
+					array(
+						'key'     => 'movement',
+						'label'   => __( 'Movement', 'collectibles' ),
+						'type'    => 'select',
+						'options' => array(
+							'manual'    => __( 'Manual wind', 'collectibles' ),
+							'automatic' => __( 'Automatic', 'collectibles' ),
+							'quartz'    => __( 'Quartz', 'collectibles' ),
+							'tuning'    => __( 'Tuning fork', 'collectibles' ),
+							'digital'   => __( 'Digital', 'collectibles' ),
+						),
+					),
+					array(
+						'key'         => 'caliber',
+						'label'       => __( 'Caliber', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. 321', 'collectibles' ),
+					),
+					array(
+						'key'         => 'material',
+						'label'       => __( 'Case material', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. stainless steel', 'collectibles' ),
+					),
+					array(
+						'key'   => 'diameter_mm',
+						'label' => __( 'Case diameter', 'collectibles' ),
+						'type'  => 'number',
+						'step'  => '0.1',
+						'unit'  => __( 'mm', 'collectibles' ),
+					),
+					array(
+						'key'         => 'strap',
+						'label'       => __( 'Strap or bracelet', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. leather, original bracelet', 'collectibles' ),
+					),
+					array(
+						'key'     => 'box_papers',
+						'label'   => __( 'Box and papers', 'collectibles' ),
+						'type'    => 'select',
+						'options' => array(
+							'full_set'    => __( 'Full set', 'collectibles' ),
+							'box_only'    => __( 'Box only', 'collectibles' ),
+							'papers_only' => __( 'Papers only', 'collectibles' ),
+							'watch_only'  => __( 'Watch only', 'collectibles' ),
+						),
+					),
+					array(
+						'key'   => 'last_service',
+						'label' => __( 'Last serviced', 'collectibles' ),
+						'type'  => 'date',
+					),
+				),
+				'grades'  => array(
+					'unworn'    => __( 'Unworn', 'collectibles' ),
+					'nos'       => __( 'New old stock (NOS)', 'collectibles' ),
+					'mint'      => __( 'Mint', 'collectibles' ),
+					'excellent' => __( 'Excellent', 'collectibles' ),
+					'vg'        => __( 'Very Good', 'collectibles' ),
+					'good'      => __( 'Good', 'collectibles' ),
+					'fair'      => __( 'Fair', 'collectibles' ),
+					'poor'      => __( 'Poor, for parts', 'collectibles' ),
 				),
 			),
 			self::KIND_OTHER     => array(

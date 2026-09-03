@@ -4,7 +4,7 @@
 
 A WordPress plugin powered by WpApp (`akirk/wp-app`) for cataloging
 collections of physical objects: coins, stamps, banknotes, trading cards,
-records, books, comics, and a generic catch-all kind.
+records, books, comics, watches, and a generic catch-all kind.
 
 - Plugin slug / text domain: `collectibles`
 - Namespace: `Collectibles\` (classes live in `class-<kebab>.php` files per
