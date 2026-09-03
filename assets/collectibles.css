@@ -1019,6 +1019,51 @@ input[type="file"] {
 	outline-offset: 2px;
 }
 
+.kind-previews {
+	margin-top: 10px;
+}
+
+.kind-preview {
+	display: none;
+	padding: 12px 14px;
+	border: 1px solid var(--coll-line);
+	border-radius: var(--coll-radius-sm);
+	background: var(--coll-paper-alt);
+}
+
+/* Columns, not a grid: a row of cells lines up with the tallest one in it,
+   so a field with a long example left gaps beside its neighbours. Flowing
+   the list down columns instead lets every entry take just the lines it
+   needs. */
+.kind-preview-fields {
+	margin: 0;
+	padding: 0;
+	column-width: 200px;
+	column-gap: 24px;
+	list-style: none;
+}
+
+.kind-preview-fields li {
+	margin-bottom: 3px;
+	font-size: 0.85rem;
+	break-inside: avoid;
+}
+
+.kind-preview-field {
+	color: var(--coll-ink);
+	font-weight: 600;
+}
+
+.kind-preview-eg {
+	color: var(--coll-ink-faint);
+}
+
+.kind-preview-note {
+	margin: 10px 0 0;
+	font-size: 0.82rem;
+	color: var(--coll-ink-soft);
+}
+
 /* ---- Photo manager ---- */
 
 .photo-manager {
