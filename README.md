@@ -1,7 +1,7 @@
 # Collectibles
 
 - Contributors: akirk
-- Tags: collection, catalog, inventory, coins, stamps
+- Tags: collection, inventory, coins, stamps, wp-app
 - Requires at least: 6.0
 - Requires PHP: 7.4
 - Tested up to: 7.1
