@@ -22,7 +22,7 @@ $coll_shell_class = isset( $coll_shell_class ) ? $coll_shell_class : 'shell';
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title><?php echo wp_app_title( $coll_page_title ); ?></title>
+	<title><?php echo wp_app_title( $coll_page_title ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_app_title() returns its value already run through esc_html(). ?></title>
 	<?php wp_app_head(); ?>
 </head>
 <body>
