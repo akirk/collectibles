@@ -136,7 +136,8 @@ Every collection has a CSV export, with one row per lot.
 
 ## Screenshots
 
-1. A collection of coins, with its items, totals and the fields the kind defines.
+1. Starting out: the kinds of thing the app knows how to collect, each bringing the fields it will ask for.
+2. A collection of banknotes, with the entries it holds, the pieces counted, and the search, status, tag and order filters above them.
 
 ## Changelog
 
