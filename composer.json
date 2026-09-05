@@ -12,7 +12,7 @@
     ],
     "require": {
         "php": ">=7.4",
-        "akirk/wp-app": "^1.0"
+        "akirk/wp-app": "^1.8"
     },
     "version": "1.0.0",
     "authors": [

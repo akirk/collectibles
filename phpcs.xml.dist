@@ -30,15 +30,6 @@
 		</properties>
 	</rule>
 
-	<!-- wp_app_title() returns its value already escaped. -->
-	<rule ref="WordPress.Security.EscapeOutput">
-		<properties>
-			<property name="customEscapingFunctions" type="array">
-				<element value="wp_app_title"/>
-			</property>
-		</properties>
-	</rule>
-
 	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
 		<properties>
 			<property name="prefixes" type="array">
