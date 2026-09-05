@@ -3,7 +3,7 @@
  * Plugin Name: Collectibles
  * Plugin URI: https://github.com/akirk/collectibles
  * Description: Catalog what you collect — coins, stamps, banknotes, cards, records, books — each kind with its own fields, grading scale and totals.
- * Version: 1.0.0
+ * Version: 1.0.0+e93463349122
  * Requires at least: 6.0
  * Tested up to: 7.1
  * Requires PHP: 7.4
