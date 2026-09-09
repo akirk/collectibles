@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Collectibles
- * Plugin URI: https://github.com/akirk/collectibles
+ * Plugin URI: https://wpapps.kirk.at/apps/collectibles/
  * Description: Catalog what you collect — coins, stamps, banknotes, cards, records, books — each kind with its own fields, grading scale and totals.
  * Version: 1.0.0
  * Requires at least: 6.0
