@@ -24,7 +24,7 @@ $coll_lot_rows   = isset( $coll_lot_rows ) && is_array( $coll_lot_rows ) ? array
 $coll_currency   = isset( $coll_currency ) ? (string) $coll_currency : '';
 $coll_lot_rows[] = array();
 ?>
-<fieldset class="field lots">
+<fieldset class="field lots" data-coll-lots>
 	<legend><?php echo esc_html__( 'Condition and pieces', 'collectibles' ); ?></legend>
 
 	<div class="lot-head" aria-hidden="true">
@@ -81,30 +81,4 @@ $coll_lot_rows[] = array();
 		<?php echo esc_html__( 'Prices are per piece. Empty a row to drop it.', 'collectibles' ); ?>
 	</p>
 
-	<script>
-		( function () {
-			var root = document.currentScript.parentNode;
-			var button = root.querySelector( '[data-coll-add-lot]' );
-			var rows = root.querySelector( '.lot-rows' );
-
-			if ( ! button || ! rows ) {
-				return;
-			}
-
-			button.hidden = false;
-			button.addEventListener( 'click', function () {
-				var all = rows.querySelectorAll( '.lot-row' );
-				var copy = all[ all.length - 1 ].cloneNode( true );
-				var index = all.length;
-
-				copy.querySelectorAll( 'input, select' ).forEach( function ( control ) {
-					control.name = control.name.replace( /\[\d+\]/, '[' + index + ']' );
-					control.value = '';
-				} );
-
-				rows.appendChild( copy );
-				copy.querySelector( 'input, select' ).focus();
-			} );
-		}() );
-	</script>
 </fieldset>

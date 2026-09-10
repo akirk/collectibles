@@ -79,6 +79,18 @@ class App extends BaseApp {
 			$version,
 			$this->get_url_path()
 		);
+
+		$script_path = dirname( __DIR__ ) . '/assets/collectibles.js';
+		$script_ver  = file_exists( $script_path ) ? (string) filemtime( $script_path ) : '1.0.0';
+
+		wp_app_enqueue_script(
+			'collectibles',
+			plugins_url( 'assets/collectibles.js', dirname( __DIR__ ) . '/collectibles.php' ),
+			array(),
+			$script_ver,
+			true,
+			$this->get_url_path()
+		);
 	}
 
 	/**
