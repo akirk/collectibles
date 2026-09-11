@@ -291,6 +291,12 @@ img { max-width: 100%; height: auto; }
 	stroke-width: 1;
 	vector-effect: non-scaling-stroke;
 }
+.origins-map path.coll-map-step-1 { fill: var(--coll-map-1); }
+.origins-map path.coll-map-step-2 { fill: var(--coll-map-2); }
+.origins-map path.coll-map-step-3 { fill: var(--coll-map-3); }
+.origins-map path.coll-map-step-4 { fill: var(--coll-map-4); }
+.origins-map path.coll-map-step-5 { fill: var(--coll-map-5); }
+.origins-map path.coll-map-active { cursor: pointer; }
 
 .origins-map-panel .field-hint {
 	margin-top: 10px;
@@ -1029,6 +1035,17 @@ input[type="file"] {
 	border: 1px solid var(--coll-line);
 	border-radius: var(--coll-radius-sm);
 	background: var(--coll-paper-alt);
+}
+.kind-picker:has(input[value="coins"]:checked) ~ .kind-previews .kind-preview-coins,
+.kind-picker:has(input[value="stamps"]:checked) ~ .kind-previews .kind-preview-stamps,
+.kind-picker:has(input[value="banknotes"]:checked) ~ .kind-previews .kind-preview-banknotes,
+.kind-picker:has(input[value="cards"]:checked) ~ .kind-previews .kind-preview-cards,
+.kind-picker:has(input[value="records"]:checked) ~ .kind-previews .kind-preview-records,
+.kind-picker:has(input[value="books"]:checked) ~ .kind-previews .kind-preview-books,
+.kind-picker:has(input[value="comics"]:checked) ~ .kind-previews .kind-preview-comics,
+.kind-picker:has(input[value="watches"]:checked) ~ .kind-previews .kind-preview-watches,
+.kind-picker:has(input[value="other"]:checked) ~ .kind-previews .kind-preview-other {
+	display: block;
 }
 
 /* Columns, not a grid: a row of cells lines up with the tallest one in it,

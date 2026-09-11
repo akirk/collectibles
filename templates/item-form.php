@@ -473,7 +473,7 @@ require __DIR__ . '/_head.php';
 					<button
 						class="button button-danger"
 						type="submit"
-						onclick="return confirm('<?php echo esc_js( __( 'Delete this item?', 'collectibles' ) ); ?>');"
+						data-coll-confirm="<?php echo esc_attr__( 'Delete this item?', 'collectibles' ); ?>"
 					>
 						<?php echo esc_html__( 'Delete item', 'collectibles' ); ?>
 					</button>

@@ -168,20 +168,6 @@ require __DIR__ . '/_head.php';
 						<?php endforeach; ?>
 					</div>
 
-					<style>
-						<?php
-						// One rule per kind, so the panel below the picker
-						// follows the radio without any script. Adding a kind
-						// stays a single entry in the schema.
-						foreach ( Schema::get_kinds() as $coll_preview_slug => $coll_preview_def ) {
-							printf(
-								'.kind-picker:has(input[value="%1$s"]:checked) ~ .kind-previews .kind-preview-%1$s{display:block}',
-								esc_attr( $coll_preview_slug )
-							);
-						}
-						?>
-					</style>
-
 					<p class="field-hint"><?php echo esc_html__( 'What an item of that kind can record, beyond its name and notes:', 'collectibles' ); ?></p>
 
 					<div class="kind-previews">
@@ -292,7 +278,7 @@ require __DIR__ . '/_head.php';
 					<button
 						class="button button-danger"
 						type="submit"
-						onclick="return confirm('<?php echo esc_js( __( 'Delete this collection and everything in it?', 'collectibles' ) ); ?>');"
+						data-coll-confirm="<?php echo esc_attr__( 'Delete this collection and everything in it?', 'collectibles' ); ?>"
 					>
 						<?php echo esc_html__( 'Delete collection', 'collectibles' ); ?>
 					</button>

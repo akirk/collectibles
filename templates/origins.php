@@ -93,24 +93,43 @@ require __DIR__ . '/_head.php';
 
 			<?php $coll_map = Geography::get_map_svg(); ?>
 			<?php if ( '' !== $coll_map && ! empty( $coll_territories ) ) : ?>
-				<section class="panel origins-map-panel">
-					<style>
-						<?php
-						// One rule per territory: five steps of ink, the darkest
-						// for wherever the most of the collection comes from.
-						foreach ( $coll_territories as $coll_territory => $coll_count ) {
-							$coll_step = $coll_peak > 0 ? (int) ceil( 5 * $coll_count / $coll_peak ) : 1;
-							$coll_step = min( 5, max( 1, $coll_step ) );
+				<?php
+				// One entry per territory: five steps of ink, the darkest for
+				// wherever the most of the collection comes from.
+				$coll_map_steps = array();
 
-							printf(
-								'.origins-map path[data-code="%s"]{fill:var(--coll-map-%d);cursor:pointer}',
-								esc_attr( $coll_territory ),
-								absint( $coll_step )
-							);
-						}
-						?>
-					</style>
+				foreach ( $coll_territories as $coll_territory => $coll_count ) {
+					$coll_step = $coll_peak > 0 ? (int) ceil( 5 * $coll_count / $coll_peak ) : 1;
+					$coll_step = min( 5, max( 1, $coll_step ) );
 
+					$coll_map_steps[ $coll_territory ] = $coll_step;
+				}
+
+				// Clicking the map is a shortcut for the list below it, which
+				// stays the keyboard-reachable way to the same place. A
+				// territory shaded only by a historic issuer leads to that
+				// issuer rather than to a country with nothing in it.
+				$coll_map_links = array();
+
+				foreach ( $coll_origins as $coll_code => $coll_counts ) {
+					$coll_territory = Geography::get_map_territory( $coll_code );
+
+					if ( '' === $coll_territory ) {
+						continue;
+					}
+
+					$coll_is_country = Geography::to_stored_code( $coll_territory ) === $coll_code;
+
+					if ( $coll_is_country || ! isset( $coll_map_links[ $coll_territory ] ) ) {
+						$coll_map_links[ $coll_territory ] = add_query_arg( 'origin', $coll_code, App::get_url( 'search' ) );
+					}
+				}
+				?>
+				<section
+					class="panel origins-map-panel"
+					data-coll-map-steps="<?php echo esc_attr( wp_json_encode( $coll_map_steps ) ); ?>"
+					data-coll-map-links="<?php echo esc_attr( wp_json_encode( $coll_map_links ) ); ?>"
+				>
 					<div class="origins-map">
 						<?php
 						// The file ships with the plugin: a static SVG of paths.
@@ -136,47 +155,6 @@ require __DIR__ . '/_head.php';
 					</div>
 
 					<p class="field-hint"><?php echo esc_html__( 'Shaded by how much of the collection comes from there. Pick a country to see what came from it.', 'collectibles' ); ?></p>
-
-					<?php
-					// Clicking the map is a shortcut for the list below it,
-					// which stays the keyboard-reachable way to the same place.
-					// A territory shaded only by a historic issuer leads to that
-					// issuer rather than to a country with nothing in it.
-					$coll_map_links = array();
-
-					foreach ( $coll_origins as $coll_code => $coll_counts ) {
-						$coll_territory = Geography::get_map_territory( $coll_code );
-
-						if ( '' === $coll_territory ) {
-							continue;
-						}
-
-						$coll_is_country = Geography::to_stored_code( $coll_territory ) === $coll_code;
-
-						if ( $coll_is_country || ! isset( $coll_map_links[ $coll_territory ] ) ) {
-							$coll_map_links[ $coll_territory ] = add_query_arg( 'origin', $coll_code, App::get_url( 'search' ) );
-						}
-					}
-					?>
-					<script>
-						( function () {
-							var links = <?php echo wp_json_encode( $coll_map_links ); ?>;
-							var map = document.querySelector( '.origins-map' );
-
-							if ( ! map ) {
-								return;
-							}
-
-							map.addEventListener( 'click', function ( event ) {
-								var path = event.target.closest( 'path[data-code]' );
-								var href = path && links[ path.getAttribute( 'data-code' ) ];
-
-								if ( href ) {
-									window.location.href = href;
-								}
-							} );
-						}() );
-					</script>
 				</section>
 			<?php endif; ?>
 
