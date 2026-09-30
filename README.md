@@ -14,7 +14,7 @@ Catalog what you collect — coins, stamps, banknotes, cards, records, books —
 ## Description
 
 Collectibles is a catalog for the things you keep in a drawer: coins, stamps,
-banknotes, trading cards, records, books, comics, watches, or whatever else.
+banknotes, trading cards, records, books, comics, watches, brick sets, or whatever else.
 Built on [WpApp](https://github.com/akirk/wp-app), so it runs as its own app at
 `/collectibles/` instead of inside wp-admin.
 
@@ -23,7 +23,7 @@ Built on [WpApp](https://github.com/akirk/wp-app), so it runs as its own app at
 Every collection has a kind, and the kind decides which fields its items get. A
 coin asks for denomination, mint, mint mark, composition, weight and diameter; a
 stamp asks for perforation, watermark, gum and cancellation; a record asks for
-artist, label, format, speed and sleeve condition. Seven kinds ship, including a
+artist, label, format, speed and sleeve condition. Ten kinds ship, including a
 generic one for everything else.
 
 ### The right grading scale per kind
@@ -77,6 +77,24 @@ Coins and banknotes can be filled in from the Numista catalogue using API
 credentials you register for your own Numista account and enter under Settings.
 Answers are cached and metered against a monthly budget, and no lookup happens
 without credentials.
+
+Brick sets support any brand, with fields for theme, parts per set, completeness,
+box and instructions. LEGO sets can be filled in from [Rebrickable](https://rebrickable.com/api/)
+using a personal API key entered under Settings. Enter a set number (e.g.
+`10497` or `10497-1`) or a Rebrickable set link. The lookup fills in the name,
+year, set number, part count and theme; review the form before saving. The set
+number uses LEGO’s number (e.g. `10497`); the separate Rebrickable reference keeps
+the variant (`10497-1`). Links to Rebrickable and LEGO.com open in a new tab or
+window after a lookup, so you can find images to upload. On saved LEGO items,
+the set number links to LEGO.com and the Rebrickable reference links to its
+catalogue page. LEGO product and instructions links follow your WordPress
+language and region, with a language-region override under Settings when
+LEGO.com does not support the inferred code. Rebrickable publishes a rate limit
+of one request per second on average, rather than a monthly quota. Responses
+are cached for a year. Prices and photos are recorded manually. The shared
+quantity field counts copies of the set, not the parts inside it. Completeness
+and packaging describe the item; use separate entries if copies differ in those
+respects. `COLLECTIBLES_REBRICKABLE_API_KEY` in wp-config.php can supply a site key.
 
 ### CSV export
 

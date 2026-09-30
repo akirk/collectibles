@@ -24,6 +24,7 @@ class Schema {
 	public const KIND_BOOKS     = 'books';
 	public const KIND_COMICS    = 'comics';
 	public const KIND_WATCHES   = 'watches';
+	public const KIND_BRICKS    = 'bricks';
 	public const KIND_OTHER     = 'other';
 
 	public const STATUS_OWNED     = 'owned';
@@ -608,6 +609,79 @@ class Schema {
 					'poor'      => __( 'Poor, for parts', 'collectibles' ),
 				),
 			),
+			self::KIND_BRICKS    => array(
+				'label'   => __( 'Brick sets', 'collectibles' ),
+				'noun'    => __( 'Set', 'collectibles' ),
+				'icon'    => '🧱',
+				'thumb'   => '4 / 3',
+				'catalog' => array(
+					'label'         => __( 'Set number', 'collectibles' ),
+					'placeholder'   => __( 'e.g. 10497', 'collectibles' ),
+					'provider'      => 'rebrickable',
+					'link_callback' => array( Rebrickable::class, 'get_lego_url' ),
+					'extra_links'   => array(
+						array(
+							'label'    => __( 'Instructions', 'collectibles' ),
+							'callback' => array( Rebrickable::class, 'get_instructions_url' ),
+						),
+					),
+				),
+				'fields'  => array(
+					array(
+						'key'         => 'brand',
+						'label'       => __( 'Brand', 'collectibles' ),
+						'type'        => 'text',
+						'placeholder' => __( 'e.g. LEGO, Cobi, BlueBrixx', 'collectibles' ),
+					),
+					array(
+						'key'   => 'theme',
+						'label' => __( 'Theme', 'collectibles' ),
+						'type'  => 'text',
+					),
+					array(
+						'key'   => 'part_count',
+						'label' => __( 'Parts per set', 'collectibles' ),
+						'type'  => 'number',
+						'min'   => '0',
+						'step'  => '1',
+					),
+					array(
+						'key'     => 'completeness',
+						'label'   => __( 'Completeness', 'collectibles' ),
+						'type'    => 'select',
+						'options' => array(
+							'complete'   => __( 'Complete', 'collectibles' ),
+							'incomplete' => __( 'Missing parts', 'collectibles' ),
+							'unknown'    => __( 'Not checked', 'collectibles' ),
+						),
+					),
+					array(
+						'key'     => 'box_instructions',
+						'label'   => __( 'Box and instructions', 'collectibles' ),
+						'type'    => 'select',
+						'options' => array(
+							'both'         => __( 'Box and instructions', 'collectibles' ),
+							'box'          => __( 'Box only', 'collectibles' ),
+							'instructions' => __( 'Instructions only', 'collectibles' ),
+							'neither'      => __( 'Neither', 'collectibles' ),
+						),
+					),
+					array(
+						'key'   => 'rebrickable_id',
+						'label' => __( 'Rebrickable set', 'collectibles' ),
+						'type'  => 'text',
+						'link'  => 'https://rebrickable.com/sets/%s/',
+					),
+				),
+				'grades'  => array(
+					'sealed'    => __( 'New, sealed', 'collectibles' ),
+					'new_open'  => __( 'New, opened', 'collectibles' ),
+					'excellent' => __( 'Used, excellent', 'collectibles' ),
+					'good'      => __( 'Used, good', 'collectibles' ),
+					'fair'      => __( 'Used, fair', 'collectibles' ),
+					'poor'      => __( 'Used, poor', 'collectibles' ),
+				),
+			),
 			self::KIND_OTHER     => array(
 				'label'  => __( 'Anything else', 'collectibles' ),
 				'noun'   => __( 'Item', 'collectibles' ),
@@ -786,13 +860,14 @@ class Schema {
 	public static function get_catalog_field( string $kind ): array {
 		$catalog = self::get_kind( $kind )['catalog'] ?? array();
 
-		// Only the wording belongs on a field definition; the codes are for
-		// matching catalogue references.
+		// Wording and links belong on the field; provider and codes are for lookups.
 		return array_intersect_key(
 			$catalog,
 			array(
-				'label'       => '',
-				'placeholder' => '',
+				'label'         => '',
+				'placeholder'   => '',
+				'link_callback' => '',
+				'extra_links'   => '',
 			)
 		);
 	}

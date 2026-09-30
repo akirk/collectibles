@@ -63,11 +63,28 @@ if ( ! $coll_not_found && ! $coll_forbidden ) {
 			continue;
 		}
 
+		$coll_field_url = isset( $coll_field['link'] ) ? sprintf( $coll_field['link'], rawurlencode( $coll_raw ) ) : '';
+		if ( isset( $coll_field['link_callback'] ) ) {
+			$coll_field_url = call_user_func( $coll_field['link_callback'], $coll_raw, $coll_values );
+		}
+
+		$coll_extra_links = array();
+		foreach ( $coll_field['extra_links'] ?? array() as $coll_extra_link ) {
+			$coll_extra_url = call_user_func( $coll_extra_link['callback'], $coll_raw, $coll_values );
+			if ( '' !== $coll_extra_url ) {
+				$coll_extra_links[] = array(
+					'label' => $coll_extra_link['label'],
+					'url'   => $coll_extra_url,
+				);
+			}
+		}
+
 		$coll_rows[] = array(
-			'label' => $coll_field['label'],
-			'value' => $coll_display,
+			'label'       => $coll_field['label'],
+			'value'       => $coll_display,
 			// A catalogue number that has a canonical page links to it.
-			'url'   => isset( $coll_field['link'] ) ? sprintf( $coll_field['link'], rawurlencode( $coll_raw ) ) : '',
+			'url'         => $coll_field_url,
+			'extra_links' => $coll_extra_links,
 		);
 	}
 }
@@ -172,6 +189,9 @@ require __DIR__ . '/_head.php';
 										<?php else : ?>
 											<?php echo esc_html( $coll_row['value'] ); ?>
 										<?php endif; ?>
+										<?php foreach ( $coll_row['extra_links'] as $coll_extra_link ) : ?>
+											<a href="<?php echo esc_url( $coll_extra_link['url'] ); ?>" target="_blank" rel="noreferrer noopener"><?php echo esc_html( $coll_extra_link['label'] ); ?></a>
+										<?php endforeach; ?>
 									</dd>
 								</div>
 							<?php endforeach; ?>
