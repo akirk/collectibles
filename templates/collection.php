@@ -152,10 +152,12 @@ require __DIR__ . '/_head.php';
 					<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['items'] ) ); ?></span>
 					<span class="stat-label"><?php echo esc_html( _n( 'entry', 'entries', $coll_summary['items'], 'collectibles' ) ); ?></span>
 				</a>
-				<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
-					<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['pieces'] ) ); ?></span>
-					<span class="stat-label"><?php echo esc_html( _n( 'piece held', 'pieces held', $coll_summary['pieces'], 'collectibles' ) ); ?></span>
-				</a>
+				<?php if ( $coll_summary['pieces'] > $coll_summary['items'] ) : ?>
+					<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['pieces'] ) ); ?></span>
+						<span class="stat-label"><?php echo esc_html( _n( 'piece held', 'pieces held', $coll_summary['pieces'], 'collectibles' ) ); ?></span>
+					</a>
+				<?php endif; ?>
 				<?php if ( $coll_summary['paid'] > 0 ) : ?>
 					<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( Item::format_money( $coll_summary['paid'], $coll_currency ) ); ?></span>
