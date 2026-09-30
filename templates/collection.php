@@ -73,6 +73,17 @@ if ( ! $coll_not_found && ! $coll_forbidden ) {
 			)
 		)
 		: $coll_all_items;
+
+	if ( '' === $coll_status ) {
+		$coll_items = array_values(
+			array_filter(
+				$coll_items,
+				static function ( $coll_item ) {
+					return Schema::STATUS_WANTED !== Item::get_status( $coll_item->ID );
+				}
+			)
+		);
+	}
 }
 
 $coll_page_title = $coll_collection ? get_the_title( $coll_collection ) : __( 'Collection', 'collectibles' );
@@ -137,31 +148,33 @@ require __DIR__ . '/_head.php';
 			<?php endif; ?>
 
 			<section class="stat-strip" aria-label="<?php echo esc_attr__( 'Collection totals', 'collectibles' ); ?>">
-				<div class="stat">
+				<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
 					<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['items'] ) ); ?></span>
 					<span class="stat-label"><?php echo esc_html( _n( 'entry', 'entries', $coll_summary['items'], 'collectibles' ) ); ?></span>
-				</div>
-				<div class="stat">
-					<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['pieces'] ) ); ?></span>
-					<span class="stat-label"><?php echo esc_html( _n( 'piece held', 'pieces held', $coll_summary['pieces'], 'collectibles' ) ); ?></span>
-				</div>
+				</a>
+				<?php if ( $coll_summary['pieces'] > $coll_summary['items'] ) : ?>
+					<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['pieces'] ) ); ?></span>
+						<span class="stat-label"><?php echo esc_html( _n( 'piece held', 'pieces held', $coll_summary['pieces'], 'collectibles' ) ); ?></span>
+					</a>
+				<?php endif; ?>
 				<?php if ( $coll_summary['paid'] > 0 ) : ?>
-					<div class="stat">
+					<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( Item::format_money( $coll_summary['paid'], $coll_currency ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'paid in total', 'collectibles' ); ?></span>
-					</div>
+					</a>
 				<?php endif; ?>
 				<?php if ( $coll_summary['value'] > 0 ) : ?>
-					<div class="stat">
+					<a class="stat" href="<?php echo esc_url( add_query_arg( 'sort', 'value_desc', App::get_url( 'collection/' . $coll_collection_id ) ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( Item::format_money( $coll_summary['value'], $coll_currency ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'estimated value', 'collectibles' ); ?></span>
-					</div>
+					</a>
 				<?php endif; ?>
 				<?php if ( $coll_summary['wanted'] > 0 ) : ?>
-					<div class="stat">
+					<a class="stat" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( 'collection/' . $coll_collection_id ) ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['wanted'] ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'on the wishlist', 'collectibles' ); ?></span>
-					</div>
+					</a>
 				<?php endif; ?>
 			</section>
 
@@ -175,7 +188,7 @@ require __DIR__ . '/_head.php';
 					<div class="toolbar-field">
 						<label class="screen-reader-text" for="coll_status"><?php echo esc_html__( 'Status', 'collectibles' ); ?></label>
 						<select id="coll_status" name="status">
-							<option value=""><?php echo esc_html__( 'Any status', 'collectibles' ); ?></option>
+							<option value=""><?php echo esc_html__( 'All except wishlist', 'collectibles' ); ?></option>
 							<?php foreach ( Schema::get_statuses() as $coll_status_slug => $coll_status_label ) : ?>
 								<option value="<?php echo esc_attr( $coll_status_slug ); ?>" <?php selected( $coll_status, $coll_status_slug ); ?>>
 									<?php echo esc_html( $coll_status_label ); ?>
@@ -238,8 +251,13 @@ require __DIR__ . '/_head.php';
 				</section>
 			<?php elseif ( empty( $coll_items ) ) : ?>
 				<section class="empty-state">
+					<?php if ( ! $coll_is_filtered ) : ?>
+						<h2><?php echo esc_html__( 'No items outside the wishlist yet', 'collectibles' ); ?></h2>
+						<a class="button" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( 'collection/' . $coll_collection_id ) ) ); ?>"><?php echo esc_html__( 'View wishlist', 'collectibles' ); ?></a>
+					<?php else : ?>
 					<h2><?php echo esc_html__( 'Nothing matches those filters', 'collectibles' ); ?></h2>
 					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>"><?php echo esc_html__( 'Reset filters', 'collectibles' ); ?></a>
+					<?php endif; ?>
 				</section>
 			<?php else : ?>
 				<?php if ( count( $coll_items ) !== count( $coll_all_items ) ) : ?>

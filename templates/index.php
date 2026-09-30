@@ -70,31 +70,33 @@ require __DIR__ . '/_head.php';
 
 		<?php if ( ! empty( $coll_collections ) ) : ?>
 			<section class="stat-strip" aria-label="<?php echo esc_attr__( 'Totals', 'collectibles' ); ?>">
-				<div class="stat">
+				<a class="stat" href="<?php echo esc_url( App::get_url() . '#collections' ); ?>">
 					<span class="stat-value"><?php echo esc_html( number_format_i18n( count( $coll_collections ) ) ); ?></span>
 					<span class="stat-label"><?php echo esc_html( _n( 'collection', 'collections', count( $coll_collections ), 'collectibles' ) ); ?></span>
-				</div>
-				<div class="stat">
+				</a>
+				<a class="stat" href="<?php echo esc_url( add_query_arg( 'q', '', App::get_url( 'search' ) ) ); ?>">
 					<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_totals['items'] ) ); ?></span>
 					<span class="stat-label"><?php echo esc_html( _n( 'entry', 'entries', $coll_totals['items'], 'collectibles' ) ); ?></span>
-				</div>
-				<div class="stat">
-					<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_totals['pieces'] ) ); ?></span>
-					<span class="stat-label"><?php echo esc_html( _n( 'piece held', 'pieces held', $coll_totals['pieces'], 'collectibles' ) ); ?></span>
-				</div>
+				</a>
+				<?php if ( $coll_totals['pieces'] > $coll_totals['items'] ) : ?>
+					<a class="stat" href="<?php echo esc_url( add_query_arg( 'q', '', App::get_url( 'search' ) ) ); ?>">
+						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_totals['pieces'] ) ); ?></span>
+						<span class="stat-label"><?php echo esc_html( _n( 'piece held', 'pieces held', $coll_totals['pieces'], 'collectibles' ) ); ?></span>
+					</a>
+				<?php endif; ?>
 				<?php foreach ( $coll_by_currency as $coll_currency_code => $coll_currency_total ) : ?>
 					<?php if ( $coll_currency_total > 0 ) : ?>
-						<div class="stat">
+						<a class="stat" href="<?php echo esc_url( add_query_arg( 'sort', 'value_desc', add_query_arg( 'q', '', App::get_url( 'search' ) ) ) ); ?>">
 							<span class="stat-value"><?php echo esc_html( Item::format_money( $coll_currency_total, $coll_currency_code ) ); ?></span>
 							<span class="stat-label"><?php echo esc_html__( 'estimated value', 'collectibles' ); ?></span>
-						</div>
+						</a>
 					<?php endif; ?>
 				<?php endforeach; ?>
 				<?php if ( $coll_totals['wanted'] > 0 ) : ?>
-					<div class="stat">
+					<a class="stat" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( 'search' ) ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_totals['wanted'] ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'on the wishlist', 'collectibles' ); ?></span>
-					</div>
+					</a>
 				<?php endif; ?>
 			</section>
 		<?php endif; ?>
@@ -114,7 +116,7 @@ require __DIR__ . '/_head.php';
 				</a>
 			</section>
 		<?php else : ?>
-			<section class="collection-grid" aria-label="<?php echo esc_attr__( 'Collections', 'collectibles' ); ?>">
+			<section id="collections" class="collection-grid" aria-label="<?php echo esc_attr__( 'Collections', 'collectibles' ); ?>">
 				<?php foreach ( $coll_cards as $coll_card ) : ?>
 					<?php $coll_card_url = App::get_url( 'collection/' . absint( $coll_card['post']->ID ) ); ?>
 					<article class="collection-card">

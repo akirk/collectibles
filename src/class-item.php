@@ -1207,7 +1207,7 @@ class Item {
 	/**
 	 * Totals across a set of items: how many, how many pieces, what they cost
 	 * and what they are worth. Only physically held items count towards the
-	 * money and piece totals.
+	 * money and piece totals. Wishlist entries are counted separately.
 	 *
 	 * @param \WP_Post[] $items Items to summarize.
 	 * @return array{items:int,pieces:int,paid:float,value:float,wanted:int}
@@ -1228,6 +1228,7 @@ class Item {
 
 			if ( Schema::STATUS_WANTED === $status ) {
 				++$summary['wanted'];
+				--$summary['items'];
 			}
 
 			if ( ! in_array( $status, $owned_statuses, true ) ) {
