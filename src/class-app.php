@@ -211,7 +211,7 @@ class App extends BaseApp {
 	 * @param array $domains Domain map.
 	 */
 	public function register_ai_assistant_ability_domains( array $domains ): array {
-		$domains['collectibles'] = 'collectibles, collection, coins, stamps, banknotes, trading cards, records, books, catalog, inventory';
+		$domains['collectibles'] = 'collectibles, collection, coins, stamps, banknotes, trading cards, records, books, brick sets, LEGO, catalog, inventory';
 
 		return $domains;
 	}

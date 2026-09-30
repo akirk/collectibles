@@ -16,10 +16,13 @@ $coll_form_notice = '';
 $coll_action      = isset( $_POST['coll_action'] ) ? sanitize_key( wp_unslash( $_POST['coll_action'] ) ) : '';
 
 if ( 'save_settings' === $coll_action ) {
-	$coll_nonce = isset( $_POST['coll_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_nonce'] ) ) : '';
+	$coll_nonce       = isset( $_POST['coll_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_nonce'] ) ) : '';
+	$coll_lego_locale = isset( $_POST['coll_lego_locale'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_lego_locale'] ) ) : '';
 
 	if ( ! wp_verify_nonce( $coll_nonce, 'coll_save_settings' ) ) {
 		$coll_form_error = __( 'The settings could not be saved. Reload and try again.', 'collectibles' );
+	} elseif ( '' === Rebrickable::sanitize_lego_locale( $coll_lego_locale ) ) {
+		$coll_form_error = __( 'Enter a LEGO language-region code such as en-us, en-gb or de-at.', 'collectibles' );
 	} else {
 		Numista::save_credentials(
 			array(
@@ -28,6 +31,9 @@ if ( 'save_settings' === $coll_action ) {
 				'key'         => isset( $_POST['coll_numista_key'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_numista_key'] ) ) : '',
 			)
 		);
+
+		Rebrickable::save_api_key( isset( $_POST['coll_rebrickable_key'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_rebrickable_key'] ) ) : '' );
+		Rebrickable::save_lego_locale( $coll_lego_locale );
 
 		$coll_form_notice = __( 'Settings saved.', 'collectibles' );
 	}
@@ -111,6 +117,30 @@ require __DIR__ . '/_head.php';
 				<?php endif; ?>
 			</div>
 
+			<h2><?php echo esc_html__( 'Rebrickable', 'collectibles' ); ?></h2>
+			<p class="field-hint">
+				<?php echo esc_html__( 'Rebrickable allows an average of one API request per second per account, with a small allowance for bursts. It does not publish a monthly quota. Lookups are cached for a year; if requests are throttled, wait before trying again.', 'collectibles' ); ?>
+				<a href="https://rebrickable.com/api/v3/docs/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'API limits', 'collectibles' ); ?></a>
+			</p>
+			<p class="field-hint">
+				<?php echo esc_html__( 'Fill in LEGO sets using a personal Rebrickable API key. Other brands can be entered manually. Prices, completeness and condition are yours to record.', 'collectibles' ); ?>
+				<a href="https://rebrickable.com/api/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Get a Rebrickable API key', 'collectibles' ); ?></a>
+			</p>
+			<div class="field">
+				<label for="coll_rebrickable_key"><?php echo esc_html__( 'API key', 'collectibles' ); ?></label>
+				<input id="coll_rebrickable_key" name="coll_rebrickable_key" type="password" autocomplete="off" spellcheck="false" value="<?php echo esc_attr( Rebrickable::is_api_key_fixed() ? '' : Rebrickable::get_api_key() ); ?>" <?php disabled( Rebrickable::is_api_key_fixed() ); ?>>
+				<?php if ( Rebrickable::is_api_key_fixed() ) : ?>
+					<p class="field-hint"><?php echo esc_html__( 'The key is set in wp-config.php, so it cannot be changed here.', 'collectibles' ); ?></p>
+				<?php endif; ?>
+			</div>
+
+			<h2><?php echo esc_html__( 'LEGO.com', 'collectibles' ); ?></h2>
+			<div class="field">
+				<label for="coll_lego_locale"><?php echo esc_html__( 'Language and region', 'collectibles' ); ?></label>
+				<input id="coll_lego_locale" name="coll_lego_locale" type="text" value="<?php echo esc_attr( $coll_lego_locale ?? Rebrickable::get_lego_locale_override() ); ?>" placeholder="<?php echo esc_attr( Rebrickable::get_default_lego_locale() ); ?>" pattern="[A-Za-z]{2}-[A-Za-z]{2}" maxlength="5" spellcheck="false" autocomplete="off">
+				<p class="field-hint"><?php echo esc_html__( 'Use the code from your preferred LEGO.com address, such as en-us, en-gb or de-at. This applies to product and instructions links. Leave blank to follow your WordPress language and region. LEGO may not support that combination; enter an override if needed.', 'collectibles' ); ?></p>
+			</div>
+
 			<div class="form-actions">
 				<button class="button button-primary" type="submit"><?php echo esc_html__( 'Save settings', 'collectibles' ); ?></button>
 				<a class="button button-quiet" href="<?php echo esc_url( App::get_url() ); ?>"><?php echo esc_html__( 'Back', 'collectibles' ); ?></a>
@@ -118,7 +148,7 @@ require __DIR__ . '/_head.php';
 		</form>
 
 		<section class="panel">
-			<h2><?php echo esc_html__( 'Lookups this month', 'collectibles' ); ?></h2>
+			<h2><?php echo esc_html__( 'Numista lookups this month', 'collectibles' ); ?></h2>
 			<p>
 				<?php
 				printf(

@@ -40,13 +40,14 @@ $coll_currency = $coll_not_found ? 'EUR' : Collection::get_currency( $coll_colle
 $coll_fields   = Item::get_fields_for_kind( $coll_kind );
 $coll_action   = isset( $_POST['coll_action'] ) ? sanitize_key( wp_unslash( $_POST['coll_action'] ) ) : '';
 
-// A Numista lookup fills the form in without saving anything.
-$coll_form_notice = '';
-$coll_lookup_ref  = '';
-$coll_prefill     = array();
-$coll_issues      = array();
-$coll_issue_id    = 0;
-$coll_can_look_up = $coll_is_new && Numista::supports_kind( $coll_kind );
+// Catalogue lookups fill the form in without saving anything.
+$coll_form_notice     = '';
+$coll_lookup_ref      = '';
+$coll_prefill         = array();
+$coll_issues          = array();
+$coll_issue_id        = 0;
+$coll_can_look_up     = $coll_is_new && Numista::supports_kind( $coll_kind );
+$coll_can_rebrickable = $coll_is_new && Rebrickable::supports_kind( $coll_kind );
 
 if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 	$coll_nonce = isset( $_POST['coll_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_nonce'] ) ) : '';
@@ -86,6 +87,19 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 				$coll_form_notice = empty( $coll_issue ) && count( $coll_issues ) > 1
 					? __( 'Filled in from Numista. Pick the issue you are holding to add its year and signatures.', 'collectibles' )
 					: __( 'Filled in from Numista. Look it over, then add it to the collection.', 'collectibles' );
+			}
+		}
+	} elseif ( 'rebrickable_lookup' === $coll_action && $coll_can_rebrickable ) {
+		$coll_lookup_ref = isset( $_POST['coll_rebrickable_ref'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_rebrickable_ref'] ) ) : '';
+		if ( ! wp_verify_nonce( $coll_nonce, 'coll_rebrickable_lookup_' . $coll_collection_id ) ) {
+			$coll_form_error = __( 'The lookup could not be run. Reload and try again.', 'collectibles' );
+		} else {
+			$coll_set = Rebrickable::fetch_set( $coll_lookup_ref );
+			if ( is_wp_error( $coll_set ) ) {
+				$coll_form_error = $coll_set->get_error_message();
+			} else {
+				$coll_prefill     = Rebrickable::map_set( $coll_set );
+				$coll_form_notice = __( 'Filled in from Rebrickable. Look it over, then add it to the collection.', 'collectibles' );
 			}
 		}
 	} elseif ( 'delete_item' === $coll_action && ! $coll_is_new ) {
@@ -366,6 +380,10 @@ require __DIR__ . '/_head.php';
 					<?php echo esc_html__( 'Add your Numista credentials to fill items in from the catalogue.', 'collectibles' ); ?>
 					<a href="<?php echo esc_url( App::get_url( 'settings' ) ); ?>"><?php echo esc_html__( 'Settings', 'collectibles' ); ?></a>
 				</div>
+			<?php endif; ?>
+
+			<?php if ( $coll_can_rebrickable ) : ?>
+				<?php require __DIR__ . '/_rebrickable-lookup.php'; ?>
 			<?php endif; ?>
 
 			<form class="panel" method="post" action="<?php echo esc_url( $coll_form_url ); ?>" enctype="multipart/form-data">
