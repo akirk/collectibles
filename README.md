@@ -122,6 +122,46 @@ Pull requests welcome.
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Visit `/collectibles/` on your site
 
+## AI assistant abilities
+
+When the WordPress Abilities API is available, the plugin registers five abilities,
+exposed through the authenticated Abilities REST API:
+
+- `collectibles/list-collections`: list your collections and their totals.
+- `collectibles/search-items`: search existing items by text, collection and status.
+- `collectibles/get-item`: read an item's fields, notes, tags and lots.
+- `collectibles/lookup-catalog-entry`: fetch metadata using a collection ID and a
+  `reference` (a Rebrickable set number/link or Numista type number/link). Uses the
+  configured user's credentials and existing provider caches. Numista results
+  include issue choices; repeat with `issue_id` to select one.
+- `collectibles/add-item`: create an item from a collection ID, `title`, a unique
+  `request_id`, and optional `values`, `notes`, comma-separated `tags` and `lots`.
+  All field values are strings. Reusing the same request ID and payload returns
+  the previously created item; changing the payload with that ID returns an error.
+
+For example, an assistant handling “Add LEGO set 10497 to my LEGO collection” can
+list collections, search for an existing set, look up `10497` in the brick-set
+collection, and pass the returned title, values, notes and tags to `add-item`
+with that collection ID and a new request ID. The result includes the item ID
+and its app URL. The assistant needs a connection that discovers and executes
+WordPress abilities; registration alone does not connect an external assistant.
+
+Creation defaults to one owned set/copy. Personal condition, completeness and
+prices remain unspecified unless supplied. The four lot fields belong in `lots`,
+for example `[{"quantity":"1","condition_grade":"sealed","purchase_price":"100"}]`.
+Prices are per set/copy in the collection currency; `part_count` is the number of
+parts in each set. Collection-scoped lookup, search and creation require permission
+to edit the collection; reading an item requires permission to edit that item.
+
+Run the offline integration checks as a user who can edit posts:
+
+```sh
+wp --url=alex.kirk.at --user=<user-id> eval-file tests/abilities.php
+composer lint
+```
+
+The checks use temporary posts, remove them afterward, and block all HTTP requests.
+
 ## Frequently Asked Questions
 
 ### Does this plugin create custom tables?
