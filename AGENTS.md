@@ -88,7 +88,7 @@ line are all about the item as a whole, not one piece of it.
 - `src/class-geography.php` — territories, continents, flags and the world map
   used by the Origins page.
 - `src/class-csv.php` — CSV export.
-- `src/class-abilities.php` — read-only Abilities API lookups.
+- `src/class-abilities.php` — Abilities API catalog reads, external lookups and item creation.
 - `templates/` — one PHP template per route, plus partials prefixed with `_`
   (`_head.php`, `_foot.php`, `_item-card.php`, `_field-input.php`), which the
   PHPCS filename sniff is configured to skip.

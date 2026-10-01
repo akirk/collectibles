@@ -199,7 +199,7 @@ class App extends BaseApp {
 	}
 
 	/**
-	 * Register the read-only abilities that let an assistant look things up.
+	 * Register abilities for catalog lookups and item creation.
 	 */
 	public function register_abilities(): void {
 		Abilities::register();
