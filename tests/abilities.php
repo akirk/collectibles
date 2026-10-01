@@ -13,7 +13,15 @@ use Collectibles\Item;
 use Collectibles\Numista;
 use Collectibles\Schema;
 
-if ( ! defined( 'ABSPATH' ) || ! current_user_can( 'edit_posts' ) ) {
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+if ( ! function_exists( 'wp_get_ability' ) ) {
+	throw new RuntimeException( 'These checks require the WordPress Abilities API.' );
+}
+
+if ( ! defined( 'WP_CLI' ) || ! WP_CLI || ! current_user_can( 'edit_posts' ) ) {
 	throw new RuntimeException( 'Run through WP-CLI as a user with edit_posts.' );
 }
 

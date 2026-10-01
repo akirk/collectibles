@@ -12,6 +12,7 @@ AGENTS.md export-ignore
 CLAUDE.md export-ignore
 
 # Testing/linting
+tests export-ignore
 phpcs.xml export-ignore
 phpcs.xml.dist export-ignore
 
