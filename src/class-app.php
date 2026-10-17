@@ -106,6 +106,7 @@ class App extends BaseApp {
 		$this->app->route( 'collection/{id}', 'collection.php' );
 		$this->app->route( 'collection/{id}/edit', 'collection-form.php' );
 		$this->app->route( 'collection/{id}/export', 'collection-export.php' );
+		$this->app->route( 'collection/{id}/photos', 'collection-photos.php' );
 
 		$this->app->route( 'collection/{collection_id}/item/new', 'item-form.php' );
 		$this->app->route( 'collection/{collection_id}/item/{id}', 'item.php' );

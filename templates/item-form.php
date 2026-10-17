@@ -197,6 +197,13 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 					}
 				}
 
+				if ( $coll_is_new && Rebrickable::supports_kind( $coll_kind ) && get_post_meta( $coll_saved_id, 'rebrickable_id', true ) && ! Item::get_photo_ids( $coll_saved_id ) ) {
+					$coll_catalog_photo = Rebrickable::import_photo( $coll_saved_id );
+					if ( is_wp_error( $coll_catalog_photo ) ) {
+						$coll_upload_error = $coll_catalog_photo->get_error_message();
+					}
+				}
+
 				if ( '' !== $coll_upload_error ) {
 					$coll_form_error = $coll_upload_error;
 					$coll_item_id    = $coll_saved_id;

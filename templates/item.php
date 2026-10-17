@@ -168,6 +168,10 @@ require __DIR__ . '/_head.php';
 									);
 									?>
 								</a>
+								<?php $coll_catalog_source = get_post_meta( $coll_photo_id, '_coll_catalog_source', true ); ?>
+								<?php if ( $coll_catalog_source ) : ?>
+									<figcaption><a href="<?php echo esc_url( $coll_catalog_source ); ?>"><?php echo esc_html__( 'Rebrickable catalogue image', 'collectibles' ); ?></a></figcaption>
+								<?php endif; ?>
 								<?php $coll_photo_side = Item::get_photo_side_label( $coll_item_id, $coll_photo_id ); ?>
 								<?php if ( '' !== $coll_photo_side ) : ?>
 									<figcaption><?php echo esc_html( $coll_photo_side ); ?></figcaption>
