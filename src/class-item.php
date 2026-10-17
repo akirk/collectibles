@@ -136,6 +136,11 @@ class Item {
 		$catalog = Schema::get_catalog_field( $kind );
 
 		foreach ( $fields as $index => $field ) {
+			if ( self::COUNTRY_META_KEY === $field['key'] && ! Schema::supports_origins( $kind ) ) {
+				unset( $fields[ $index ] );
+				continue;
+			}
+
 			if ( ! empty( $field['grades'] ) ) {
 				$fields[ $index ]['options'] = Schema::get_grades( $kind );
 			}

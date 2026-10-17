@@ -52,7 +52,16 @@ $coll_items = $coll_has_query
 	: array();
 
 // Only offer the places this catalogue actually holds something from.
-$coll_origin_options = Item::summarize_origins( Item::query( array( 'orderby' => 'recent' ) ) );
+$coll_origin_options = $coll_scope && ! Schema::supports_origins( Collection::get_kind( $coll_scope ) )
+	? array()
+	: Item::summarize_origins(
+		Item::query(
+			array(
+				'collection' => $coll_scope,
+				'orderby'    => 'recent',
+			)
+		)
+	);
 
 $coll_page_title = __( 'Search', 'collectibles' );
 

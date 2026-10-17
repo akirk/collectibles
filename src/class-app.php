@@ -107,6 +107,7 @@ class App extends BaseApp {
 		$this->app->route( 'collection/{id}/edit', 'collection-form.php' );
 		$this->app->route( 'collection/{id}/export', 'collection-export.php' );
 		$this->app->route( 'collection/{id}/photos', 'collection-photos.php' );
+		$this->app->route( 'collection/{id}/origins', 'origins.php' );
 
 		$this->app->route( 'collection/{collection_id}/item/new', 'item-form.php' );
 		$this->app->route( 'collection/{collection_id}/item/{id}', 'item.php' );
@@ -118,8 +119,14 @@ class App extends BaseApp {
 	 */
 	protected function setup_menu(): void {
 		$this->app->add_menu_item( 'collections', __( 'Collections', 'collectibles' ), self::get_url() );
+		if ( is_user_logged_in() ) {
+			foreach ( Collection::get_for_current_user() as $collection ) {
+				if ( current_user_can( 'edit_post', $collection->ID ) ) {
+					$this->app->add_menu_item( 'collection-' . $collection->ID, $collection->post_title, self::get_url( 'collection/' . $collection->ID ) );
+				}
+			}
+		}
 		$this->app->add_menu_item( 'search', __( 'Search', 'collectibles' ), self::get_url( 'search' ) );
-		$this->app->add_menu_item( 'origins', __( 'Origins', 'collectibles' ), self::get_url( 'origins' ) );
 		$this->app->add_menu_item( 'settings', __( 'Settings', 'collectibles' ), self::get_url( 'settings' ) );
 	}
 

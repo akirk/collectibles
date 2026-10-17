@@ -241,7 +241,7 @@ require __DIR__ . '/_head.php';
 						<?php endforeach; ?>
 					</div>
 
-					<p class="field-hint"><?php echo esc_html__( 'Whichever kind you pick, every item also keeps its status, year, origin, where it is stored, when and where you got it, photos of front and back, tags, and — for each lot of identical pieces — how many, what you paid and what it is worth.', 'collectibles' ); ?></p>
+					<p class="field-hint"><?php echo esc_html__( 'Whichever kind you pick, every item also keeps its status, year, where it is stored, when and where you got it, photos of front and back, tags, and — for each lot of identical pieces — how many, what you paid and what it is worth.', 'collectibles' ); ?></p>
 
 					<?php if ( ! $coll_is_new ) : ?>
 						<p class="field-hint"><?php echo esc_html__( 'Changing this swaps the fields shown on the items. Values already recorded under the old fields are kept, but hidden until you switch back.', 'collectibles' ); ?></p>

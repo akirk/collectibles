@@ -11,8 +11,34 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$coll_items   = Item::query( array( 'orderby' => 'recent' ) );
-$coll_origins = Item::summarize_origins( $coll_items );
+global $wp_app_route;
+
+$coll_route_params  = $wp_app_route['params'] ?? array();
+$coll_collection_id = absint( $coll_route_params['id'] ?? get_query_var( 'id' ) );
+if ( ! $coll_collection_id ) {
+	// Old bookmarks lead to the collection chooser rather than a global map.
+	wp_safe_redirect( App::get_url() );
+	exit;
+}
+$coll_collection = Collection::get( $coll_collection_id );
+if ( ! $coll_collection ) {
+	wp_die( esc_html__( 'The requested collection is not available.', 'collectibles' ), '', array( 'response' => 404 ) );
+}
+if ( ! current_user_can( 'edit_post', $coll_collection_id ) ) {
+	wp_die( esc_html__( 'You do not have permission to view this collection.', 'collectibles' ), '', array( 'response' => 403 ) );
+}
+if ( ! Schema::supports_origins( Collection::get_kind( $coll_collection_id ) ) ) {
+	wp_die( esc_html__( 'Origins are not available for this collection kind.', 'collectibles' ), '', array( 'response' => 404 ) );
+}
+$coll_collection_url = App::get_url( 'collection/' . $coll_collection_id );
+$coll_search_url     = add_query_arg( 'collection', $coll_collection_id, App::get_url( 'search' ) );
+$coll_items          = Item::query(
+	array(
+		'collection' => $coll_collection_id,
+		'orderby'    => 'recent',
+	)
+);
+$coll_origins        = Item::summarize_origins( $coll_items );
 
 $coll_unplaced = $coll_origins[''] ?? array(
 	'items'  => 0,
@@ -53,7 +79,7 @@ foreach ( $coll_origins as $coll_code => $coll_counts ) {
 $coll_continent_names = Geography::get_continent_names();
 $coll_total_items     = count( $coll_items );
 
-$coll_page_title  = __( 'Origins', 'collectibles' );
+$coll_page_title  = $coll_collection->post_title . ' — ' . __( 'Origins', 'collectibles' );
 $coll_shell_class = 'shell';
 
 require __DIR__ . '/_head.php';
@@ -61,8 +87,8 @@ require __DIR__ . '/_head.php';
 
 		<header class="topbar">
 			<div>
-				<a class="crumb" href="<?php echo esc_url( App::get_url() ); ?>"><?php echo esc_html__( 'Collections', 'collectibles' ); ?></a>
-				<h1><?php echo esc_html( $coll_page_title ); ?></h1>
+				<a class="crumb" href="<?php echo esc_url( $coll_collection_url ); ?>"><?php echo esc_html( $coll_collection->post_title ); ?></a>
+				<h1><?php echo esc_html__( 'Origins', 'collectibles' ); ?></h1>
 				<p class="eyebrow"><?php echo esc_html__( 'Where in the world the collection comes from.', 'collectibles' ); ?></p>
 			</div>
 		</header>
@@ -71,8 +97,8 @@ require __DIR__ . '/_head.php';
 			<section class="empty-state">
 				<h2><?php echo esc_html__( 'Nothing to place yet', 'collectibles' ); ?></h2>
 				<p><?php echo esc_html__( 'Once items record a country, they show up here.', 'collectibles' ); ?></p>
-				<a class="button button-primary" href="<?php echo esc_url( App::get_url() ); ?>">
-					<?php echo esc_html__( 'Back to collections', 'collectibles' ); ?>
+				<a class="button button-primary" href="<?php echo esc_url( $coll_collection_url ); ?>">
+					<?php echo esc_html__( 'Back to collection', 'collectibles' ); ?>
 				</a>
 			</section>
 		<?php else : ?>
@@ -121,7 +147,7 @@ require __DIR__ . '/_head.php';
 					$coll_is_country = Geography::to_stored_code( $coll_territory ) === $coll_code;
 
 					if ( $coll_is_country || ! isset( $coll_map_links[ $coll_territory ] ) ) {
-						$coll_map_links[ $coll_territory ] = add_query_arg( 'origin', $coll_code, App::get_url( 'search' ) );
+						$coll_map_links[ $coll_territory ] = add_query_arg( 'origin', $coll_code, $coll_search_url );
 					}
 				}
 				?>
@@ -180,7 +206,7 @@ require __DIR__ . '/_head.php';
 					<ul class="origin-list">
 						<?php foreach ( $coll_by_continent[ $coll_continent ] as $coll_code => $coll_counts ) : ?>
 							<li class="origin-row">
-								<a href="<?php echo esc_url( add_query_arg( 'origin', $coll_code, App::get_url( 'search' ) ) ); ?>">
+								<a href="<?php echo esc_url( add_query_arg( 'origin', $coll_code, $coll_search_url ) ); ?>">
 									<span class="origin-flag" aria-hidden="true"><?php echo esc_html( Geography::get_flag( $coll_code ) ); ?></span>
 									<span class="origin-name"><?php echo esc_html( Geography::get_name( $coll_code ) ); ?></span>
 									<span class="origin-bar" aria-hidden="true">
@@ -206,7 +232,7 @@ require __DIR__ . '/_head.php';
 						);
 						?>
 					</p>
-					<p><a class="button" href="<?php echo esc_url( add_query_arg( 'origin', 'none', App::get_url( 'search' ) ) ); ?>"><?php echo esc_html__( 'Show them', 'collectibles' ); ?></a></p>
+					<p><a class="button" href="<?php echo esc_url( add_query_arg( 'origin', 'none', $coll_search_url ) ); ?>"><?php echo esc_html__( 'Show them', 'collectibles' ); ?></a></p>
 				</section>
 			<?php endif; ?>
 		<?php endif; ?>
