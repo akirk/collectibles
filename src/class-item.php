@@ -1251,6 +1251,25 @@ class Item {
 	}
 
 	/**
+	 * Sum a per-piece integer field across all physically held copies.
+	 * Quantities include every lot; unset quantities mean one, zero means none.
+	 *
+	 * @param \WP_Post[] $items Items to total.
+	 * @param string     $key Numeric field meta key from the kind schema.
+	 */
+	public static function sum_field( array $items, string $key ): int {
+		$total = 0;
+		foreach ( $items as $item ) {
+			if ( ! in_array( self::get_status( $item->ID ), Schema::get_owned_statuses(), true ) ) {
+				continue;
+			}
+			$value  = max( 0, (int) get_post_meta( $item->ID, $key, true ) );
+			$total += $value * self::get_quantity( $item->ID );
+		}
+		return $total;
+	}
+
+	/**
 	 * Every photo attached to an item, primary image first.
 	 *
 	 * @param int $item_id Item post ID.
