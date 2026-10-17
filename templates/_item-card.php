@@ -29,6 +29,12 @@ $coll_card_origin          = Geography::get_name( (string) get_post_meta( $coll_
 $coll_card_condition       = Item::describe_conditions( $coll_card_item->ID, $coll_card_kind );
 $coll_card_value           = Item::get_totals( $coll_card_item->ID )['value'];
 $coll_card_facts           = array_values( array_filter( array( $coll_card_year, $coll_card_origin, $coll_card_condition ) ) );
+$coll_card_catalog         = Schema::get_kind( $coll_card_kind )['catalog'] ?? array();
+$coll_card_number          = (string) get_post_meta( $coll_card_item->ID, 'catalog_number', true );
+$coll_card_title           = get_the_title( $coll_card_item );
+if ( ! empty( $coll_card_catalog['show_on_card'] ) && '' !== $coll_card_number ) {
+	$coll_card_title = $coll_card_number . ' ' . $coll_card_title;
+}
 ?>
 <article class="item-card" style="--coll-thumb-ratio: <?php echo esc_attr( Schema::get_thumb_ratio( $coll_card_kind ) ); ?>">
 	<a class="item-card-thumb<?php echo $coll_card_photo ? '' : ' is-empty'; ?>" href="<?php echo esc_url( $coll_card_url ); ?>" aria-hidden="true" tabindex="-1">
@@ -43,7 +49,7 @@ $coll_card_facts           = array_values( array_filter( array( $coll_card_year,
 	</a>
 
 	<div class="item-card-body">
-		<h3><a href="<?php echo esc_url( $coll_card_url ); ?>"><?php echo esc_html( get_the_title( $coll_card_item ) ); ?></a></h3>
+		<h3><a href="<?php echo esc_url( $coll_card_url ); ?>"><?php echo esc_html( $coll_card_title ); ?></a></h3>
 
 		<?php if ( $coll_card_show_collection ) : ?>
 			<p class="item-card-collection">
