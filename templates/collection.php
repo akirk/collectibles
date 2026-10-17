@@ -43,14 +43,23 @@ if ( ! array_key_exists( $coll_sort, Item::get_sort_options() ) ) {
 	$coll_sort = 'recent';
 }
 
-$coll_all_items = array();
-$coll_items     = array();
-$coll_summary   = Item::summarize( array() );
-$coll_tags      = array();
+$coll_all_items    = array();
+$coll_items        = array();
+$coll_summary      = Item::summarize( array() );
+$coll_field_totals = array();
+$coll_tags         = array();
 
 if ( ! $coll_not_found && ! $coll_forbidden ) {
 	$coll_all_items = Item::query( array( 'collection' => $coll_collection_id ) );
 	$coll_summary   = Item::summarize( $coll_all_items );
+	foreach ( Item::get_fields_for_kind( $coll_kind ) as $coll_field ) {
+		if ( ! empty( $coll_field['total_label'] ) ) {
+			$coll_field_totals[] = array(
+				'label' => $coll_field['total_label'],
+				'value' => Item::sum_field( $coll_all_items, $coll_field['key'] ),
+			);
+		}
+	}
 
 	foreach ( $coll_all_items as $coll_item ) {
 		foreach ( Item::get_tags( $coll_item->ID ) as $coll_term ) {
@@ -164,6 +173,12 @@ require __DIR__ . '/_head.php';
 						<span class="stat-label"><?php echo esc_html( _n( 'piece held', 'pieces held', $coll_summary['pieces'], 'collectibles' ) ); ?></span>
 					</a>
 				<?php endif; ?>
+				<?php foreach ( $coll_field_totals as $coll_field_total ) : ?>
+					<div class="stat">
+						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_field_total['value'] ) ); ?></span>
+						<span class="stat-label"><?php echo esc_html( $coll_field_total['label'] ); ?></span>
+					</div>
+				<?php endforeach; ?>
 				<?php if ( $coll_summary['paid'] > 0 ) : ?>
 					<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( Item::format_money( $coll_summary['paid'], $coll_currency ) ); ?></span>

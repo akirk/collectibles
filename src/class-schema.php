@@ -641,11 +641,12 @@ class Schema {
 						'type'  => 'text',
 					),
 					array(
-						'key'   => 'part_count',
-						'label' => __( 'Parts per set', 'collectibles' ),
-						'type'  => 'number',
-						'min'   => '0',
-						'step'  => '1',
+						'key'         => 'part_count',
+						'total_label' => __( 'bricks in total', 'collectibles' ),
+						'label'       => __( 'Parts per set', 'collectibles' ),
+						'type'        => 'number',
+						'min'         => '0',
+						'step'        => '1',
 					),
 					array(
 						'key'     => 'completeness',
