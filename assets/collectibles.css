@@ -1243,3 +1243,25 @@ input[type="file"] {
 
 	.stat-strip { gap: 12px 24px; }
 }
+
+.coll-photo-batch {
+	display: grid;
+	gap: 1.5rem;
+}
+
+.coll-photo-row {
+	border-bottom: 1px solid var(--coll-line);
+	padding-bottom: 1.5rem;
+}
+
+.coll-photo-row .actions {
+	margin-top: 1rem;
+	flex-wrap: wrap;
+}
+
+.coll-catalog-preview {
+	width: 100%;
+	max-width: 24rem;
+	max-height: 18rem;
+	object-fit: contain;
+}

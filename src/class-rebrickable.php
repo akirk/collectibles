@@ -214,14 +214,32 @@ class Rebrickable {
 		if ( '' === $key ) {
 			return new \WP_Error( 'coll_rebrickable_key', __( 'Add your Rebrickable API key under Settings first.', 'collectibles' ) );
 		}
-		$response = wp_remote_get(
-			'https://rebrickable.com/api/v3/lego/' . $endpoint . '/',
-			array(
-				'timeout'     => 15,
-				'redirection' => 0,
-				'headers'     => array( 'Authorization' => 'key ' . $key ),
-			)
-		);
+		$lock = 'coll_rebrickable_request_' . md5( $key );
+		if ( (int) get_option( $lock, time() ) < time() - 60 ) {
+			delete_option( $lock );
+		}
+		if ( get_transient( $lock ) || ! add_option( $lock, time(), '', false ) ) {
+			return new \WP_Error( 'coll_rebrickable_busy', __( 'Rebrickable is busy. Please retry in a moment.', 'collectibles' ) );
+		}
+		try {
+			$response = wp_remote_get(
+				'https://rebrickable.com/api/v3/lego/' . $endpoint . '/',
+				array(
+					'timeout'     => 15,
+					'redirection' => 0,
+					'headers'     => array( 'Authorization' => 'key ' . $key ),
+				)
+			);
+			if ( ! is_wp_error( $response ) && 429 === wp_remote_retrieve_response_code( $response ) ) {
+				$retry = wp_remote_retrieve_header( $response, 'retry-after' );
+				$delay = is_numeric( $retry ) ? (int) $retry : strtotime( (string) $retry ) - time();
+				set_transient( $lock, 1, max( 60, $delay ) );
+			}
+		} finally {
+			// Hold the shared credential lock through the spacing interval.
+			usleep( 1100000 );
+			delete_option( $lock );
+		}
 		if ( is_wp_error( $response ) ) {
 			return new \WP_Error( 'coll_rebrickable_transport', __( 'Rebrickable could not be reached. Try again later.', 'collectibles' ) );
 		}
@@ -246,6 +264,93 @@ class Rebrickable {
 		}
 		set_transient( $cache_key, $data, YEAR_IN_SECONDS );
 		return $data;
+	}
+
+	/**
+	 * Find a trusted image URL for an editable LEGO item using cached set data.
+	 *
+	 * @param int $item_id Item ID.
+	 * @return string|\WP_Error Catalogue image URL or error.
+	 */
+	public static function get_photo_url( int $item_id ) {
+		$item = Item::get( $item_id );
+		if ( ! $item || ! current_user_can( 'edit_post', $item_id ) || ! self::supports_kind( Collection::get_kind( (int) $item->post_parent ) ) ) {
+			return new \WP_Error( 'coll_photo_forbidden', __( 'You cannot look up a photo for this item.', 'collectibles' ) );
+		}
+		$reference = get_post_meta( $item_id, 'rebrickable_id', true );
+		if ( ! $reference && 'lego' === strtolower( trim( get_post_meta( $item_id, 'brand', true ) ) ) ) {
+			$reference = get_post_meta( $item_id, 'catalog_number', true );
+		}
+		if ( ! $reference ) {
+			return new \WP_Error( 'coll_photo_reference', __( 'Add a LEGO set number first.', 'collectibles' ) );
+		}
+		// Images need only the set endpoint, not an additional theme lookup.
+		$id  = self::parse_id( $reference );
+		$set = '' !== $id ? self::request( 'sets/' . rawurlencode( $id ) ) : array();
+		if ( is_wp_error( $set ) ) {
+			return $set;
+		}
+		$url = $set['set_img_url'] ?? '';
+		if ( ! is_string( $url ) || ! preg_match( '~^https://cdn\.rebrickable\.com/media/sets/[^?#]+\.(?:jpg|jpeg|png|webp)$~i', $url ) ) {
+			return new \WP_Error( 'coll_photo_missing', __( 'No catalogue image is available for this set.', 'collectibles' ) );
+		}
+		return $url;
+	}
+
+	/**
+	 * Import a catalogue photo only when an editable LEGO item has no photos.
+	 *
+	 * @param int $item_id Item ID.
+	 * @return int|\WP_Error Attachment ID, zero when already illustrated, or error.
+	 */
+	public static function import_photo( int $item_id ) {
+		$item = Item::get( $item_id );
+		if ( ! $item || ! current_user_can( 'edit_post', $item_id ) || ! current_user_can( 'upload_files' ) || ! self::supports_kind( Collection::get_kind( (int) $item->post_parent ) ) ) {
+			return new \WP_Error( 'coll_photo_forbidden', __( 'You cannot import a photo for this item.', 'collectibles' ) );
+		}
+		if ( Item::get_photo_ids( $item_id ) ) {
+			delete_post_meta( $item_id, '_coll_photo_warning' );
+			return 0;
+		}
+		$url = self::get_photo_url( $item_id );
+		if ( is_wp_error( $url ) ) {
+			return $url;
+		}
+		$reference = get_post_meta( $item_id, 'rebrickable_id', true );
+		$id        = self::parse_id( $reference ? $reference : get_post_meta( $item_id, 'catalog_number', true ) );
+		$lock      = 'coll_photo_import_' . $item_id;
+		if ( (int) get_option( $lock, time() ) < time() - 300 ) {
+			delete_option( $lock );
+		}
+		if ( ! add_option( $lock, time(), '', false ) ) {
+			return new \WP_Error( 'coll_photo_busy', __( 'A photo import is already running for this item.', 'collectibles' ) );
+		}
+		try {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			require_once ABSPATH . 'wp-admin/includes/media.php';
+			require_once ABSPATH . 'wp-admin/includes/image.php';
+			$attachment = media_sideload_image( $url, $item_id, $item->post_title . ' — Rebrickable catalogue image', 'id' );
+			if ( is_wp_error( $attachment ) ) {
+				return $attachment;
+			}
+			// A user may have uploaded their own photo during the download.
+			if ( get_post_thumbnail_id( $item_id ) || count( Item::get_photo_ids( $item_id ) ) > 1 ) {
+				wp_delete_attachment( $attachment, true );
+				return 0;
+			}
+			wp_update_post(
+				array(
+					'ID'           => $attachment,
+					'post_excerpt' => 'Rebrickable catalogue image: https://rebrickable.com/sets/' . $id . '/',
+				)
+			);
+			update_post_meta( $attachment, '_coll_catalog_source', 'https://rebrickable.com/sets/' . $id . '/' );
+			set_post_thumbnail( $item_id, $attachment );
+			delete_post_meta( $item_id, '_coll_photo_warning' );
+			return $attachment;
+		} finally {
+			delete_option( $lock );
+		}
 	}
 
 	/**

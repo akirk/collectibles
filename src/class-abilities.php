@@ -287,7 +287,7 @@ class Abilities {
 			'collectibles/add-item',
 			array(
 				'label'               => __( 'Add Collectible Item', 'collectibles' ),
-				'description'         => 'Create an item in a collection. Pass title, values, notes and tags from the catalog lookup, plus personal details when supplied. Field and lot values are strings. Defaults to owned with one set/copy; part_count is parts per set, quantity is number of sets/copies. Put condition_grade, quantity, purchase_price and estimated_value in lots. Prices are per piece in the collection currency. Do not guess condition, completeness or prices. Search for existing items before adding. Use a unique request_id per intended addition and reuse the same ID and payload on retries.',
+				'description'         => 'Create an item in a collection. LEGO catalogue images are imported automatically when available; photo_warning reports image failures without undoing the saved item. Pass title, values, notes and tags from the catalog lookup, plus personal details when supplied. Field and lot values are strings. Defaults to owned with one set/copy; part_count is parts per set, quantity is number of sets/copies. Put condition_grade, quantity, purchase_price and estimated_value in lots. Prices are per piece in the collection currency. Do not guess condition, completeness or prices. Search for existing items before adding. Use a unique request_id per intended addition and reuse the same ID and payload on retries.',
 				'category'            => 'collectibles',
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -331,9 +331,10 @@ class Abilities {
 				'output_schema'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'id'      => array( 'type' => 'integer' ),
-						'url'     => array( 'type' => 'string' ),
-						'created' => array( 'type' => 'boolean' ),
+						'id'            => array( 'type' => 'integer' ),
+						'url'           => array( 'type' => 'string' ),
+						'created'       => array( 'type' => 'boolean' ),
+						'photo_warning' => array( 'type' => 'string' ),
 					),
 				),
 				'execute_callback'    => array( __CLASS__, 'add_item' ),
@@ -515,6 +516,12 @@ class Abilities {
 				wp_delete_post( $item_id, true );
 				return $result;
 			}
+			if ( Rebrickable::supports_kind( $kind ) ) {
+				$photo = Rebrickable::import_photo( $item_id );
+				if ( is_wp_error( $photo ) ) {
+					update_post_meta( $item_id, '_coll_photo_warning', $photo->get_error_message() );
+				}
+			}
 			update_post_meta( $item_id, '_coll_ability_complete', '1' );
 			return self::added_item_result( $item_id, $collection_id, true );
 		} finally {
@@ -531,9 +538,10 @@ class Abilities {
 	 */
 	private static function added_item_result( int $item_id, int $collection_id, bool $created ): array {
 		return array(
-			'id'      => $item_id,
-			'url'     => App::get_url( 'collection/' . $collection_id . '/item/' . $item_id ),
-			'created' => $created,
+			'id'            => $item_id,
+			'url'           => App::get_url( 'collection/' . $collection_id . '/item/' . $item_id ),
+			'created'       => $created,
+			'photo_warning' => (string) get_post_meta( $item_id, '_coll_photo_warning', true ),
 		);
 	}
 
