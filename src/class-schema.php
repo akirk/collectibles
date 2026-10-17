@@ -610,6 +610,7 @@ class Schema {
 				),
 			),
 			self::KIND_BRICKS    => array(
+				'origins' => false,
 				'label'   => __( 'Brick sets', 'collectibles' ),
 				'noun'    => __( 'Set', 'collectibles' ),
 				'icon'    => '🧱',
@@ -806,6 +807,15 @@ class Schema {
 	 */
 	public static function get_thumb_ratio( string $kind ): string {
 		return self::get_kind( $kind )['thumb'] ?? '4 / 3';
+	}
+
+	/**
+	 * Whether origin is a useful fact for items of this kind.
+	 *
+	 * @param string $kind Kind slug.
+	 */
+	public static function supports_origins( string $kind ): bool {
+		return self::get_kind( $kind )['origins'] ?? true;
 	}
 
 	/**
