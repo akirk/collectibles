@@ -1265,3 +1265,71 @@ input[type="file"] {
 	max-height: 18rem;
 	object-fit: contain;
 }
+
+.coll-share-options label,
+.coll-share-selection label {
+	display: flex;
+	align-items: baseline;
+	gap: 0.65rem;
+	padding: 0.5rem 0;
+}
+
+.coll-share-selection {
+	max-height: 24rem;
+	overflow-y: auto;
+}
+
+.coll-public-description {
+	white-space: pre-line;
+	max-width: 48rem;
+}
+
+.coll-public .shell {
+	padding-top: 3rem;
+}
+
+.coll-public .item-card h2 {
+	font-size: 1.1rem;
+	margin: 0 0 1rem;
+}
+
+.coll-public summary {
+	cursor: pointer;
+	color: var(--coll-patina);
+}
+
+.coll-public-detail {
+	max-width: 52rem;
+	margin: 0 auto;
+}
+
+.coll-public-detail .item-card-thumb {
+	max-height: 32rem;
+}
+
+.coll-public-fields {
+	margin: 1rem 0;
+}
+
+.coll-public-fields > div {
+	display: grid;
+	grid-template-columns: minmax(6rem, 1fr) 2fr;
+	gap: 1rem;
+	padding: 0.5rem 0;
+	border-bottom: 1px solid var(--coll-line);
+}
+
+.coll-public-fields dd {
+	margin: 0;
+	overflow-wrap: anywhere;
+}
+
+.coll-public-photo {
+	margin: 1rem 0;
+}
+
+.coll-public-photo img {
+	width: 100%;
+	max-height: 36rem;
+	object-fit: contain;
+}

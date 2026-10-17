@@ -140,6 +140,7 @@ require __DIR__ . '/_head.php';
 					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/photos' ) ); ?>">
 						<?php echo esc_html__( 'Missing photos', 'collectibles' ); ?>
 					</a>
+					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing', 'collectibles' ); ?></a>
 					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/edit' ) ); ?>">
 						<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
 					</a>

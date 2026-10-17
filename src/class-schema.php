@@ -58,46 +58,53 @@ class Schema {
 				'fields'  => array(
 					array(
 						'key'         => 'denomination',
+						'public'      => true,
 						'label'       => __( 'Denomination', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 5 Schilling', 'collectibles' ),
 					),
 					array(
 						'key'         => 'mint',
+						'public'      => true,
 						'label'       => __( 'Mint', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. Vienna', 'collectibles' ),
 					),
 					array(
-						'key'   => 'mint_mark',
-						'label' => __( 'Mint mark', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'mint_mark',
+						'public' => true,
+						'label'  => __( 'Mint mark', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'         => 'issuer',
+						'public'      => true,
 						'label'       => __( 'Issued by', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'The bank or authority', 'collectibles' ),
 					),
 					array(
 						'key'         => 'composition',
+						'public'      => true,
 						'label'       => __( 'Composition', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. .900 silver', 'collectibles' ),
 					),
 					array(
-						'key'   => 'weight_g',
-						'label' => __( 'Weight', 'collectibles' ),
-						'type'  => 'number',
-						'step'  => '0.01',
-						'unit'  => __( 'g', 'collectibles' ),
+						'key'    => 'weight_g',
+						'public' => true,
+						'label'  => __( 'Weight', 'collectibles' ),
+						'type'   => 'number',
+						'step'   => '0.01',
+						'unit'   => __( 'g', 'collectibles' ),
 					),
 					array(
-						'key'   => 'diameter_mm',
-						'label' => __( 'Diameter', 'collectibles' ),
-						'type'  => 'number',
-						'step'  => '0.1',
-						'unit'  => __( 'mm', 'collectibles' ),
+						'key'    => 'diameter_mm',
+						'public' => true,
+						'label'  => __( 'Diameter', 'collectibles' ),
+						'type'   => 'number',
+						'step'   => '0.1',
+						'unit'   => __( 'mm', 'collectibles' ),
 					),
 					self::get_numista_field(),
 				),
@@ -125,28 +132,33 @@ class Schema {
 				'fields'  => array(
 					array(
 						'key'         => 'denomination',
+						'public'      => true,
 						'label'       => __( 'Face value', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 50 Groschen', 'collectibles' ),
 					),
 					array(
-						'key'   => 'color',
-						'label' => __( 'Colour', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'color',
+						'public' => true,
+						'label'  => __( 'Colour', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'         => 'perforation',
+						'public'      => true,
 						'label'       => __( 'Perforation', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 12½ × 13', 'collectibles' ),
 					),
 					array(
-						'key'   => 'watermark',
-						'label' => __( 'Watermark', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'watermark',
+						'public' => true,
+						'label'  => __( 'Watermark', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'     => 'gum',
+						'public'  => true,
 						'label'   => __( 'Gum', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -158,6 +170,7 @@ class Schema {
 					),
 					array(
 						'key'         => 'cancellation',
+						'public'      => true,
 						'label'       => __( 'Cancellation', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. first day, Vienna 1934', 'collectibles' ),
@@ -184,9 +197,10 @@ class Schema {
 				),
 				'fields'  => array(
 					array(
-						'key'   => 'denomination',
-						'label' => __( 'Denomination', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'denomination',
+						'public' => true,
+						'label'  => __( 'Denomination', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'   => 'serial_number',
@@ -195,33 +209,39 @@ class Schema {
 					),
 					array(
 						'key'         => 'issuer',
+						'public'      => true,
 						'label'       => __( 'Issued by', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'The bank or authority', 'collectibles' ),
 					),
 					array(
-						'key'   => 'printer',
-						'label' => __( 'Printer', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'printer',
+						'public' => true,
+						'label'  => __( 'Printer', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
-						'key'   => 'signature',
-						'label' => __( 'Signatures', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'signature',
+						'public' => true,
+						'label'  => __( 'Signatures', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
-						'key'   => 'watermark',
-						'label' => __( 'Watermark', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'watermark',
+						'public' => true,
+						'label'  => __( 'Watermark', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'         => 'series',
+						'public'      => true,
 						'label'       => __( 'Series', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 1966 Series', 'collectibles' ),
 					),
 					array(
 						'key'         => 'dimensions',
+						'public'      => true,
 						'label'       => __( 'Dimensions', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 132 × 65 mm', 'collectibles' ),
@@ -250,34 +270,40 @@ class Schema {
 				),
 				'fields'  => array(
 					array(
-						'key'   => 'set_name',
-						'label' => __( 'Set', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'set_name',
+						'public' => true,
+						'label'  => __( 'Set', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
-						'key'   => 'card_number',
-						'label' => __( 'Card number', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'card_number',
+						'public' => true,
+						'label'  => __( 'Card number', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'         => 'subject',
+						'public'      => true,
 						'label'       => __( 'Subject', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'Player, character, …', 'collectibles' ),
 					),
 					array(
-						'key'   => 'manufacturer',
-						'label' => __( 'Manufacturer', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'manufacturer',
+						'public' => true,
+						'label'  => __( 'Manufacturer', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'         => 'variant',
+						'public'      => true,
 						'label'       => __( 'Variant', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. holo, refractor', 'collectibles' ),
 					),
 					array(
 						'key'         => 'grader',
+						'public'      => true,
 						'label'       => __( 'Graded by', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. PSA, BGS', 'collectibles' ),
@@ -307,17 +333,20 @@ class Schema {
 				),
 				'fields'  => array(
 					array(
-						'key'   => 'artist',
-						'label' => __( 'Artist', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'artist',
+						'public' => true,
+						'label'  => __( 'Artist', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
-						'key'   => 'label_name',
-						'label' => __( 'Label', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'label_name',
+						'public' => true,
+						'label'  => __( 'Label', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'     => 'format',
+						'public'  => true,
 						'label'   => __( 'Format', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -330,6 +359,7 @@ class Schema {
 					),
 					array(
 						'key'     => 'speed',
+						'public'  => true,
 						'label'   => __( 'Speed', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -340,12 +370,14 @@ class Schema {
 					),
 					array(
 						'key'         => 'pressing',
+						'public'      => true,
 						'label'       => __( 'Pressing', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. first pressing, reissue', 'collectibles' ),
 					),
 					array(
 						'key'     => 'sleeve_condition',
+						'public'  => true,
 						'label'   => __( 'Sleeve condition', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -380,28 +412,33 @@ class Schema {
 				),
 				'fields'  => array(
 					array(
-						'key'   => 'author',
-						'label' => __( 'Author', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'author',
+						'public' => true,
+						'label'  => __( 'Author', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
-						'key'   => 'publisher',
-						'label' => __( 'Publisher', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'publisher',
+						'public' => true,
+						'label'  => __( 'Publisher', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'         => 'edition',
+						'public'      => true,
 						'label'       => __( 'Edition', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. first edition', 'collectibles' ),
 					),
 					array(
-						'key'   => 'isbn',
-						'label' => __( 'ISBN', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'isbn',
+						'public' => true,
+						'label'  => __( 'ISBN', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'     => 'binding',
+						'public'  => true,
 						'label'   => __( 'Binding', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -413,6 +450,7 @@ class Schema {
 					),
 					array(
 						'key'     => 'dust_jacket',
+						'public'  => true,
 						'label'   => __( 'Dust jacket', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -443,39 +481,46 @@ class Schema {
 				'fields'  => array(
 					array(
 						'key'         => 'series',
+						'public'      => true,
 						'label'       => __( 'Series', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. Detective Comics', 'collectibles' ),
 					),
 					array(
 						'key'         => 'issue_number',
+						'public'      => true,
 						'label'       => __( 'Issue', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 27', 'collectibles' ),
 					),
 					array(
 						'key'         => 'volume',
+						'public'      => true,
 						'label'       => __( 'Volume', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 2', 'collectibles' ),
 					),
 					array(
-						'key'   => 'publisher',
-						'label' => __( 'Publisher', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'publisher',
+						'public' => true,
+						'label'  => __( 'Publisher', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
-						'key'   => 'writer',
-						'label' => __( 'Writer', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'writer',
+						'public' => true,
+						'label'  => __( 'Writer', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
-						'key'   => 'artist',
-						'label' => __( 'Artist', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'artist',
+						'public' => true,
+						'label'  => __( 'Artist', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'     => 'format',
+						'public'  => true,
 						'label'   => __( 'Format', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -489,12 +534,14 @@ class Schema {
 					),
 					array(
 						'key'         => 'variant',
+						'public'      => true,
 						'label'       => __( 'Variant', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 1:25 incentive cover', 'collectibles' ),
 					),
 					array(
 						'key'         => 'grader',
+						'public'      => true,
 						'label'       => __( 'Graded by', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. CGC, CBCS', 'collectibles' ),
@@ -529,12 +576,14 @@ class Schema {
 				'fields'  => array(
 					array(
 						'key'         => 'manufacturer',
+						'public'      => true,
 						'label'       => __( 'Brand', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. Seiko', 'collectibles' ),
 					),
 					array(
 						'key'         => 'model',
+						'public'      => true,
 						'label'       => __( 'Model', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. Speedmaster', 'collectibles' ),
@@ -546,6 +595,7 @@ class Schema {
 					),
 					array(
 						'key'     => 'movement',
+						'public'  => true,
 						'label'   => __( 'Movement', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -558,31 +608,36 @@ class Schema {
 					),
 					array(
 						'key'         => 'caliber',
+						'public'      => true,
 						'label'       => __( 'Caliber', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 321', 'collectibles' ),
 					),
 					array(
 						'key'         => 'material',
+						'public'      => true,
 						'label'       => __( 'Case material', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. stainless steel', 'collectibles' ),
 					),
 					array(
-						'key'   => 'diameter_mm',
-						'label' => __( 'Case diameter', 'collectibles' ),
-						'type'  => 'number',
-						'step'  => '0.1',
-						'unit'  => __( 'mm', 'collectibles' ),
+						'key'    => 'diameter_mm',
+						'public' => true,
+						'label'  => __( 'Case diameter', 'collectibles' ),
+						'type'   => 'number',
+						'step'   => '0.1',
+						'unit'   => __( 'mm', 'collectibles' ),
 					),
 					array(
 						'key'         => 'strap',
+						'public'      => true,
 						'label'       => __( 'Strap or bracelet', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. leather, original bracelet', 'collectibles' ),
 					),
 					array(
 						'key'     => 'box_papers',
+						'public'  => true,
 						'label'   => __( 'Box and papers', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -631,17 +686,20 @@ class Schema {
 				'fields'  => array(
 					array(
 						'key'         => 'brand',
+						'public'      => true,
 						'label'       => __( 'Brand', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. LEGO, Cobi, BlueBrixx', 'collectibles' ),
 					),
 					array(
-						'key'   => 'theme',
-						'label' => __( 'Theme', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'theme',
+						'public' => true,
+						'label'  => __( 'Theme', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'         => 'part_count',
+						'public'      => true,
 						'total_label' => __( 'bricks in total', 'collectibles' ),
 						'label'       => __( 'Parts per set', 'collectibles' ),
 						'type'        => 'number',
@@ -650,6 +708,7 @@ class Schema {
 					),
 					array(
 						'key'     => 'completeness',
+						'public'  => true,
 						'label'   => __( 'Completeness', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -660,6 +719,7 @@ class Schema {
 					),
 					array(
 						'key'     => 'box_instructions',
+						'public'  => true,
 						'label'   => __( 'Box and instructions', 'collectibles' ),
 						'type'    => 'select',
 						'options' => array(
@@ -693,17 +753,20 @@ class Schema {
 				'fields' => array(
 					array(
 						'key'         => 'maker',
+						'public'      => true,
 						'label'       => __( 'Maker', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'Manufacturer, artist, …', 'collectibles' ),
 					),
 					array(
-						'key'   => 'material',
-						'label' => __( 'Material', 'collectibles' ),
-						'type'  => 'text',
+						'key'    => 'material',
+						'public' => true,
+						'label'  => __( 'Material', 'collectibles' ),
+						'type'   => 'text',
 					),
 					array(
 						'key'         => 'dimensions',
+						'public'      => true,
 						'label'       => __( 'Dimensions', 'collectibles' ),
 						'type'        => 'text',
 						'placeholder' => __( 'e.g. 12 × 8 × 3 cm', 'collectibles' ),

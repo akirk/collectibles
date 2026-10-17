@@ -108,6 +108,23 @@ Registered in `App::setup_routes()`, under `/collectibles/`:
 Build in-app URLs with `Collectibles\App::get_url( $path )` and asset URLs with
 `App::get_asset_url( $relative )`.
 
+### Public sharing
+
+Private collection management stays under `/collectibles/`, including
+`collection/{id}/sharing`. `Sharing` registers a separate anonymous WpApp at
+`/collections/{slug}/`, with item pages under `/{item_slug}/`. Never relax the
+private app or its REST capabilities to support public pages.
+
+Sharing defaults to private. Owners can share all published items (including
+future additions), or explicitly selected items. Preview uses the same public
+projection without saving settings. The public description is separate from
+private collection notes. Only field definitions with `'public' => true` are
+projected; new fields stay private by default. Prices, lots, acquisition and
+storage details, serial numbers, personal notes and tags are excluded. Public
+templates receive projected arrays rather than raw posts or item metadata.
+Pages use no-store headers, discourage indexing, and recheck sharing on every
+request. Upload URLs retain WordPress's existing public-file behavior.
+
 ### Numista lookups
 
 Coins and banknotes can be filled in from the Numista catalogue. The public

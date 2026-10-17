@@ -35,6 +35,8 @@ class App extends BaseApp {
 			)
 		);
 
+		Sharing::init();
+
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_action( 'init', array( $this, 'register_meta' ) );
@@ -108,6 +110,7 @@ class App extends BaseApp {
 		$this->app->route( 'collection/{id}/export', 'collection-export.php' );
 		$this->app->route( 'collection/{id}/photos', 'collection-photos.php' );
 		$this->app->route( 'collection/{id}/origins', 'origins.php' );
+		$this->app->route( 'collection/{id}/sharing', 'collection-sharing.php' );
 
 		$this->app->route( 'collection/{collection_id}/item/new', 'item-form.php' );
 		$this->app->route( 'collection/{collection_id}/item/{id}', 'item.php' );
