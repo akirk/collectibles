@@ -3,7 +3,7 @@
  * WordPress Abilities exposed by the plugin.
  *
  * Assistants can inspect the catalog, look up external catalog entries and
- * create items through the same sanitizers and lot storage as the app forms.
+ * create, update and delete items through the same sanitizers and lot storage as the app forms.
  *
  * @package Collectibles
  */
@@ -26,7 +26,7 @@ class Abilities {
 			'collectibles',
 			array(
 				'label'       => __( 'Collectibles', 'collectibles' ),
-				'description' => __( 'Look up and add items in the collectibles catalog.', 'collectibles' ),
+				'description' => __( 'Look up, add, update and delete items in the collectibles catalog.', 'collectibles' ),
 			)
 		);
 	}
@@ -160,7 +160,7 @@ class Abilities {
 			'collectibles/get-item',
 			array(
 				'label'               => __( 'Get Collectible Item', 'collectibles' ),
-				'description'         => 'Returns every recorded field of one item, including its kind-specific fields.',
+				'description'         => 'Returns every recorded field of one item, including its kind-specific fields, collection_id, raw values and raw_lots for update-item.',
 				'category'            => 'collectibles',
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -176,18 +176,28 @@ class Abilities {
 				'output_schema'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'id'         => array( 'type' => 'integer' ),
-						'title'      => array( 'type' => 'string' ),
-						'collection' => array( 'type' => 'string' ),
-						'kind'       => array( 'type' => 'string' ),
-						'pieces'     => array( 'type' => 'integer' ),
-						'notes'      => array( 'type' => 'string' ),
-						'tags'       => array(
+						'id'            => array( 'type' => 'integer' ),
+						'title'         => array( 'type' => 'string' ),
+						'collection'    => array( 'type' => 'string' ),
+						'collection_id' => array( 'type' => 'integer' ),
+						'values'        => array(
+							'type'        => 'object',
+							'description' => 'Raw non-lot field strings for update-item.',
+						),
+						'raw_lots'      => array(
+							'type'        => 'array',
+							'items'       => array( 'type' => 'object' ),
+							'description' => 'All lots with raw field strings, including when there is only one lot.',
+						),
+						'kind'          => array( 'type' => 'string' ),
+						'pieces'        => array( 'type' => 'integer' ),
+						'notes'         => array( 'type' => 'string' ),
+						'tags'          => array(
 							'type'  => 'array',
 							'items' => array( 'type' => 'string' ),
 						),
-						'fields'     => array( 'type' => 'object' ),
-						'lots'       => array(
+						'fields'        => array( 'type' => 'object' ),
+						'lots'          => array(
 							'type'        => 'array',
 							'description' => 'Present when the item holds pieces in more than one condition.',
 							'items'       => array( 'type' => 'object' ),
@@ -349,6 +359,88 @@ class Abilities {
 				),
 			)
 		);
+		$mutation_scope    = array(
+			'id'         => array(
+				'type'    => 'integer',
+				'minimum' => 1,
+			),
+			'collection' => array(
+				'type'    => 'integer',
+				'minimum' => 1,
+			),
+		);
+		$update_properties = array_merge(
+			$mutation_scope,
+			array(
+				'title'  => array(
+					'type'      => 'string',
+					'minLength' => 1,
+				),
+				'notes'  => array(
+					'type'        => 'string',
+					'description' => 'Replace notes; empty clears them.',
+				),
+				'tags'   => array(
+					'type'        => 'string',
+					'description' => 'Replace tags with comma-separated names; empty clears them.',
+				),
+				'values' => array(
+					'type'                 => 'object',
+					'properties'           => $value_properties,
+					'additionalProperties' => false,
+				),
+				'lots'   => array(
+					'type'     => 'array',
+					'minItems' => 1,
+					'items'    => array(
+						'type'                 => 'object',
+						'properties'           => $lot_properties,
+						'additionalProperties' => false,
+					),
+				),
+			)
+		);
+		foreach ( array( 'update', 'delete' ) as $operation ) {
+			$delete = 'delete' === $operation;
+			wp_register_ability(
+				'collectibles/' . $operation . '-item',
+				array(
+					'label'               => $delete ? __( 'Delete Collectible Item', 'collectibles' ) : __( 'Update Collectible Item', 'collectibles' ),
+					'description'         => $delete
+						? 'Permanently delete one item and all its photos. Search/get the exact item first and use its collection ID. Only delete when the user requests it. Repeating a deletion returns deleted=false when the item is already gone.'
+						: 'Update an existing item by ID and collection ID. Search/get the item first. Supply only intended changes: omitted fields, photos, tags, notes and lots remain unchanged. To rename, supply title only. values is a partial patch of stored field strings; empty strings clear fields. lots, when supplied, replaces ALL lots with the supplied list; include every lot to keep. Put condition_grade, quantity and prices in lots, not values. Do not guess personal facts or copy formatted fields back as stored values. Absolute updates can be retried.',
+					'category'            => 'collectibles',
+					'input_schema'        => array(
+						'type'                 => 'object',
+						'properties'           => $delete ? $mutation_scope : $update_properties,
+						'required'             => array( 'id', 'collection' ),
+						'additionalProperties' => false,
+					),
+					'output_schema'       => array(
+						'type'       => 'object',
+						'properties' => array_merge(
+							array( 'id' => array( 'type' => 'integer' ) ),
+							$delete ? array( 'deleted' => array( 'type' => 'boolean' ) ) : array(
+								'updated' => array( 'type' => 'boolean' ),
+								'url'     => array( 'type' => 'string' ),
+							)
+						),
+					),
+					'execute_callback'    => array( __CLASS__, $operation . '_item' ),
+					'permission_callback' => static function ( $input ) use ( $delete ) {
+						return self::can_mutate_item( $input, $delete );
+					},
+					'meta'                => array(
+						'show_in_rest' => true,
+						'annotations'  => array(
+							'readonly'    => false,
+							'destructive' => true,
+							'idempotent'  => true,
+						),
+					),
+				)
+			);
+		}
 	}
 
 	/**
@@ -359,6 +451,162 @@ class Abilities {
 	public static function can_access_collection( $input ): bool {
 		$id = is_array( $input ) ? absint( $input['collection'] ?? 0 ) : 0;
 		return current_user_can( 'edit_posts' ) && Collection::get( $id ) && current_user_can( 'edit_post', $id );
+	}
+
+	/**
+	 * Check item type, collection scope and the reader's mutation capability.
+	 * Missing items are allowed only for an idempotent deletion retry.
+	 *
+	 * @param array $input Item and collection IDs.
+	 * @param bool  $delete Whether to check deletion access.
+	 */
+	private static function can_mutate_item( array $input, bool $delete ): bool {
+		if ( ! self::can_access_collection( $input ) ) {
+			return false;
+		}
+		$id   = absint( $input['id'] ?? 0 );
+		$post = get_post( $id );
+		if ( ! $id ) {
+			return false;
+		}
+		if ( ! $post ) {
+			return $delete && current_user_can( 'delete_posts' );
+		}
+		return Item::POST_TYPE === $post->post_type && absint( $input['collection'] ) === (int) $post->post_parent && current_user_can( $delete ? 'delete_post' : 'edit_post', $id );
+	}
+
+	/**
+	 * Apply only the supplied changes, preserving omitted fields and lots.
+	 *
+	 * @param array $input Item scope and an absolute patch.
+	 * @return array|\WP_Error
+	 */
+	public static function update_item( array $input ) {
+		if ( ! self::can_mutate_item( $input, false ) ) {
+			return new \WP_Error( 'collectibles_item_forbidden', __( 'You do not have access to update this item.', 'collectibles' ) );
+		}
+		$id     = absint( $input['id'] );
+		$kind   = Collection::get_kind( absint( $input['collection'] ) );
+		$fields = array_column( Item::get_fields_for_kind( $kind ), null, 'key' );
+		$values = array();
+		foreach ( $input['values'] ?? array() as $key => $value ) {
+			if ( ! isset( $fields[ $key ] ) || Item::is_lot_field( $fields[ $key ] ) || ! is_string( $value ) ) {
+				return new \WP_Error( 'collectibles_field_invalid', __( 'Use fields belonging to this collection kind, with lot fields in lots.', 'collectibles' ) );
+			}
+			$values[ $key ] = Item::sanitize_field_value( $fields[ $key ], $value );
+			if ( '' !== trim( $value ) && '' === $values[ $key ] ) {
+				return new \WP_Error( 'collectibles_field_value', __( 'A field value is invalid for this collection kind.', 'collectibles' ) );
+			}
+		}
+		if ( isset( $input['lots'] ) ) {
+			if ( ! $input['lots'] ) {
+				return new \WP_Error( 'collectibles_lot_invalid', __( 'Supply at least one lot.', 'collectibles' ) );
+			}
+			foreach ( $input['lots'] as $lot ) {
+				foreach ( $lot as $key => $value ) {
+					if ( ! in_array( $key, Item::get_lot_field_keys(), true ) || ! is_string( $value ) || ( '' !== trim( $value ) && '' === Item::sanitize_field_value( $fields[ $key ], $value ) ) ) {
+						return new \WP_Error( 'collectibles_lot_invalid', __( 'A lot field or value is invalid for this collection kind.', 'collectibles' ) );
+					}
+				}
+			}
+		}
+		if ( isset( $input['title'] ) && '' === sanitize_text_field( $input['title'] ) ) {
+			return new \WP_Error( 'collectibles_item_input', __( 'An item name is required.', 'collectibles' ) );
+		}
+		if ( ! array_intersect( array_keys( $input ), array( 'title', 'notes', 'tags', 'values', 'lots' ) ) ) {
+			return new \WP_Error( 'collectibles_item_input', __( 'Supply at least one change.', 'collectibles' ) );
+		}
+		$lock = 'coll_mutate_item_' . $id;
+		if ( ! add_option( $lock, time(), '', false ) ) {
+			return new \WP_Error( 'collectibles_item_busy', __( 'This item is already being changed. Retry shortly.', 'collectibles' ) );
+		}
+		try {
+			if ( ! self::can_mutate_item( $input, false ) ) {
+				return new \WP_Error( 'collectibles_item_forbidden', __( 'You do not have access to update this item.', 'collectibles' ) );
+			}
+			$item = get_post( $id );
+			$post = array( 'ID' => $id );
+			foreach ( array(
+				'title' => 'post_title',
+				'notes' => 'post_content',
+			) as $key => $column ) {
+				if ( isset( $input[ $key ] ) ) {
+					$value = 'title' === $key ? sanitize_text_field( $input[ $key ] ) : sanitize_textarea_field( $input[ $key ] );
+					if ( $item->$column !== $value ) {
+						$post[ $column ] = $value;
+					}
+				}
+			}
+			// Save tags before other changes so a term error does not rename the item.
+			if ( isset( $input['tags'] ) ) {
+				$tags   = array_values( array_filter( array_map( 'trim', explode( ',', sanitize_text_field( $input['tags'] ) ) ) ) );
+				$result = wp_set_object_terms( $id, $tags, Item::TAXONOMY, false );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+			}
+			if ( count( $post ) > 1 ) {
+				$result = wp_update_post( wp_slash( $post ), true );
+				if ( is_wp_error( $result ) ) {
+					return $result;
+				}
+			}
+			// A patch cannot use save_values(), which expects a complete form.
+			foreach ( $values as $key => $value ) {
+				if ( '' === $value ) {
+					delete_post_meta( $id, $key );
+				} else {
+					update_post_meta( $id, $key, wp_slash( $value ) );
+				}
+			}
+			if ( isset( $input['lots'] ) ) {
+				Item::save_lots( $id, $kind, array( 'coll_lot' => $input['lots'] ) );
+			}
+			return array(
+				'id'      => $id,
+				'url'     => App::get_url( 'collection/' . absint( $input['collection'] ) . '/item/' . $id ),
+				'updated' => true,
+			);
+		} finally {
+			delete_option( $lock );
+		}
+	}
+
+	/**
+	 * Permanently delete one item and its photos through the normal cascade.
+	 *
+	 * @param array $input Item and collection IDs.
+	 * @return array|\WP_Error
+	 */
+	public static function delete_item( array $input ) {
+		if ( ! self::can_mutate_item( $input, true ) ) {
+			return new \WP_Error( 'collectibles_item_forbidden', __( 'You do not have access to delete this item.', 'collectibles' ) );
+		}
+		$id   = absint( $input['id'] );
+		$lock = 'coll_mutate_item_' . $id;
+		if ( ! add_option( $lock, time(), '', false ) ) {
+			return new \WP_Error( 'collectibles_item_busy', __( 'This item is already being changed. Retry shortly.', 'collectibles' ) );
+		}
+		try {
+			if ( ! self::can_mutate_item( $input, true ) ) {
+				return new \WP_Error( 'collectibles_item_forbidden', __( 'You do not have access to delete this item.', 'collectibles' ) );
+			}
+			if ( ! get_post( $id ) ) {
+				return array(
+					'id'      => $id,
+					'deleted' => false,
+				);
+			}
+			if ( ! wp_delete_post( $id, true ) ) {
+				return new \WP_Error( 'collectibles_delete_failed', __( 'The item could not be deleted.', 'collectibles' ) );
+			}
+			return array(
+				'id'      => $id,
+				'deleted' => true,
+			);
+		} finally {
+			delete_option( $lock );
+		}
 	}
 
 	/**
@@ -650,14 +898,22 @@ class Abilities {
 		}
 
 		$result = array(
-			'id'         => $item_id,
-			'title'      => get_the_title( $item ),
-			'collection' => get_the_title( $collection_id ),
-			'kind'       => $kind,
-			'pieces'     => Item::get_quantity( $item_id ),
-			'notes'      => wp_strip_all_tags( $item->post_content ),
-			'tags'       => wp_list_pluck( Item::get_tags( $item_id ), 'name' ),
-			'fields'     => $fields,
+			'id'            => $item_id,
+			'title'         => get_the_title( $item ),
+			'collection'    => get_the_title( $collection_id ),
+			'collection_id' => $collection_id,
+			'values'        => array_diff_key( $values, array_flip( Item::get_lot_field_keys() ) ),
+			'raw_lots'      => array_map(
+				static function ( $lot ) {
+					return array_map( 'strval', $lot );
+				},
+				$lots
+			),
+			'kind'          => $kind,
+			'pieces'        => Item::get_quantity( $item_id ),
+			'notes'         => wp_strip_all_tags( $item->post_content ),
+			'tags'          => wp_list_pluck( Item::get_tags( $item_id ), 'name' ),
+			'fields'        => $fields,
 		);
 
 		if ( count( $lots ) > 1 ) {
