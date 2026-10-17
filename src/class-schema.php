@@ -618,6 +618,7 @@ class Schema {
 					'label'         => __( 'Set number', 'collectibles' ),
 					'placeholder'   => __( 'e.g. 10497', 'collectibles' ),
 					'provider'      => 'rebrickable',
+					'show_on_card'  => true,
 					'link_callback' => array( Rebrickable::class, 'get_lego_url' ),
 					'extra_links'   => array(
 						array(
