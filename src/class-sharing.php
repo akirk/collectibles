@@ -17,6 +17,7 @@ class Sharing {
 
 	/** Register anonymous routes without changing the private app's access. */
 	public static function init(): void {
+		add_action( 'wp_after_insert_post', array( __CLASS__, 'share_new_item' ), 10, 3 );
 		add_action( 'wp_ajax_coll_share_item', array( __CLASS__, 'ajax_share_item' ) );
 		$app = new WpApp(
 			dirname( __DIR__ ) . '/templates',
@@ -67,8 +68,26 @@ class Sharing {
 		return array(
 			'mode'        => 'selected' === ( $stored['mode'] ?? '' ) ? 'selected' : 'private',
 			'description' => (string) ( $stored['description'] ?? '' ),
+			'new_items'   => 'shared' === ( $stored['new_items'] ?? '' ) ? 'shared' : 'private',
 			'item_ids'    => array_map( 'absint', (array) ( $stored['item_ids'] ?? array() ) ),
 		);
+	}
+
+	/**
+	 * Apply the collection's sharing default only when a published item is created.
+	 *
+	 * @param int      $id Item ID.
+	 * @param \WP_Post $post Created post.
+	 * @param bool     $update Whether an existing post was updated.
+	 */
+	public static function share_new_item( int $id, \WP_Post $post, bool $update ): void {
+		if ( $update || Item::POST_TYPE !== $post->post_type || 'publish' !== $post->post_status ) {
+			return;
+		}
+		$settings = self::get_settings( (int) $post->post_parent );
+		if ( 'selected' === $settings['mode'] && 'shared' === $settings['new_items'] ) {
+			self::set_item_shared( (int) $post->post_parent, $id, true );
+		}
 	}
 
 	/**
@@ -115,6 +134,7 @@ class Sharing {
 		}
 		return array(
 			'mode'        => $mode,
+			'new_items'   => 'shared' === ( $input['new_items'] ?? self::get_settings( $id )['new_items'] ) ? 'shared' : 'private',
 			'description' => sanitize_textarea_field( (string) ( $input['description'] ?? '' ) ),
 			'item_ids'    => $ids,
 			'slug'        => $slug,

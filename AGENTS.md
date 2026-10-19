@@ -116,7 +116,8 @@ Private collection management stays under `/collectibles/`, including
 private app or its REST capabilities to support public pages.
 
 Sharing defaults to private. Owners enable a public page and choose its items with AJAX switches on
-the collection overview. New items always start private. Legacy all-items
+the collection overview, visible only while sharing is enabled. New items default
+to private; owners can choose shared for future additions while sharing is enabled. Legacy all-items
 sharing is frozen to its currently published items on first read. Preview uses the same public
 projection without saving settings. The public description is separate from
 private collection notes. Only field definitions with `'public' => true` are

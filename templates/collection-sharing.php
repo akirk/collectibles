@@ -24,6 +24,7 @@ $coll_share_saved          = false;
 if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' ) ) {
 	check_admin_referer( 'coll_sharing_' . $coll_share_id );
 	$coll_share_values = array(
+		'new_items'   => sanitize_key( wp_unslash( $_POST['coll_new_items'] ?? 'private' ) ),
 		'mode'        => sanitize_key( wp_unslash( $_POST['coll_mode'] ?? 'private' ) ),
 		'slug'        => sanitize_title( wp_unslash( $_POST['coll_slug'] ?? '' ) ),
 		'description' => sanitize_textarea_field( wp_unslash( $_POST['coll_description'] ?? '' ) ),
@@ -79,6 +80,14 @@ require __DIR__ . '/_head.php';
 		<?php endforeach; ?>
 	</fieldset>
 	<div class="field">
+		<label for="coll_new_items"><?php echo esc_html__( 'New items', 'collectibles' ); ?></label>
+		<select id="coll_new_items" name="coll_new_items">
+			<option value="private" <?php selected( $coll_share_values['new_items'], 'private' ); ?>><?php echo esc_html__( 'Private', 'collectibles' ); ?></option>
+			<option value="shared" <?php selected( $coll_share_values['new_items'], 'shared' ); ?>><?php echo esc_html__( 'Shared', 'collectibles' ); ?></option>
+		</select>
+		<p class="field-hint"><?php echo esc_html__( 'Applies to new items while the public page is enabled. Existing items keep their individual sharing settings.', 'collectibles' ); ?></p>
+	</div>
+	<div class="field">
 		<label for="coll_slug"><?php echo esc_html__( 'Public URL name', 'collectibles' ); ?></label>
 		<input id="coll_slug" name="coll_slug" type="text" value="<?php echo esc_attr( $coll_share_values['slug'] ); ?>" required>
 		<p class="field-hint"><?php echo esc_html( home_url( '/collections/' ) ); ?><strong><?php echo esc_html( $coll_share_values['slug'] ); ?></strong>/</p>
@@ -89,7 +98,7 @@ require __DIR__ . '/_head.php';
 		<textarea id="coll_description" name="coll_description" rows="4"><?php echo esc_textarea( $coll_share_values['description'] ); ?></textarea>
 	</div>
 	<p><a href="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id ) ); ?>"><?php echo esc_html__( 'Choose shared items using the switches on the collection overview.', 'collectibles' ); ?></a></p>
-	<p class="field-hint"><?php echo esc_html__( 'New items start private. Selecting an item does not enable a disabled public page.', 'collectibles' ); ?></p>
+	<p class="field-hint"><?php echo esc_html__( 'Enable the public page to show sharing switches on the collection overview.', 'collectibles' ); ?></p>
 	<p class="field-hint"><?php echo esc_html__( 'Public pages show titles, photos and descriptive catalogue fields. Prices, storage and acquisition details, serial numbers, personal notes and tags stay private.', 'collectibles' ); ?></p>
 	<p class="field-hint"><?php echo esc_html__( 'Anyone can view a shared page without logging in. Search engines are asked not to index it. Photo files already have their own WordPress upload URLs.', 'collectibles' ); ?></p>
 	<div class="actions">

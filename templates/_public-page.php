@@ -33,6 +33,7 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 		<p><strong><?php echo esc_html__( 'Public preview', 'collectibles' ); ?></strong> — <?php echo esc_html__( 'Only you can see this preview. No sharing settings have been changed.', 'collectibles' ); ?></p>
 		<form method="post" action="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id . '/sharing' ) ); ?>">
 			<?php wp_nonce_field( 'coll_sharing_' . $coll_share_id ); ?>
+			<input type="hidden" name="coll_new_items" value="<?php echo esc_attr( $coll_share_values['new_items'] ); ?>">
 			<input type="hidden" name="coll_mode" value="<?php echo esc_attr( $coll_share_values['mode'] ); ?>">
 			<input type="hidden" name="coll_slug" value="<?php echo esc_attr( $coll_share_values['slug'] ); ?>">
 			<input type="hidden" name="coll_description" value="<?php echo esc_attr( $coll_share_values['description'] ); ?>">

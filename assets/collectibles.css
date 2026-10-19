@@ -1434,3 +1434,19 @@ input[type="file"] {
 	color: var(--coll-danger);
 	margin: 0.5rem 0 0;
 }
+
+.item-card-heading {
+	display: flex;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.item-card-heading h3 {
+	flex: 1;
+	min-width: 0;
+}
+
+.item-card-heading .coll-share-toggle {
+	flex-shrink: 0;
+	margin-left: auto;
+}

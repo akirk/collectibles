@@ -183,6 +183,61 @@ try {
 	$coll_assert( 2 === substr_count( $coll_matches[1], 'class="button' ) && false !== strpos( $coll_matches[1], 'coll-actions-menu' ) && false !== strpos( $coll_matches[1], '/export' ), 'The header must keep Add and More visible with secondary actions inside the dropdown.' );
 	$coll_html = $coll_render( 'collection-sharing.php', $coll_collection );
 	$coll_assert( false === strpos( $coll_html, 'value="all"' ) && false === strpos( $coll_html, 'name="coll_item_ids[]"' ), 'Sharing settings must omit all-items mode and the separate item picker.' );
+
+	$coll_assert( false !== strpos( $coll_html, 'name="coll_new_items"' ), 'Sharing settings offer a default for new items.' );
+	Sharing::save(
+		$coll_collection,
+		array(
+			'mode'      => 'selected',
+			'new_items' => 'shared',
+		)
+	);
+	$coll_new     = wp_insert_post(
+		array(
+			'post_type'   => Item::POST_TYPE,
+			'post_status' => 'publish',
+			'post_parent' => $coll_collection,
+			'post_title'  => 'Sharing default fixture',
+		)
+	);
+	$coll_posts[] = $coll_new;
+	$coll_assert( Sharing::get_item_state( $coll_collection, $coll_new )['selected'], 'New items inherit the shared default.' );
+	Sharing::set_item_shared( $coll_collection, $coll_new, false );
+	wp_update_post(
+		array(
+			'ID'         => $coll_new,
+			'post_title' => 'Edited fixture',
+		)
+	);
+	$coll_assert( ! Sharing::get_item_state( $coll_collection, $coll_new )['selected'], 'Editing an item preserves its individual choice.' );
+	Sharing::save(
+		$coll_collection,
+		array(
+			'mode'      => 'private',
+			'new_items' => 'shared',
+		)
+	);
+	$coll_html = $coll_render( 'collection.php', $coll_collection );
+	$coll_assert( false === strpos( $coll_html, 'data-coll-share-item=' ), 'Disabled sharing hides all item switches.' );
+	$coll_private = wp_insert_post(
+		array(
+			'post_type'   => Item::POST_TYPE,
+			'post_status' => 'publish',
+			'post_parent' => $coll_collection,
+			'post_title'  => 'Private default fixture',
+		)
+	);
+	$coll_posts[] = $coll_private;
+	$coll_assert( ! Sharing::get_item_state( $coll_collection, $coll_private )['selected'], 'Items created while sharing is disabled stay private.' );
+	Sharing::save(
+		$coll_collection,
+		array(
+			'mode'      => 'selected',
+			'new_items' => 'private',
+		)
+	);
+	$coll_html = $coll_render( 'collection.php', $coll_collection );
+	$coll_assert( (bool) preg_match( '~class="item-card-heading">.*?data-coll-share-item=.*?</div>~s', $coll_html ), 'Enabled sharing places switches beside the card title.' );
 	wp_set_current_user( 0 );
 	$coll_input['nonce'] = wp_create_nonce( 'coll_share_item_' . $coll_item );
 	$coll_assert( 403 === $coll_ajax( $coll_input )['status'] && ! has_action( 'wp_ajax_nopriv_coll_share_item' ), 'Anonymous users must have no sharing mutation endpoint.' );
