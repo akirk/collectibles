@@ -36,9 +36,7 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 			<input type="hidden" name="coll_mode" value="<?php echo esc_attr( $coll_share_values['mode'] ); ?>">
 			<input type="hidden" name="coll_slug" value="<?php echo esc_attr( $coll_share_values['slug'] ); ?>">
 			<input type="hidden" name="coll_description" value="<?php echo esc_attr( $coll_share_values['description'] ); ?>">
-			<?php foreach ( $coll_share_values['item_ids'] as $coll_selected_id ) : ?>
-				<input type="hidden" name="coll_item_ids[]" value="<?php echo esc_attr( $coll_selected_id ); ?>">
-			<?php endforeach; ?>
+
 			<div class="actions">
 				<button class="button button-primary" name="coll_action" value="save"><?php echo esc_html__( 'Apply sharing settings', 'collectibles' ); ?></button>
 				<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Back to sharing', 'collectibles' ); ?></a>

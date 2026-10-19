@@ -64,6 +64,13 @@ if ( ! empty( $coll_card_catalog['show_on_card'] ) && '' !== $coll_card_number )
 		<?php endif; ?>
 
 		<div class="item-card-foot">
+			<?php if ( current_user_can( 'edit_post', $coll_card_collection_id ) && current_user_can( 'edit_post', $coll_card_item->ID ) ) : ?>
+				<?php $coll_card_sharing = Sharing::get_item_state( (int) $coll_card_collection_id, (int) $coll_card_item->ID ); ?>
+				<button type="button" class="coll-share-toggle" data-coll-share-item="<?php echo esc_attr( $coll_card_item->ID ); ?>" data-coll-share-collection="<?php echo esc_attr( $coll_card_collection_id ); ?>" data-coll-share-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-coll-share-nonce="<?php echo esc_attr( wp_create_nonce( 'coll_share_item_' . $coll_card_item->ID ) ); ?>" data-coll-share-saving="<?php echo esc_attr__( 'Saving…', 'collectibles' ); ?>" data-coll-share-unknown="<?php echo esc_attr__( 'Check sharing', 'collectibles' ); ?>" data-coll-share-error="<?php echo esc_attr__( 'Sharing could not be saved. Reload to check the current state and try again.', 'collectibles' ); ?>" data-coll-share-title="<?php echo esc_attr( $coll_card_title ); ?>" aria-pressed="<?php echo $coll_card_sharing['selected'] ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( $coll_card_title . ': ' . $coll_card_sharing['action'] ); ?>" title="<?php echo esc_attr( $coll_card_sharing['selected'] ? $coll_card_sharing['message'] : $coll_card_sharing['action'] ); ?>" <?php disabled( ! $coll_card_sharing['eligible'] && ! $coll_card_sharing['selected'] ); ?> hidden>
+					<span class="coll-share-switch" aria-hidden="true"></span><span data-coll-share-label><?php echo esc_html( $coll_card_sharing['label'] ); ?></span>
+				</button>
+			<?php endif; ?>
+
 			<?php if ( Schema::STATUS_OWNED !== $coll_card_status ) : ?>
 				<span class="pill pill-<?php echo esc_attr( $coll_card_status ); ?>"><?php echo esc_html( Schema::get_status_label( $coll_card_status ) ); ?></span>
 			<?php endif; ?>
@@ -72,5 +79,6 @@ if ( ! empty( $coll_card_catalog['show_on_card'] ) && '' !== $coll_card_number )
 				<span class="item-card-value"><?php echo esc_html( Item::format_money( $coll_card_value, $coll_card_currency ) ); ?></span>
 			<?php endif; ?>
 		</div>
+		<p class="coll-share-message screen-reader-text" role="status" aria-live="polite"></p>
 	</div>
 </article>

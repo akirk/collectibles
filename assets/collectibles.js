@@ -11,6 +11,68 @@
 		}
 	}
 
+	var shareQueue = Promise.resolve();
+	document.querySelectorAll( '[data-coll-share-item]' ).forEach( function ( button ) {
+		button.hidden = false;
+	} );
+	document.addEventListener( 'click', function ( event ) {
+		var button = event.target.closest( '[data-coll-share-item]' );
+		if ( ! button || button.disabled ) return;
+		var label = button.querySelector( '[data-coll-share-label]' );
+		var previousLabel = label.textContent;
+		var message = button.closest( '.item-card-body' ).querySelector( '.coll-share-message' );
+		var selected = button.getAttribute( 'aria-pressed' ) !== 'true';
+		button.disabled = true;
+		label.textContent = button.dataset.collShareSaving;
+		button.setAttribute( 'aria-busy', 'true' );
+		message.textContent = '';
+		message.classList.add( 'screen-reader-text' );
+		shareQueue = shareQueue.then( async function () {
+			var replied = false;
+			var controller = new AbortController();
+			var timeout = setTimeout( function () { controller.abort(); }, 20000 );
+			try {
+				var body = new FormData();
+				body.set( 'action', 'coll_share_item' );
+				body.set( 'item_id', button.dataset.collShareItem );
+				body.set( 'collection_id', button.dataset.collShareCollection );
+				body.set( 'nonce', button.dataset.collShareNonce );
+				body.set( 'shared', selected ? '1' : '0' );
+				var response = await fetch( button.dataset.collShareUrl, { method: 'POST', body: body, credentials: 'same-origin', signal: controller.signal } );
+				var result = await response.json();
+				replied = result && typeof result.success === 'boolean';
+				if ( ! response.ok || ! result.success ) throw new Error( typeof result.data === 'string' ? result.data : button.dataset.collShareError );
+				button.setAttribute( 'aria-pressed', result.data.selected ? 'true' : 'false' );
+				button.setAttribute( 'aria-label', button.dataset.collShareTitle + ': ' + result.data.action );
+				button.title = result.data.message;
+				label.textContent = result.data.label;
+				message.textContent = result.data.message;
+			} catch ( error ) {
+				label.textContent = replied ? previousLabel : button.dataset.collShareUnknown;
+				if ( ! replied ) button.setAttribute( 'aria-pressed', 'mixed' );
+				message.textContent = error.name === 'AbortError' ? button.dataset.collShareError : ( error.message || button.dataset.collShareError );
+				message.classList.remove( 'screen-reader-text' );
+			} finally {
+				clearTimeout( timeout );
+				button.disabled = ! replied;
+				button.removeAttribute( 'aria-busy' );
+			}
+		} );
+	} );
+
+	document.addEventListener( 'click', function ( event ) {
+		document.querySelectorAll( '.coll-actions-menu[open]' ).forEach( function ( menu ) {
+			if ( ! menu.contains( event.target ) ) menu.open = false;
+		} );
+	} );
+	document.addEventListener( 'keydown', function ( event ) {
+		if ( event.key !== 'Escape' ) return;
+		document.querySelectorAll( '.coll-actions-menu[open]' ).forEach( function ( menu ) {
+			menu.open = false;
+			menu.querySelector( 'summary' ).focus();
+		} );
+	} );
+
 	document.addEventListener( 'click', function ( event ) {
 		var confirmButton = event.target.closest( '[data-coll-confirm]' );
 

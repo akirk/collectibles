@@ -119,7 +119,8 @@ try {
 		'description' => 'A public overview',
 		'item_ids'    => array( $coll_item ),
 	);
-	$coll_preview  = Sharing::preview( $coll_collection, $coll_settings );
+	Sharing::set_item_shared( $coll_collection, $coll_item, true );
+	$coll_preview = Sharing::preview( $coll_collection, $coll_settings );
 	$coll_assert( ! is_wp_error( $coll_preview ) && 1 === count( $coll_preview['items'] ), 'An owner must be able to preview selected items.' );
 	$coll_assert( 'private' === Sharing::get_settings( $coll_collection )['mode'] && get_post( $coll_collection )->post_name === $coll_slug, 'Preview must not publish or change the slug.' );
 	// phpcs:disable WordPress.Security.NonceVerification, WordPress.Security.ValidatedSanitizedInput -- Snapshot and restore superglobals for a nonce-verified form fixture.
@@ -198,9 +199,10 @@ try {
 	$coll_assert( ! is_wp_error( $coll_collision ) && $coll_slug !== $coll_collision['slug'], 'Slug collisions must resolve to different public URLs.' );
 	$coll_empty = Sharing::get_page( $coll_collision['slug'] );
 	$coll_assert( array() === $coll_empty['items'], 'An empty selection must never mean all items.' );
-	$coll_settings['mode'] = 'all';
-	Sharing::save( $coll_collection, $coll_settings );
-	$coll_assert( 2 === count( Sharing::get_page( $coll_slug )['items'] ), 'All mode must include published items and exclude drafts and private items.' );
+	$coll_legacy         = Sharing::get_settings( $coll_collection );
+	$coll_legacy['mode'] = 'all';
+	update_post_meta( $coll_collection, Sharing::META_KEY, $coll_legacy );
+	$coll_assert( 2 === count( Sharing::get_page( $coll_slug )['items'] ) && 'selected' === Sharing::get_settings( $coll_collection )['mode'], 'Legacy all-items sharing must freeze to its current published items.' );
 	$coll_future  = wp_insert_post(
 		array(
 			'post_type'   => Item::POST_TYPE,
@@ -210,12 +212,12 @@ try {
 		)
 	);
 	$coll_posts[] = $coll_future;
-	$coll_assert( 3 === count( Sharing::get_page( $coll_slug )['items'] ), 'All mode must include future published additions.' );
+	$coll_assert( 2 === count( Sharing::get_page( $coll_slug )['items'] ), 'Future additions must start private after legacy sharing is converted.' );
 	$coll_settings['mode']     = 'selected';
 	$coll_settings['item_ids'] = array();
 	Sharing::save( $coll_collection, $coll_settings );
 	$coll_assert( array() === Sharing::get_page( $coll_slug )['items'] && null === Sharing::get_page( $coll_slug, $coll_item_slug ), 'Deselecting an item must immediately revoke its detail URL.' );
-	$coll_settings['mode']  = 'all';
+	$coll_settings['mode']  = 'selected';
 	$coll_settings['slug'] .= '-renamed';
 	Sharing::save( $coll_collection, $coll_settings );
 	$coll_assert( null === Sharing::get_page( $coll_slug ) && null !== Sharing::get_page( $coll_settings['slug'] ), 'Slug changes must retire the old public URL.' );
@@ -228,7 +230,7 @@ try {
 			'post_status' => 'draft',
 		)
 	);
-	$coll_settings['mode'] = 'all';
+	$coll_settings['mode'] = 'selected';
 	$coll_assert( is_wp_error( Sharing::save( $coll_collection, $coll_settings ) ), 'Draft collections cannot become public through sharing settings.' );
 	wp_update_post(
 		array(

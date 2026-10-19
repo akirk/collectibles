@@ -27,7 +27,6 @@ if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_
 		'mode'        => sanitize_key( wp_unslash( $_POST['coll_mode'] ?? 'private' ) ),
 		'slug'        => sanitize_title( wp_unslash( $_POST['coll_slug'] ?? '' ) ),
 		'description' => sanitize_textarea_field( wp_unslash( $_POST['coll_description'] ?? '' ) ),
-		'item_ids'    => array_map( 'absint', (array) wp_unslash( $_POST['coll_item_ids'] ?? array() ) ),
 	);
 	$coll_share_action = sanitize_key( wp_unslash( $_POST['coll_action'] ?? '' ) );
 	$coll_share_result = 'preview' === $coll_share_action
@@ -46,7 +45,6 @@ if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_
 		$coll_collection   = Collection::get( $coll_share_id );
 	}
 }
-$coll_share_items = Item::query( array( 'collection' => $coll_share_id ) );
 $coll_page_title  = __( 'Sharing', 'collectibles' );
 $coll_shell_class = 'shell shell-mid';
 require __DIR__ . '/_head.php';
@@ -74,8 +72,7 @@ require __DIR__ . '/_head.php';
 		<?php
 		foreach ( array(
 			'private'  => __( 'Private', 'collectibles' ),
-			'all'      => __( 'All items, including wishlist entries and future additions', 'collectibles' ),
-			'selected' => __( 'Only selected items', 'collectibles' ),
+			'selected' => __( 'Enable public page', 'collectibles' ),
 		) as $coll_mode => $coll_mode_label ) :
 			?>
 			<label><input type="radio" name="coll_mode" value="<?php echo esc_attr( $coll_mode ); ?>" <?php checked( $coll_share_values['mode'], $coll_mode ); ?>> <?php echo esc_html( $coll_mode_label ); ?></label>
@@ -91,25 +88,8 @@ require __DIR__ . '/_head.php';
 		<label for="coll_description"><?php echo esc_html__( 'Public description', 'collectibles' ); ?></label>
 		<textarea id="coll_description" name="coll_description" rows="4"><?php echo esc_textarea( $coll_share_values['description'] ); ?></textarea>
 	</div>
-	<fieldset class="field">
-		<legend><?php echo esc_html__( 'Selected items', 'collectibles' ); ?></legend>
-		<p class="field-hint"><?php echo esc_html__( 'These choices apply when visibility is set to Only selected items. Draft, private and password-protected items never appear publicly.', 'collectibles' ); ?></p>
-		<div class="coll-share-selection">
-		<?php foreach ( $coll_share_items as $coll_share_item ) : ?>
-			<?php if ( 'publish' !== $coll_share_item->post_status || '' !== $coll_share_item->post_password ) : ?>
-				<?php continue; ?>
-			<?php endif; ?>
-			<label><input type="checkbox" name="coll_item_ids[]" value="<?php echo esc_attr( $coll_share_item->ID ); ?>" <?php checked( in_array( (int) $coll_share_item->ID, $coll_share_values['item_ids'], true ) ); ?>>
-				<?php echo esc_html( $coll_share_item->post_title ); ?>
-				<span class="field-hint"><?php echo esc_html( Schema::get_status_label( Item::get_status( $coll_share_item->ID ) ) ); ?></span>
-				<?php $coll_share_number = get_post_meta( $coll_share_item->ID, Item::CATALOG_META_KEY, true ); ?>
-				<?php if ( $coll_share_number ) : ?>
-					<span class="field-hint"><?php echo esc_html( $coll_share_number ); ?></span>
-				<?php endif; ?>
-			</label>
-		<?php endforeach; ?>
-		</div>
-	</fieldset>
+	<p><a href="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id ) ); ?>"><?php echo esc_html__( 'Choose shared items using the switches on the collection overview.', 'collectibles' ); ?></a></p>
+	<p class="field-hint"><?php echo esc_html__( 'New items start private. Selecting an item does not enable a disabled public page.', 'collectibles' ); ?></p>
 	<p class="field-hint"><?php echo esc_html__( 'Public pages show titles, photos and descriptive catalogue fields. Prices, storage and acquisition details, serial numbers, personal notes and tags stay private.', 'collectibles' ); ?></p>
 	<p class="field-hint"><?php echo esc_html__( 'Anyone can view a shared page without logging in. Search engines are asked not to index it. Photo files already have their own WordPress upload URLs.', 'collectibles' ); ?></p>
 	<div class="actions">

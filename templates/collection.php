@@ -134,19 +134,24 @@ require __DIR__ . '/_head.php';
 						);
 						?>
 					</a>
-					<?php if ( Schema::supports_origins( $coll_kind ) ) : ?>
-						<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/origins' ) ); ?>"><?php echo esc_html__( 'Origins', 'collectibles' ); ?></a>
-					<?php endif; ?>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/photos' ) ); ?>">
-						<?php echo esc_html__( 'Missing photos', 'collectibles' ); ?>
-					</a>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing', 'collectibles' ); ?></a>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/edit' ) ); ?>">
-						<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
-					</a>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/export' ) ); ?>">
-						<?php echo esc_html__( 'Export CSV', 'collectibles' ); ?>
-					</a>
+					<details class="coll-actions-menu">
+						<summary class="button"><?php echo esc_html__( 'More', 'collectibles' ); ?></summary>
+						<nav aria-label="<?php echo esc_attr__( 'Collection actions', 'collectibles' ); ?>">
+							<?php if ( Schema::supports_origins( $coll_kind ) ) : ?>
+								<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/origins' ) ); ?>"><?php echo esc_html__( 'Origins', 'collectibles' ); ?></a>
+							<?php endif; ?>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/photos' ) ); ?>">
+								<?php echo esc_html__( 'Missing photos', 'collectibles' ); ?>
+							</a>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing settings', 'collectibles' ); ?></a>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/edit' ) ); ?>">
+								<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
+							</a>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/export' ) ); ?>">
+								<?php echo esc_html__( 'Export CSV', 'collectibles' ); ?>
+							</a>
+						</nav>
+					</details>
 				</div>
 			</header>
 

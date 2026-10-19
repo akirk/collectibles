@@ -1266,18 +1266,13 @@ input[type="file"] {
 	object-fit: contain;
 }
 
-.coll-share-options label,
-.coll-share-selection label {
+.coll-share-options label {
 	display: flex;
 	align-items: baseline;
 	gap: 0.65rem;
 	padding: 0.5rem 0;
 }
 
-.coll-share-selection {
-	max-height: 24rem;
-	overflow-y: auto;
-}
 
 .coll-public-description {
 	white-space: pre-line;
@@ -1332,4 +1327,110 @@ input[type="file"] {
 	width: 100%;
 	max-height: 36rem;
 	object-fit: contain;
+}
+
+.coll-actions-menu {
+	position: relative;
+}
+
+.coll-actions-menu summary {
+	list-style: none;
+	cursor: pointer;
+}
+
+.coll-actions-menu summary::-webkit-details-marker {
+	display: none;
+}
+
+.coll-actions-menu summary::after {
+	content: "▾";
+	margin-left: 0.5rem;
+}
+
+.coll-actions-menu nav {
+	position: absolute;
+	z-index: 20;
+	right: 0;
+	top: calc(100% + 0.5rem);
+	min-width: 12rem;
+	padding: 0.4rem;
+	background: var(--coll-paper);
+	border: 1px solid var(--coll-line);
+	border-radius: var(--coll-radius);
+	box-shadow: var(--coll-shadow-md);
+}
+
+.coll-action-link {
+	display: block;
+	padding: 0.65rem 0.8rem;
+	border-radius: var(--coll-radius-sm);
+	white-space: nowrap;
+}
+
+.coll-action-link:hover,
+.coll-action-link:focus-visible {
+	background: var(--coll-patina-soft);
+}
+
+.coll-share-toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.25rem 0.45rem;
+	font: inherit;
+	font-size: 0.75rem;
+	color: var(--coll-ink-soft);
+	background: transparent;
+	border: 1px solid var(--coll-line);
+	border-radius: var(--coll-radius-sm);
+	cursor: pointer;
+}
+
+.coll-share-toggle[hidden] {
+	display: none;
+}
+
+.coll-share-toggle[aria-pressed="true"] {
+	color: var(--coll-patina);
+	background: var(--coll-patina-soft);
+	border-color: var(--coll-patina);
+}
+
+.coll-share-toggle:disabled {
+	opacity: 0.6;
+	cursor: default;
+}
+
+.coll-share-switch {
+	position: relative;
+	width: 1.4rem;
+	height: 0.8rem;
+	border-radius: 1rem;
+	background: var(--coll-line-strong);
+}
+
+.coll-share-switch::after {
+	content: "";
+	position: absolute;
+	top: 0.1rem;
+	left: 0.1rem;
+	width: 0.6rem;
+	height: 0.6rem;
+	border-radius: 50%;
+	background: var(--coll-paper);
+	transition: transform 0.15s;
+}
+
+.coll-share-toggle[aria-pressed="true"] .coll-share-switch {
+	background: var(--coll-patina);
+}
+
+.coll-share-toggle[aria-pressed="true"] .coll-share-switch::after {
+	transform: translateX(0.6rem);
+}
+
+.coll-share-message:not(.screen-reader-text) {
+	font-size: 0.8rem;
+	color: var(--coll-danger);
+	margin: 0.5rem 0 0;
 }
