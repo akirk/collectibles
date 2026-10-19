@@ -50,7 +50,7 @@
 			} catch ( error ) {
 				label.textContent = replied ? previousLabel : button.dataset.collShareUnknown;
 				if ( ! replied ) button.setAttribute( 'aria-pressed', 'mixed' );
-				message.textContent = error.name === 'AbortError' ? button.dataset.collShareError : ( error.message || button.dataset.collShareError );
+				message.textContent = ! replied ? button.dataset.collShareError : ( error.message || button.dataset.collShareError );
 				message.classList.remove( 'screen-reader-text' );
 			} finally {
 				clearTimeout( timeout );

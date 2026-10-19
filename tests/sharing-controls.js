@@ -57,7 +57,7 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	click( 1 ); await tick();
 	pending[2].reject( new Error( 'Network failed' ) );
 	await tick();
-	check( cards[1].button.disabled && cards[1].label.textContent === 'Check sharing' && cards[1].button.getAttribute( 'aria-pressed' ) === 'mixed', 'A lost response does not falsely claim the item stayed private.' );
+	check( cards[1].button.disabled && cards[1].label.textContent === 'Check sharing' && cards[1].button.getAttribute( 'aria-pressed' ) === 'mixed' && cards[1].message.textContent === 'Reload and retry', 'A lost response does not falsely claim the item stayed private.' );
 	click( 0 ); await tick();
 	check( requests.length === 4 && requests[3].options.body.get( 'shared' ) === '0', 'An earlier failure does not block later unsharing requests.' );
 	pending[3].resolve( response( false, 'Private' ) ); await tick();
