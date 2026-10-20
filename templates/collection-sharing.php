@@ -63,9 +63,6 @@ require __DIR__ . '/_head.php';
 <?php if ( $coll_share_saved ) : ?>
 	<p class="notice"><?php echo esc_html__( 'Sharing settings saved.', 'collectibles' ); ?></p>
 <?php endif; ?>
-<?php if ( 'private' !== Sharing::get_settings( $coll_share_id )['mode'] ) : ?>
-	<p class="notice"><a href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>"><?php echo esc_html__( 'View public collection', 'collectibles' ); ?></a></p>
-<?php endif; ?>
 <form class="panel" method="post" action="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id . '/sharing' ) ); ?>">
 	<?php wp_nonce_field( 'coll_sharing_' . $coll_share_id ); ?>
 	<fieldset class="field coll-share-options">
