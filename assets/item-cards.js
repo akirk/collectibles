@@ -11,6 +11,8 @@
 			var scale = Math.min( box.width / image.naturalWidth, box.height / image.naturalHeight );
 			var width = image.naturalWidth * scale;
 			var height = image.naturalHeight * scale;
+			button.style.setProperty( '--coll-image-inset-x', ( ( box.width - width ) / 2 ) + 'px' );
+			button.style.setProperty( '--coll-image-inset-y', ( ( box.height - height ) / 2 ) + 'px' );
 			button.style.setProperty( '--coll-curl-right', ( frame.right - box.left - ( box.width + width ) / 2 ) + 'px' );
 			button.style.setProperty( '--coll-curl-bottom', ( frame.bottom - box.top - ( box.height + height ) / 2 ) + 'px' );
 			button.setAttribute( 'data-coll-curl-ready', '' );

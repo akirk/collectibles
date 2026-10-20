@@ -52,4 +52,6 @@ assert.equal( styles['--coll-curl-right'], '30px', 'Resizing repositions the cur
 image.naturalWidth = 600;
 loaded();
 assert.equal( styles['--coll-curl-bottom'], '40px', 'Loading the other side recalculates its proportions.' );
-console.log( 'Passed 15 card photo checks.' );
+assert.equal( styles['--coll-image-inset-x'], '0px', 'Clipping follows the fitted horizontal image bounds.' );
+assert.equal( styles['--coll-image-inset-y'], '30px', 'Clipping follows the fitted vertical image bounds.' );
+console.log( 'Passed 17 card photo checks.' );
