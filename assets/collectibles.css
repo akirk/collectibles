@@ -1709,3 +1709,7 @@ input[type="file"] {
 .coll-comparison-heading {
 	scroll-margin-top: 1rem;
 }
+#coll-compare-form[hidden],
+.item-grid[hidden] {
+	display: none;
+}

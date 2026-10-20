@@ -149,6 +149,7 @@ require __DIR__ . '/_head.php';
 					<details class="coll-actions-menu">
 						<summary class="button"><?php echo esc_html__( 'Sharing', 'collectibles' ); ?></summary>
 						<nav aria-label="<?php echo esc_attr__( 'Sharing actions', 'collectibles' ); ?>">
+							<a href="#coll-compare-form" class="coll-action-link" id="coll-compare-prompt" data-prompt="<?php echo esc_attr__( 'Paste the shared collection URL to compare with your collection:', 'collectibles' ); ?>"><?php echo esc_html__( 'Compare with shared collection', 'collectibles' ); ?></a>
 							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing settings', 'collectibles' ); ?></a>
 							<?php if ( $coll_public_enabled ) : ?>
 								<a class="coll-action-link" href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>"><?php echo esc_html__( 'View public page', 'collectibles' ); ?></a>
@@ -293,6 +294,13 @@ require __DIR__ . '/_head.php';
 				</form>
 			<?php endif; ?>
 
+			<?php
+			$coll_private_compare = true;
+			$coll_local           = Sharing::get_comparison_data( $coll_collection_id );
+			require __DIR__ . '/_collection-compare.php';
+			?>
+			<div id="coll-public-items" class="item-grid" style="--coll-thumb-ratio: <?php echo esc_attr( Schema::get_thumb_ratio( $coll_kind ) ); ?>" hidden></div>
+
 			<?php if ( empty( $coll_all_items ) ) : ?>
 				<section class="empty-state">
 					<p class="empty-icon" aria-hidden="true"><?php echo esc_html( Schema::get_kind_icon( $coll_kind ) ); ?></p>
@@ -347,7 +355,7 @@ require __DIR__ . '/_head.php';
 					</p>
 				<?php endif; ?>
 
-				<section class="item-grid" aria-label="<?php echo esc_attr__( 'Items', 'collectibles' ); ?>">
+				<section id="coll-private-items" class="item-grid" aria-label="<?php echo esc_attr__( 'Items', 'collectibles' ); ?>">
 					<?php
 					foreach ( $coll_items as $coll_card_item ) {
 						$coll_card_collection_id = $coll_collection_id;

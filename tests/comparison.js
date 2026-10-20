@@ -29,7 +29,12 @@ vm.runInNewContext(fs.readFileSync('assets/compare.js', 'utf8'), {
 	fetch: async (url, options) => { requested = { url, options }; return { ok: true, json: async () => remote }; }
 });
 (async () => {
-	await submit({ preventDefault() {} });
+	const comparison = submit({ preventDefault() {} });
+	assert.equal(node('coll-compare-message').textContent, 'loading');
+	assert.equal(node('button').disabled, true);
+	await comparison;
+	assert.equal(node('coll-compare-message').textContent, '');
+	assert.equal(node('button').disabled, false);
 	assert.equal(requested.url, 'https://other.example/collectibles/test/?format=json');
 	assert.equal(requested.options.credentials, 'omit');
 	assert.equal(requested.options.referrerPolicy, 'no-referrer');
@@ -57,5 +62,23 @@ vm.runInNewContext(fs.readFileSync('assets/compare.js', 'utf8'), {
 	await submit({ preventDefault() {} });
 	assert.equal(node('coll-compare-message').textContent, 'error');
 	assert.equal(node('button').disabled, false);
+	// Private comparison cards must not expose the expanded public detail/photo block.
+	node('coll-compare-form').dataset = { private: '1' };
+	node('coll-compare-prompt').addEventListener = () => {};
+	node('coll-public-items').replaceChildren();
+	remote = { version: 1, kind: 'coins', items: [item('Remote', 'KM 3')] };
+	remote.items[0].photos = [{ thumbnail: 'https://example.org/photo.jpg' }];
+	vm.runInNewContext(fs.readFileSync('assets/compare.js', 'utf8'), {
+		document: { getElementById: node, createElement: () => ({ setAttribute(name, value) { this[name] = value; }, textContent: '', children: [], appendChild(child) { this.children.push(child); } }) },
+		URL, AbortController, setTimeout, clearTimeout,
+		fetch: async () => ({ ok: true, json: async () => remote })
+	});
+	await submit({ preventDefault() {} });
+	const privateCards = node('coll-public-items').children.filter(child => child.className === 'coll-public-card');
+	assert.equal(privateCards.length, 4);
+	privateCards.forEach(wrapper => {
+		const body = wrapper.children[0].children[1];
+		assert.equal(body.children.some(child => child.className === 'coll-public-expanded'), false);
+	});
 	console.log('Client comparison checks passed.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

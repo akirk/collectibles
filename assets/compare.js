@@ -8,6 +8,18 @@
 	const message = document.getElementById('coll-compare-message');
 	const grid = document.getElementById('coll-public-items');
 	const originalCards = Array.from(grid.children);
+	const privateComparison = form.dataset && form.dataset.private === '1';
+	if (privateComparison) {
+		const trigger = document.getElementById('coll-compare-prompt');
+		trigger.addEventListener('click', event => {
+			event.preventDefault();
+			const input = document.getElementById('coll-compare-url');
+			const url = window.prompt(trigger.dataset.prompt, input.value);
+			if (url === null || !url.trim()) return;
+			input.value = url.trim();
+			form.requestSubmit();
+		});
+	}
 	const element = (tag, className, text) => {
 		const node = document.createElement(tag);
 		if (className) node.className = className;
@@ -70,12 +82,13 @@
 			figure.appendChild(image);
 			expanded.appendChild(figure);
 		}
-		body.appendChild(expanded);
+		if (!privateComparison) body.appendChild(expanded);
 		card.appendChild(body);
 		wrapper.appendChild(card);
 		return wrapper;
 	};
 	const normalize = value => String(value || '').normalize('NFKC').trim().replace(/\s+/g, ' ').toLowerCase();
+	if (privateComparison) local.items.forEach(item => originalCards.push(remoteCard(item)));
 	const key = item => {
 		const fields = Object.fromEntries(item.fields.map(field => [field.key, normalize(field.raw)]));
 		return fields.catalog_number
@@ -111,6 +124,11 @@
 				remote: remote.items.filter(item => !localKeys.has(key(item)))
 			};
 			grid.replaceChildren();
+			grid.hidden = false;
+			if (privateComparison) {
+				const privateGrid = document.getElementById('coll-private-items');
+				if (privateGrid) privateGrid.hidden = true;
+			}
 			const contents = element('nav', 'coll-comparison-toc');
 			const contentsTitle = element('span', 'screen-reader-text', labels.contents);
 			contentsTitle.id = 'coll-comparison-toc-title';
@@ -129,7 +147,7 @@
 					grid.appendChild(card);
 				});
 			});
-			message.textContent = labels.done;
+			message.textContent = '';
 		} catch (error) {
 			message.textContent = labels.error;
 		} finally {

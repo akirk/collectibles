@@ -122,6 +122,12 @@ try {
 	update_post_meta( $coll_item, Item::BACK_META_KEY, $coll_foreign_photo );
 	$coll_slug = get_post( $coll_collection )->post_name;
 	$coll_assert( 'private' === Sharing::get_settings( $coll_collection )['mode'] && null === Sharing::get_page( $coll_slug ), 'Collections must default to private.' );
+	$coll_comparison = Sharing::get_comparison_data( $coll_collection );
+	$coll_assert( count( $coll_comparison['items'] ) === 4, 'Private comparisons include unpublished and unshared items.' );
+	$coll_assert( false === strpos( wp_json_encode( $coll_comparison ), 'SECRET_SERIAL' ), 'Private comparisons retain the field allowlist.' );
+	wp_set_current_user( 0 );
+	$coll_assert( null === Sharing::get_comparison_data( $coll_collection ), 'Anonymous visitors cannot read private comparison data.' );
+	wp_set_current_user( $coll_user );
 	$coll_settings = array(
 		'mode'        => 'selected',
 		'slug'        => 'sharing-test-' . wp_generate_uuid4(),
