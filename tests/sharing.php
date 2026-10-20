@@ -171,8 +171,15 @@ try {
 	$coll_assert( null === Sharing::get_page( $coll_slug, get_post( $coll_foreign )->post_name ), 'Cross-collection item URLs must return no data.' );
 	$coll_assert( null === Sharing::get_page( '%' ) && null === Sharing::get_page( $coll_slug, '%' ), 'Malformed slugs must not become unrestricted queries.' );
 	$coll_assert( is_wp_error( Sharing::save( $coll_collection, $coll_settings ) ) && is_wp_error( Sharing::preview( $coll_collection, $coll_settings ) ), 'Guests must not save or preview private sharing choices.' );
+	$coll_assert( 1 === $coll_page['version'] && Schema::KIND_BANKNOTES === $coll_page['kind'], 'Public JSON must identify its schema version and collection kind.' );
+	$coll_public_fields = array_column( $coll_page['items'][0]['fields'], 'raw', 'key' );
+	$coll_assert( '10 Example Dollars' === $coll_public_fields['denomination'] && ! isset( $coll_public_fields['serial_number'] ), 'Machine-readable fields must use the same public allowlist.' );
 	$coll_json = wp_json_encode( $coll_page );
 	$coll_html = $coll_render( $coll_page );
+	$coll_assert( false !== strpos( $coll_html, 'id="coll-compare-form"' ) && false !== strpos( $coll_html, 'id="coll-compare-data"' ), 'Guests must be able to compare directly on the public collection page.' );
+	$coll_assert( false === strpos( $coll_preview_html, 'id="coll-compare-form"' ), 'Sharing previews must omit comparison controls.' );
+	$coll_detail_html = $coll_render( Sharing::get_page( $coll_slug, $coll_item_slug ) );
+	$coll_assert( false === strpos( $coll_detail_html, 'id="coll-compare-form"' ), 'Individual item pages must omit collection comparison controls.' );
 	foreach ( array( 'SECRET_', '98765.43', '98766.43', 'foreign-test-photo.jpg', 'purchase_price', 'estimated_value', 'storage_location', 'serial_number' ) as $coll_secret ) {
 		$coll_assert( false === strpos( $coll_json . $coll_html, $coll_secret ), 'Private data escaped the public projection: ' . $coll_secret );
 	}

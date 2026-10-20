@@ -11,6 +11,7 @@ namespace Collectibles;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+wp_enqueue_script( 'collectibles-compare', App::get_asset_url( 'compare.js' ), array(), (string) filemtime( dirname( __DIR__ ) . '/assets/compare.js' ), true );
 wp_enqueue_script( 'collectibles-cards', App::get_asset_url( 'item-cards.js' ), array(), (string) filemtime( dirname( __DIR__ ) . '/assets/item-cards.js' ), true );
 wp_enqueue_style( 'collectibles-public', App::get_asset_url( 'collectibles.css' ), array(), (string) filemtime( dirname( __DIR__ ) . '/assets/collectibles.css' ) );
 $coll_public_title = $coll_public_data ? $coll_public_data['title'] : __( 'Collection not available', 'collectibles' );
@@ -24,6 +25,9 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="robots" content="noindex,nofollow">
+	<?php if ( $coll_public_data && ! $coll_public_preview ) : ?>
+		<link rel="alternate" type="application/json" href="<?php echo esc_url( add_query_arg( 'format', 'json', $coll_public_data['detail'] ? $coll_public_data['items'][0]['url'] : $coll_public_data['url'] ) ); ?>">
+	<?php endif; ?>
 	<title><?php echo esc_html( $coll_public_title ); ?></title>
 	<?php wp_styles()->do_items( array( 'collectibles-public' ) ); ?>
 </head>
@@ -71,8 +75,15 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 		<label class="button coll-public-view" for="coll-public-gallery"><?php echo esc_html__( 'Gallery', 'collectibles' ); ?></label>
 		<input class="screen-reader-text" type="radio" name="coll_public_view" id="coll-public-expanded">
 		<label class="button coll-public-view" for="coll-public-expanded"><?php echo esc_html__( 'Detailed', 'collectibles' ); ?></label>
+		<?php
+		if ( ! $coll_public_data['detail'] && ! $coll_public_preview ) {
+			$coll_local = $coll_public_data;
+			require __DIR__ . '/_collection-compare.php';
+		}
+		?>
+
 	<?php endif; ?>
-	<div class="<?php echo $coll_public_data['detail'] ? 'coll-public-detail' : 'item-grid'; ?>">
+	<div id="coll-public-items" style="--coll-thumb-ratio: <?php echo esc_attr( $coll_public_data['ratio'] ); ?>" class="<?php echo $coll_public_data['detail'] ? 'coll-public-detail' : 'item-grid'; ?>">
 	<?php foreach ( $coll_public_data['items'] as $coll_public_entry ) : ?>
 		<?php
 		$coll_card_front = '';
@@ -111,6 +122,6 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 	</div>
 <?php endif; ?>
 </main>
-<?php wp_scripts()->do_items( array( 'collectibles-cards' ) ); ?>
+<?php wp_scripts()->do_items( array( 'collectibles-cards', 'collectibles-compare' ) ); ?>
 </body>
 </html>
