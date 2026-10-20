@@ -180,7 +180,9 @@ try {
 	$coll_html = $coll_render( 'collection.php', $coll_collection );
 	$coll_assert( false !== strpos( $coll_html, 'data-coll-share-item="' . $coll_item . '"' ), 'Overview cards must expose sharing switches.' );
 	preg_match( '~<header class="topbar">(.*?)</header>~s', $coll_html, $coll_matches );
-	$coll_assert( 2 === substr_count( $coll_matches[1], 'class="button' ) && false !== strpos( $coll_matches[1], 'coll-actions-menu' ) && false !== strpos( $coll_matches[1], '/export' ), 'The header must keep Add and More visible with secondary actions inside the dropdown.' );
+	$coll_assert( 3 === substr_count( $coll_matches[1], 'class="button' ) && false !== strpos( $coll_matches[1], 'coll-actions-menu' ) && false !== strpos( $coll_matches[1], '/export' ), 'The header must keep Add, Sharing and More visible with secondary actions inside dropdowns.' );
+	preg_match_all( '~<details class="coll-actions-menu">(.*?)</details>~s', $coll_html, $coll_menus );
+	$coll_assert( 2 === count( $coll_menus[1] ) && false !== strpos( $coll_menus[1][0], '/sharing' ) && false !== strpos( $coll_menus[1][0], 'data-coll-share-all' ) && false === strpos( $coll_menus[1][1], '/sharing' ) && false === strpos( $coll_menus[1][1], 'data-coll-share-all' ), 'Sharing actions belong in their own dropdown, separate from More.' );
 	$coll_html = $coll_render( 'collection-sharing.php', $coll_collection );
 	$coll_assert( false === strpos( $coll_html, 'value="all"' ) && false === strpos( $coll_html, 'name="coll_item_ids[]"' ), 'Sharing settings must omit all-items mode and the separate item picker.' );
 

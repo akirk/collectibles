@@ -147,6 +147,22 @@ require __DIR__ . '/_head.php';
 						?>
 					</a>
 					<details class="coll-actions-menu">
+						<summary class="button"><?php echo esc_html__( 'Sharing', 'collectibles' ); ?></summary>
+						<nav aria-label="<?php echo esc_attr__( 'Sharing actions', 'collectibles' ); ?>">
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing settings', 'collectibles' ); ?></a>
+							<?php if ( $coll_public_enabled ) : ?>
+								<a class="coll-action-link" href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>"><?php echo esc_html__( 'View public page', 'collectibles' ); ?></a>
+							<?php endif; ?>
+							<?php if ( $coll_public_enabled ) : ?>
+								<span class="coll-share-bulk" data-coll-share-collection="<?php echo esc_attr( $coll_collection_id ); ?>" data-coll-share-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-coll-share-nonce="<?php echo esc_attr( wp_create_nonce( 'coll_share_collection_' . $coll_collection_id ) ); ?>" data-coll-share-error="<?php echo esc_attr__( 'Sharing could not be saved. Reload to check the current state and try again.', 'collectibles' ); ?>">
+									<button type="button" class="coll-action-link" data-coll-share-all="1" hidden><?php echo esc_html__( 'Share all', 'collectibles' ); ?></button>
+									<button type="button" class="coll-action-link" data-coll-share-all="0" hidden><?php echo esc_html__( 'Make all private', 'collectibles' ); ?></button>
+									<span class="coll-share-bulk-message screen-reader-text" role="status" aria-live="polite"></span>
+								</span>
+							<?php endif; ?>
+						</nav>
+					</details>
+					<details class="coll-actions-menu">
 						<summary class="button"><?php echo esc_html__( 'More', 'collectibles' ); ?></summary>
 						<nav aria-label="<?php echo esc_attr__( 'Collection actions', 'collectibles' ); ?>">
 							<?php if ( Schema::supports_origins( $coll_kind ) ) : ?>
@@ -155,20 +171,12 @@ require __DIR__ . '/_head.php';
 							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/photos' ) ); ?>">
 								<?php echo esc_html__( 'Missing photos', 'collectibles' ); ?>
 							</a>
-							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing settings', 'collectibles' ); ?></a>
 							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/edit' ) ); ?>">
 								<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
 							</a>
 							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/export' ) ); ?>">
 								<?php echo esc_html__( 'Export CSV', 'collectibles' ); ?>
 							</a>
-							<?php if ( $coll_public_enabled ) : ?>
-								<span class="coll-share-bulk" data-coll-share-collection="<?php echo esc_attr( $coll_collection_id ); ?>" data-coll-share-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-coll-share-nonce="<?php echo esc_attr( wp_create_nonce( 'coll_share_collection_' . $coll_collection_id ) ); ?>" data-coll-share-error="<?php echo esc_attr__( 'Sharing could not be saved. Reload to check the current state and try again.', 'collectibles' ); ?>">
-									<button type="button" class="coll-action-link" data-coll-share-all="1" hidden><?php echo esc_html__( 'Share all', 'collectibles' ); ?></button>
-									<button type="button" class="coll-action-link" data-coll-share-all="0" hidden><?php echo esc_html__( 'Make all private', 'collectibles' ); ?></button>
-									<span class="coll-share-bulk-message screen-reader-text" role="status" aria-live="polite"></span>
-								</span>
-							<?php endif; ?>
 						</nav>
 					</details>
 				</div>
