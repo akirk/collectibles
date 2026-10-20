@@ -44,6 +44,10 @@ foreach ( $coll_collections as $coll_collection ) {
 	);
 }
 
+$coll_directory_enabled = Sharing::directory_enabled();
+$coll_shared_count      = $coll_directory_enabled ? count( Sharing::get_directory() ) : 0;
+$coll_directory_url     = add_query_arg( 'view', 'shared', App::get_url() );
+
 $coll_page_title = __( 'Collections', 'collectibles' );
 require __DIR__ . '/_head.php';
 ?>
@@ -54,8 +58,18 @@ require __DIR__ . '/_head.php';
 				<h1><?php echo esc_html__( 'Collections', 'collectibles' ); ?></h1>
 			</div>
 			<div class="actions">
-				<?php if ( Sharing::directory_enabled() ) : ?>
-					<a class="button" href="<?php echo esc_url( add_query_arg( 'view', 'shared', App::get_url() ) ); ?>"><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></a>
+				<?php if ( current_user_can( 'manage_options' ) || $coll_directory_enabled ) : ?>
+					<details class="coll-actions-menu">
+						<summary class="button"><?php echo esc_html__( 'Sharing', 'collectibles' ); ?></summary>
+						<nav aria-label="<?php echo esc_attr__( 'Sharing actions', 'collectibles' ); ?>">
+							<?php if ( current_user_can( 'manage_options' ) ) : ?>
+								<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'settings' ) . '#coll-sharing-settings' ); ?>"><?php echo esc_html__( 'Sharing settings', 'collectibles' ); ?></a>
+							<?php endif; ?>
+							<?php if ( $coll_directory_enabled ) : ?>
+								<a class="coll-action-link" href="<?php echo esc_url( $coll_directory_url ); ?>"><?php echo esc_html__( 'View public page', 'collectibles' ); ?></a>
+							<?php endif; ?>
+						</nav>
+					</details>
 				<?php endif; ?>
 				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'new' ) ); ?>">
 					<?php echo esc_html__( 'New collection', 'collectibles' ); ?>
@@ -71,7 +85,7 @@ require __DIR__ . '/_head.php';
 			<div class="notice"><?php echo esc_html__( 'Collection removed.', 'collectibles' ); ?></div>
 		<?php endif; ?>
 
-		<?php if ( ! empty( $coll_collections ) ) : ?>
+		<?php if ( ! empty( $coll_collections ) || $coll_directory_enabled ) : ?>
 			<section class="stat-strip" aria-label="<?php echo esc_attr__( 'Totals', 'collectibles' ); ?>">
 				<a class="stat" href="<?php echo esc_url( App::get_url() . '#collections' ); ?>">
 					<span class="stat-value"><?php echo esc_html( number_format_i18n( count( $coll_collections ) ) ); ?></span>
@@ -99,6 +113,12 @@ require __DIR__ . '/_head.php';
 					<a class="stat" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( 'search' ) ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_totals['wanted'] ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'on the wishlist', 'collectibles' ); ?></span>
+					</a>
+				<?php endif; ?>
+				<?php if ( $coll_directory_enabled ) : ?>
+					<a class="stat coll-public-status" href="<?php echo esc_url( $coll_directory_url ); ?>" title="<?php echo esc_attr__( 'View public page', 'collectibles' ); ?>">
+						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_shared_count ) ); ?></span>
+						<span class="stat-label"><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></span>
 					</a>
 				<?php endif; ?>
 			</section>

@@ -778,6 +778,37 @@ img { max-width: 100%; height: auto; }
 	margin-top: 0;
 }
 
+.settings-numista {
+	display: grid;
+	gap: 24px;
+}
+
+.settings-numista > div {
+	min-width: 0;
+}
+
+.settings-usage {
+	padding-top: 20px;
+	border-top: 1px solid var(--coll-line);
+}
+
+.settings-usage h3 {
+	margin-top: 0;
+}
+
+@media (min-width: 780px) {
+	.settings-numista {
+		grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+	}
+
+	.settings-usage {
+		padding-top: 0;
+		padding-left: 24px;
+		border-top: 0;
+		border-left: 1px solid var(--coll-line);
+	}
+}
+
 .panel-danger {
 	border-color: var(--coll-danger-border);
 	background: var(--coll-danger-bg);
