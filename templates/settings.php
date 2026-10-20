@@ -35,6 +35,10 @@ if ( 'save_settings' === $coll_action ) {
 		Rebrickable::save_api_key( isset( $_POST['coll_rebrickable_key'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_rebrickable_key'] ) ) : '' );
 		Rebrickable::save_lego_locale( $coll_lego_locale );
 
+		if ( current_user_can( 'manage_options' ) ) {
+			update_option( 'coll_public_directory', isset( $_POST['coll_public_directory'] ) );
+		}
+
 		$coll_form_notice = __( 'Settings saved.', 'collectibles' );
 	}
 }
@@ -69,6 +73,12 @@ require __DIR__ . '/_head.php';
 		<form class="panel" method="post" action="<?php echo esc_url( App::get_url( 'settings' ) ); ?>">
 			<input type="hidden" name="coll_action" value="save_settings">
 			<?php wp_nonce_field( 'coll_save_settings', 'coll_nonce' ); ?>
+
+			<?php if ( current_user_can( 'manage_options' ) ) : ?>
+				<h2><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></h2>
+				<label><input type="checkbox" name="coll_public_directory" value="1" <?php checked( Sharing::directory_enabled() ); ?>> <?php echo esc_html__( 'Show shared collections to visitors at /collectibles/', 'collectibles' ); ?></label>
+				<p class="field-hint"><?php echo esc_html__( 'Lists all public collections and their owners’ display names. Signed-in collectors keep their private dashboard.', 'collectibles' ); ?></p>
+			<?php endif; ?>
 
 			<h2><?php echo esc_html__( 'Numista', 'collectibles' ); ?></h2>
 			<p class="field-hint">

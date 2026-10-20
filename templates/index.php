@@ -54,6 +54,9 @@ require __DIR__ . '/_head.php';
 				<h1><?php echo esc_html__( 'Collections', 'collectibles' ); ?></h1>
 			</div>
 			<div class="actions">
+				<?php if ( Sharing::directory_enabled() ) : ?>
+					<a class="button" href="<?php echo esc_url( add_query_arg( 'view', 'shared', App::get_url() ) ); ?>"><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></a>
+				<?php endif; ?>
 				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'new' ) ); ?>">
 					<?php echo esc_html__( 'New collection', 'collectibles' ); ?>
 				</a>
@@ -120,9 +123,9 @@ require __DIR__ . '/_head.php';
 				<?php foreach ( $coll_cards as $coll_card ) : ?>
 					<?php $coll_card_url = App::get_url( absint( $coll_card['post']->ID ) ); ?>
 					<article class="collection-card">
-						<a class="collection-card-icon" href="<?php echo esc_url( $coll_card_url ); ?>" aria-hidden="true" tabindex="-1">
+						<span class="collection-card-icon" aria-hidden="true">
 							<?php echo esc_html( Schema::get_kind_icon( $coll_card['kind'] ) ); ?>
-						</a>
+						</span>
 						<div class="collection-card-body">
 							<p class="eyebrow"><?php echo esc_html( Schema::get_kind_label( $coll_card['kind'] ) ); ?></p>
 							<h2><a href="<?php echo esc_url( $coll_card_url ); ?>"><?php echo esc_html( get_the_title( $coll_card['post'] ) ); ?></a></h2>

@@ -17,6 +17,7 @@ class Sharing {
 
 	/** Register anonymous routes without changing the private app's access. */
 	public static function init(): void {
+		add_action( 'template_redirect', array( __CLASS__, 'maybe_show_directory' ), 0 );
 		add_action( 'wp_after_insert_post', array( __CLASS__, 'share_new_item' ), 10, 3 );
 		add_action( 'wp_ajax_coll_share_collection', array( __CLASS__, 'ajax_share_collection' ) );
 		add_action( 'wp_ajax_coll_share_item', array( __CLASS__, 'ajax_share_item' ) );
@@ -34,6 +35,59 @@ class Sharing {
 		$app->route( '{slug}/{item_slug}', 'public-collection.php' );
 		$app->init();
 		$app->enable_masterbar( false );
+	}
+
+	/** Whether the site administrator has enabled the public directory. */
+	public static function directory_enabled(): bool {
+		return (bool) get_option( 'coll_public_directory', false );
+	}
+
+	/** Serve only the public root, leaving private routing and REST access intact. */
+	public static function maybe_show_directory(): void {
+		if ( ! self::directory_enabled() ) {
+			return;
+		}
+		$path = wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ), PHP_URL_PATH );
+		if ( untrailingslashit( (string) $path ) !== untrailingslashit( (string) wp_parse_url( App::get_url(), PHP_URL_PATH ) ) ) {
+			return;
+		}
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only directory selection.
+		$shared = isset( $_GET['view'] ) && 'shared' === $_GET['view'];
+		if ( current_user_can( 'edit_posts' ) && ! $shared ) {
+			return;
+		}
+		self::send_headers();
+		status_header( 200 );
+		require dirname( __DIR__ ) . '/templates/public-directory.php';
+		exit;
+	}
+
+	/** Return summaries containing only public collection information. */
+	public static function get_directory(): array {
+		$entries = array();
+		foreach ( get_posts(
+			array(
+				'post_type'    => Collection::POST_TYPE,
+				'post_status'  => 'publish',
+				'has_password' => false,
+				'numberposts'  => -1,
+				'orderby'      => 'title',
+				'order'        => 'ASC',
+			)
+		) as $collection ) {
+			$settings = self::get_settings( $collection->ID );
+			if ( 'private' === $settings['mode'] ) {
+				continue;
+			}
+			$owner     = get_userdata( (int) $collection->post_author );
+			$entries[] = array(
+				'title' => $collection->post_title,
+				'owner' => $owner ? $owner->display_name : '',
+				'url'   => self::get_url( $collection, $settings['slug'] ?? '' ),
+				'icon'  => Schema::get_kind_icon( Collection::get_kind( $collection->ID ) ),
+			);
+		}
+		return $entries;
 	}
 
 	/**
@@ -413,8 +467,10 @@ class Sharing {
 		if ( '' !== $item_slug && ! $items ) {
 			return null;
 		}
-		$url  = self::get_url( $collection, $settings['slug'] ?? '' );
-		$data = array(
+		$url   = self::get_url( $collection, $settings['slug'] ?? '' );
+		$owner = get_userdata( (int) $collection->post_author );
+		$data  = array(
+			'owner'       => $owner ? $owner->display_name : '',
 			'version'     => 1,
 			'kind'        => $kind,
 			'title'       => $collection->post_title,
