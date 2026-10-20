@@ -50,7 +50,7 @@ $coll_ajax = static function ( $input, $method = 'POST' ) {
 	ob_start();
 	try {
 		try {
-			do_action( 'wp_ajax_coll_share_item' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Dispatch the registered WordPress AJAX action.
+			do_action( 'coll_share_collection' === ( $input['action'] ?? '' ) ? 'wp_ajax_coll_share_collection' : 'wp_ajax_coll_share_item' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- Dispatch the registered WordPress AJAX action.
 		} catch ( RuntimeException $exception ) {
 			if ( 'coll_ajax_done' !== $exception->getMessage() ) {
 				throw $exception;
@@ -240,6 +240,24 @@ try {
 	$coll_html = $coll_render( 'collection.php', $coll_collection );
 	$coll_assert( (bool) preg_match( '~class="item-card-heading">.*?data-coll-share-item=.*?</div>~s', $coll_html ), 'Enabled sharing places switches beside the card title.' );
 	$coll_assert( false !== strpos( $coll_html, 'coll-public-status' ) && false !== strpos( $coll_html, esc_url( Sharing::get_url( get_post( $coll_collection ) ) ) ), 'Public collections show their public-page link on the internal overview.' );
+
+	$coll_bulk = array(
+		'action'        => 'coll_share_collection',
+		'collection_id' => $coll_collection,
+		'nonce'         => 'invalid',
+		'shared'        => '1',
+	);
+	$coll_assert( 403 === $coll_ajax( $coll_bulk )['status'], 'Bulk sharing requires its collection nonce.' );
+	$coll_bulk['nonce'] = wp_create_nonce( 'coll_share_collection_' . $coll_collection );
+	$coll_assert( 405 === $coll_ajax( $coll_bulk, 'GET' )['status'], 'Bulk sharing rejects GET.' );
+	$coll_result = $coll_ajax( $coll_bulk );
+	$coll_assert( 200 === $coll_result['status'] && $coll_result['body']['success'], 'Share all succeeds via AJAX.' );
+	$coll_assert( Sharing::get_item_state( $coll_collection, $coll_item )['selected'] && Sharing::get_item_state( $coll_collection, $coll_new )['selected'] && ! Sharing::get_item_state( $coll_collection, $coll_draft )['selected'], 'Share all includes published items and excludes drafts.' );
+	$coll_assert( 'private' === Sharing::get_settings( $coll_collection )['new_items'], 'Bulk sharing preserves the new-item default.' );
+	$coll_bulk['shared'] = '0';
+	$coll_result         = $coll_ajax( $coll_bulk );
+	$coll_assert( 200 === $coll_result['status'] && array() === Sharing::get_settings( $coll_collection )['item_ids'] && 'selected' === Sharing::get_settings( $coll_collection )['mode'], 'Make all private clears selections without disabling the public page.' );
+	$coll_assert( ! has_action( 'wp_ajax_nopriv_coll_share_collection' ), 'Bulk sharing has no anonymous endpoint.' );
 	wp_set_current_user( 0 );
 	$coll_input['nonce'] = wp_create_nonce( 'coll_share_item_' . $coll_item );
 	$coll_assert( 403 === $coll_ajax( $coll_input )['status'] && ! has_action( 'wp_ajax_nopriv_coll_share_item' ), 'Anonymous users must have no sharing mutation endpoint.' );

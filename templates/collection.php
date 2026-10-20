@@ -121,12 +121,7 @@ require __DIR__ . '/_head.php';
 						<?php echo esc_html( get_the_title( $coll_collection ) ); ?>
 					</h1>
 					<p class="eyebrow"><?php echo esc_html( Schema::get_kind_label( $coll_kind ) ); ?></p>
-					<?php if ( 'selected' === Sharing::get_settings( $coll_collection_id )['mode'] && 'publish' === $coll_collection->post_status && '' === $coll_collection->post_password ) : ?>
-						<p class="coll-public-status">
-							<span class="pill"><?php echo esc_html__( 'Public', 'collectibles' ); ?></span>
-							<a href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>"><?php echo esc_html__( 'View public page', 'collectibles' ); ?> &rarr;</a>
-						</p>
-					<?php endif; ?>
+
 				</div>
 				<div class="actions">
 					<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/item/new' ) ); ?>">
@@ -208,6 +203,17 @@ require __DIR__ . '/_head.php';
 						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['wanted'] ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'on the wishlist', 'collectibles' ); ?></span>
 					</a>
+				<?php endif; ?>
+				<?php if ( 'selected' === Sharing::get_settings( $coll_collection_id )['mode'] && 'publish' === $coll_collection->post_status && '' === $coll_collection->post_password ) : ?>
+					<p class="coll-public-status">
+						<span class="pill"><?php echo esc_html__( 'Public', 'collectibles' ); ?></span>
+						<a href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>"><?php echo esc_html__( 'View public page', 'collectibles' ); ?> &rarr;</a>
+						<span class="coll-share-bulk" data-coll-share-collection="<?php echo esc_attr( $coll_collection_id ); ?>" data-coll-share-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-coll-share-nonce="<?php echo esc_attr( wp_create_nonce( 'coll_share_collection_' . $coll_collection_id ) ); ?>" data-coll-share-error="<?php echo esc_attr__( 'Sharing could not be saved. Reload to check the current state and try again.', 'collectibles' ); ?>">
+							<button type="button" class="button" data-coll-share-all="1" hidden><?php echo esc_html__( 'Share all', 'collectibles' ); ?></button>
+							<button type="button" class="button" data-coll-share-all="0" hidden><?php echo esc_html__( 'Make all private', 'collectibles' ); ?></button>
+							<span class="coll-share-bulk-message screen-reader-text" role="status" aria-live="polite"></span>
+						</span>
+					</p>
 				<?php endif; ?>
 			</section>
 

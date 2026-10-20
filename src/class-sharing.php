@@ -18,6 +18,7 @@ class Sharing {
 	/** Register anonymous routes without changing the private app's access. */
 	public static function init(): void {
 		add_action( 'wp_after_insert_post', array( __CLASS__, 'share_new_item' ), 10, 3 );
+		add_action( 'wp_ajax_coll_share_collection', array( __CLASS__, 'ajax_share_collection' ) );
 		add_action( 'wp_ajax_coll_share_item', array( __CLASS__, 'ajax_share_item' ) );
 		$app = new WpApp(
 			dirname( __DIR__ ) . '/templates',
@@ -242,6 +243,77 @@ class Sharing {
 		} finally {
 			delete_option( $lock );
 		}
+	}
+
+	/**
+	 * Change sharing for all current items under the same lock as individual changes.
+	 *
+	 * @param int  $collection_id Collection ID.
+	 * @param bool $shared Whether to share all eligible items.
+	 * @return array|\WP_Error Saved item states or error.
+	 */
+	public static function set_all_shared( int $collection_id, bool $shared ) {
+		if ( ! current_user_can( 'edit_posts' ) || ! Collection::get( $collection_id ) || ! current_user_can( 'edit_post', $collection_id ) ) {
+			return new \WP_Error( 'coll_sharing_forbidden', __( 'You cannot change sharing for this collection.', 'collectibles' ) );
+		}
+		$lock = 'coll_sharing_lock_' . $collection_id;
+		if ( ! add_option( $lock, time(), '', false ) ) {
+			return new \WP_Error( 'coll_sharing_busy', __( 'Sharing settings are being changed. Try again.', 'collectibles' ) );
+		}
+		try {
+			$settings = self::get_settings( $collection_id );
+			if ( 'selected' !== $settings['mode'] ) {
+				return new \WP_Error( 'coll_sharing_disabled', __( 'Enable the public page first.', 'collectibles' ) );
+			}
+			$items = get_posts(
+				array(
+					'post_type'   => Item::POST_TYPE,
+					'post_parent' => $collection_id,
+					'post_status' => 'any',
+					'numberposts' => -1,
+				)
+			);
+			$ids   = array();
+			foreach ( $items as $item ) {
+				if ( ! current_user_can( 'edit_post', $item->ID ) ) {
+					return new \WP_Error( 'coll_sharing_forbidden', __( 'You cannot change sharing for every item.', 'collectibles' ) );
+				}
+				if ( $shared && self::get_item_state( $collection_id, $item->ID )['eligible'] ) {
+					$ids[] = $item->ID;
+				}
+			}
+			$settings['item_ids'] = $ids;
+			if ( ! update_post_meta( $collection_id, self::META_KEY, wp_slash( $settings ) ) && get_post_meta( $collection_id, self::META_KEY, true ) !== $settings ) {
+				return new \WP_Error( 'coll_sharing_save', __( 'Sharing settings could not be saved. Try again.', 'collectibles' ) );
+			}
+			$states = array();
+			foreach ( $items as $item ) {
+				$states[ $item->ID ] = self::get_item_state( $collection_id, $item->ID );
+			}
+			return $states;
+		} finally {
+			delete_option( $lock );
+		}
+	}
+
+	/** Authenticated bulk sharing endpoint, scoped to one collection. */
+	public static function ajax_share_collection(): void {
+		if ( 'POST' !== ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) : '' ) ) {
+			wp_send_json_error( __( 'Use POST to change sharing.', 'collectibles' ), 405 );
+		}
+		$id = absint( $_POST['collection_id'] ?? 0 );
+		if ( ! check_ajax_referer( 'coll_share_collection_' . $id, 'nonce', false ) ) {
+			wp_send_json_error( __( 'Your sharing session expired. Reload and try again.', 'collectibles' ), 403 );
+		}
+		$shared = sanitize_text_field( wp_unslash( $_POST['shared'] ?? '' ) );
+		if ( ! in_array( $shared, array( '0', '1' ), true ) ) {
+			wp_send_json_error( __( 'Choose whether to share the items.', 'collectibles' ), 422 );
+		}
+		$result = self::set_all_shared( $id, '1' === $shared );
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( $result->get_error_message(), 'coll_sharing_forbidden' === $result->get_error_code() ? 403 : 409 );
+		}
+		wp_send_json_success( $result );
 	}
 
 	/** Authenticated, nonce-protected AJAX endpoint for item card switches. */

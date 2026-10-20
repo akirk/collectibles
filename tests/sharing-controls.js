@@ -26,8 +26,19 @@ const requests = [];
 const pending = [];
 let focused = false;
 const menu = { open: false, contains: () => false, querySelector: () => ( { focus: () => { focused = true; } } ) };
+const bulkMessage = { textContent: '', classList: { remove: () => {} } };
+const bulkRoot = {
+	dataset: { collShareCollection: '10', collShareNonce: 'bulk-nonce', collShareUrl: '/admin-ajax.php', collShareError: 'Reload bulk' },
+	querySelectorAll: () => bulkButtons, querySelector: () => bulkMessage,
+	setAttribute: () => {}, removeAttribute: () => {}
+};
+const bulkButtons = [ '1', '0' ].map( value => {
+	const button = { dataset: { collShareAll: value }, hidden: true, disabled: false, textContent: value === '1' ? 'Share all' : 'Make all private',
+		closest: selector => selector === '[data-coll-share-all]' ? button : ( selector === '.coll-share-bulk' ? bulkRoot : null ) };
+	return button;
+} );
 const document = {
-	querySelectorAll: selector => selector === '[data-coll-share-item]' ? cards.map( c => c.button ) : ( selector === '.coll-actions-menu[open]' && menu.open ? [ menu ] : [] ),
+	querySelectorAll: selector => selector === '[data-coll-share-all]' ? bulkButtons : selector === '[data-coll-share-item]' ? cards.map( c => c.button ) : ( selector === '.coll-actions-menu[open]' && menu.open ? [ menu ] : [] ),
 	addEventListener: ( type, callback ) => { ( handlers[ type ] ||= [] ).push( callback ); }
 };
 const context = { document, FormData, AbortController, setTimeout, clearTimeout, Promise, JSON,
@@ -67,5 +78,18 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	check( ! menu.open && focused, 'Escape closes the actions dropdown and restores focus.' );
 	menu.open = true; click( 1 );
 	check( ! menu.open, 'Clicking outside closes the actions dropdown.' );
+
+	check( bulkButtons.every( b => ! b.hidden ), 'JavaScript reveals bulk controls.' );
+	handlers.click.forEach( callback => callback( { target: bulkButtons[0] } ) );
+	await tick();
+	check( bulkButtons.every( b => b.disabled ) && requests[4].options.body.get( 'action' ) === 'coll_share_collection' && requests[4].options.body.get( 'nonce' ) === 'bulk-nonce', 'Bulk requests use the collection nonce and disable both controls.' );
+	pending[4].resolve( { ok: true, json: async () => ( { success: true, data: { 1: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared' }, 2: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared' } } } ) } );
+	await tick();
+	check( cards.every( c => c.label.textContent === 'Shared' && c.button.getAttribute( 'aria-pressed' ) === 'true' ) && bulkButtons.every( b => ! b.disabled ), 'Bulk success updates every visible switch without reloading.' );
+	handlers.click.forEach( callback => callback( { target: bulkButtons[1] } ) );
+	await tick();
+	pending[5].reject( new Error( 'Network failed' ) );
+	await tick();
+	check( bulkButtons.every( b => b.disabled ) && bulkMessage.textContent === 'Reload bulk', 'Lost bulk responses require checking the saved state.' );
 	console.log( 'Passed ' + checks + ' sharing UI checks.' );
 } )().catch( error => { console.error( error ); process.exitCode = 1; } );

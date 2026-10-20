@@ -60,6 +60,53 @@
 		} );
 	} );
 
+	document.querySelectorAll( '[data-coll-share-all]' ).forEach( function ( button ) {
+		button.hidden = false;
+	} );
+	document.addEventListener( 'click', function ( event ) {
+		var button = event.target.closest( '[data-coll-share-all]' );
+		if ( ! button || button.disabled ) return;
+		var root = button.closest( '.coll-share-bulk' );
+		var controls = root.querySelectorAll( 'button' );
+		var message = root.querySelector( '.coll-share-bulk-message' );
+		controls.forEach( function ( control ) { control.disabled = true; } );
+		root.setAttribute( 'aria-busy', 'true' );
+		shareQueue = shareQueue.then( async function () {
+			var replied = false;
+			var controller = new AbortController();
+			var timeout = setTimeout( function () { controller.abort(); }, 20000 );
+			try {
+				var body = new FormData();
+				body.set( 'action', 'coll_share_collection' );
+				body.set( 'collection_id', root.dataset.collShareCollection );
+				body.set( 'nonce', root.dataset.collShareNonce );
+				body.set( 'shared', button.dataset.collShareAll );
+				var response = await fetch( root.dataset.collShareUrl, { method: 'POST', body: body, credentials: 'same-origin', signal: controller.signal } );
+				var result = await response.json();
+				replied = result && typeof result.success === 'boolean';
+				if ( ! response.ok || ! result.success ) throw new Error( typeof result.data === 'string' ? result.data : root.dataset.collShareError );
+				document.querySelectorAll( '[data-coll-share-item]' ).forEach( function ( card ) {
+					if ( card.dataset.collShareCollection !== root.dataset.collShareCollection ) return;
+					var state = result.data[ card.dataset.collShareItem ];
+					if ( ! state ) return;
+					card.setAttribute( 'aria-pressed', state.selected ? 'true' : 'false' );
+					card.setAttribute( 'aria-label', card.dataset.collShareTitle + ': ' + state.action );
+					card.title = state.message;
+					card.querySelector( '[data-coll-share-label]' ).textContent = state.label;
+					card.disabled = ! state.eligible && ! state.selected;
+				} );
+				message.textContent = button.textContent;
+			} catch ( error ) {
+				message.textContent = replied ? error.message : root.dataset.collShareError;
+				message.classList.remove( 'screen-reader-text' );
+			} finally {
+				clearTimeout( timeout );
+				controls.forEach( function ( control ) { control.disabled = ! replied; } );
+				root.removeAttribute( 'aria-busy' );
+			}
+		} );
+	} );
+
 	document.addEventListener( 'click', function ( event ) {
 		document.querySelectorAll( '.coll-actions-menu[open]' ).forEach( function ( menu ) {
 			if ( ! menu.contains( event.target ) ) menu.open = false;
