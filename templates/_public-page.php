@@ -58,7 +58,7 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 			<?php if ( $coll_public_data['detail'] ) : ?>
 				<a class="crumb" href="<?php echo esc_url( $coll_public_data['url'] ); ?>"><?php echo esc_html( $coll_public_data['title'] ); ?></a>
 			<?php else : ?>
-				<p class="eyebrow"><?php echo esc_html__( 'A shared collection', 'collectibles' ); ?></p>
+				<p class="eyebrow"><?php echo esc_html( $coll_public_data['owner'] ); ?></p>
 			<?php endif; ?>
 			<h1><?php echo esc_html( $coll_public_data['detail'] ? $coll_public_data['items'][0]['title'] : $coll_public_data['title'] ); ?></h1>
 			<?php if ( ! $coll_public_data['detail'] && '' !== $coll_public_data['description'] ) : ?>

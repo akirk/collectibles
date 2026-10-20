@@ -521,6 +521,7 @@ img { max-width: 100%; height: auto; }
 }
 
 .collection-card {
+	position: relative;
 	display: flex;
 	gap: 14px;
 	align-items: center;
@@ -557,6 +558,18 @@ img { max-width: 100%; height: auto; }
 
 .collection-card-body h2 a {
 	color: inherit;
+}
+
+.collection-card-body h2 a::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	border-radius: var(--coll-radius);
+}
+
+.collection-card-body h2 a:focus-visible::after {
+	outline: 2px solid var(--coll-brass);
+	outline-offset: 3px;
 }
 
 .collection-card-facts {

@@ -165,6 +165,15 @@ try {
 	$coll_other_slug = get_post( $coll_unselected )->post_name;
 	wp_set_current_user( 0 );
 	$coll_page = Sharing::get_page( $coll_slug );
+	$coll_assert( get_userdata( $coll_user )->display_name === $coll_page['owner'], 'Public pages must show the owner display name.' );
+	$coll_directory = Sharing::get_directory();
+	$coll_urls      = array_column( $coll_directory, 'url' );
+	$coll_assert( in_array( $coll_page['url'], $coll_urls, true ), 'Shared collections must appear in the directory.' );
+	$coll_assert( ! in_array( Sharing::get_url( get_post( $coll_other ) ), $coll_urls, true ), 'Private collections must stay out of the directory.' );
+	foreach ( $coll_directory as $coll_entry ) {
+		$coll_assert( array( 'title', 'owner', 'url', 'icon' ) === array_keys( $coll_entry ), 'Directory summaries must contain only public fields.' );
+	}
+
 	$coll_assert( 1 === count( $coll_page['items'] ) && 'A public overview' === $coll_page['description'], 'Guests must see only the selected items and public description.' );
 	$coll_assert( null !== Sharing::get_page( $coll_slug, $coll_item_slug ), 'A selected item must have a public detail URL.' );
 	$coll_assert( null === Sharing::get_page( $coll_slug, $coll_other_slug ), 'An unselected item detail URL must return no data.' );
