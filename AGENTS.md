@@ -111,8 +111,8 @@ Build in-app URLs with `Collectibles\App::get_url( $path )` and asset URLs with
 ### Public sharing
 
 Private collection management stays under `/collectibles/`, including
-`{id}/sharing`. `Sharing` registers a separate anonymous WpApp at
-`/collections/{slug}/`, with item pages under `/{item_slug}/`. Never relax the
+`{id}/sharing`. `Sharing` serves anonymous public projections before private routing at
+`/collectibles/{slug}/`, with item pages under `/{item_slug}/`. Never relax the
 private app or its REST capabilities to support public pages.
 
 Sharing defaults to private. Owners enable a public page and choose its items with AJAX switches on

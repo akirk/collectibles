@@ -7,10 +7,8 @@
 
 namespace Collectibles;
 
-use WpApp\WpApp;
-
 /**
- * Sharing settings, public URLs and an isolated anonymous router.
+ * Sharing settings, public URLs and anonymous public routes.
  */
 class Sharing {
 	public const META_KEY = '_coll_sharing';
@@ -21,20 +19,49 @@ class Sharing {
 		add_action( 'wp_after_insert_post', array( __CLASS__, 'share_new_item' ), 10, 3 );
 		add_action( 'wp_ajax_coll_share_collection', array( __CLASS__, 'ajax_share_collection' ) );
 		add_action( 'wp_ajax_coll_share_item', array( __CLASS__, 'ajax_share_item' ) );
-		$app = new WpApp(
-			dirname( __DIR__ ) . '/templates',
-			'collections',
-			array(
-				'require_login' => false,
-				'launcher'      => false,
-				'app_name'      => 'Collections',
-			)
+		add_action( 'template_redirect', array( __CLASS__, 'maybe_show_public_page' ), 0 );
+	}
+
+	/**
+	 * Match public slugs while reserving the private app's routes.
+	 *
+	 * @param string $path Request URL path.
+	 */
+	public static function get_public_route( string $path ): ?array {
+		$base = (string) wp_parse_url( App::get_url(), PHP_URL_PATH );
+		if ( 0 !== strpos( $path, trailingslashit( $base ) ) ) {
+			return null;
+		}
+		$parts = explode( '/', trim( substr( $path, strlen( trailingslashit( $base ) ) ), '/' ) );
+		if ( count( $parts ) > 2 || ! self::is_public_slug( $parts[0] ) ) {
+			return null;
+		}
+		return array(
+			'slug'      => $parts[0],
+			'item_slug' => $parts[1] ?? '',
 		);
-		$app->route( '', 'public-collection.php' );
-		$app->route( '{slug}', 'public-collection.php' );
-		$app->route( '{slug}/{item_slug}', 'public-collection.php' );
-		$app->init();
-		$app->enable_masterbar( false );
+	}
+
+	/**
+	 * Whether a slug can coexist with private management routes.
+	 *
+	 * @param string $slug Collection slug.
+	 */
+	private static function is_public_slug( string $slug ): bool {
+		return '' !== $slug && ! ctype_digit( $slug ) && ! in_array( $slug, array( 'new', 'search', 'origins', 'settings', 'collection' ), true );
+	}
+
+	/** Serve public projections before the private app checks authentication. */
+	public static function maybe_show_public_page(): void {
+		$path  = wp_parse_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ?? '' ) ), PHP_URL_PATH );
+		$route = self::get_public_route( (string) $path );
+		if ( null === $route ) {
+			return;
+		}
+		$coll_public_slug = $route['slug'];
+		$coll_public_item = $route['item_slug'];
+		require dirname( __DIR__ ) . '/templates/public-collection.php';
+		exit;
 	}
 
 	/** Whether the site administrator has enabled the public directory. */
@@ -153,7 +180,7 @@ class Sharing {
 	 */
 	public static function get_url( \WP_Post $collection, string $slug = '' ): string {
 		$slug = $slug ? $slug : $collection->post_name;
-		return home_url( '/collections/' . $slug . '/' );
+		return App::get_url( $slug );
 	}
 
 	/**
@@ -176,8 +203,8 @@ class Sharing {
 			return new \WP_Error( 'coll_sharing_status', __( 'Publish the collection before sharing it.', 'collectibles' ) );
 		}
 		$slug = sanitize_title( (string) ( $input['slug'] ?? $collection->post_name ) );
-		if ( '' === $slug ) {
-			return new \WP_Error( 'coll_sharing_slug', __( 'Enter a public URL name.', 'collectibles' ) );
+		if ( ! self::is_public_slug( $slug ) ) {
+			return new \WP_Error( 'coll_sharing_slug', __( 'Enter a public URL name that is not a number or a reserved app route.', 'collectibles' ) );
 		}
 		$slug = wp_unique_post_slug( $slug, $id, 'publish', Collection::POST_TYPE, 0 );
 		$ids  = array_values( array_unique( array_filter( array_map( 'absint', (array) ( $input['item_ids'] ?? self::get_settings( $id )['item_ids'] ) ) ) ) );

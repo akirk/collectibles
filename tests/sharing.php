@@ -36,6 +36,15 @@ $coll_render = static function ( $data ) {
 	}
 };
 try {
+	$coll_base = (string) wp_parse_url( Collectibles\App::get_url(), PHP_URL_PATH );
+	foreach ( array( 'lego', 'lego/brick' ) as $coll_path ) {
+		$coll_route = Sharing::get_public_route( trailingslashit( $coll_base ) . $coll_path . '/' );
+		$coll_assert( 'lego' === $coll_route['slug'], 'Public collection and item paths must match without login.' );
+	}
+	foreach ( array( '', 'settings', 'search', 'origins', 'new', '123', '123/edit', 'collection/new', 'lego/brick/edit' ) as $coll_path ) {
+		$coll_assert( null === Sharing::get_public_route( trailingslashit( $coll_base ) . $coll_path ), 'Private management paths must stay outside public routing.' );
+	}
+	$coll_assert( null === Sharing::get_public_route( '/collections/lego/' ), 'The old public prefix must not match.' );
 	foreach ( array( Schema::KIND_BANKNOTES, Schema::KIND_BRICKS ) as $coll_kind ) {
 		$coll_id      = wp_insert_post(
 			array(
@@ -160,7 +169,7 @@ try {
 	$coll_result = Sharing::save( $coll_collection, $coll_settings );
 	$coll_assert( ! is_wp_error( $coll_result ), 'Owner must be able to save sharing settings.' );
 	$coll_slug = $coll_result['slug'];
-	$coll_assert( false !== strpos( Sharing::get_url( get_post( $coll_collection ) ), '/collections/' . $coll_slug . '/' ), 'The public URL must use the chosen slug.' );
+	$coll_assert( false !== strpos( Sharing::get_url( get_post( $coll_collection ) ), '/collectibles/' . $coll_slug . '/' ), 'The public URL must use the chosen slug.' );
 	$coll_item_slug  = get_post( $coll_item )->post_name;
 	$coll_other_slug = get_post( $coll_unselected )->post_name;
 	wp_set_current_user( 0 );

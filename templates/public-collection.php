@@ -10,9 +10,6 @@ namespace Collectibles;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
-global $wp_app_route;
-$coll_public_slug    = (string) ( $wp_app_route['params']['slug'] ?? '' );
-$coll_public_item    = (string) ( $wp_app_route['params']['item_slug'] ?? '' );
 $coll_public_data    = Sharing::get_page( $coll_public_slug, $coll_public_item );
 $coll_public_preview = false;
 Sharing::send_headers();
