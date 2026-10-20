@@ -1450,3 +1450,10 @@ input[type="file"] {
 	flex-shrink: 0;
 	margin-left: auto;
 }
+
+.coll-public-status {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	font-size: .875rem;
+}

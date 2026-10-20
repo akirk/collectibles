@@ -219,6 +219,7 @@ try {
 	);
 	$coll_html = $coll_render( 'collection.php', $coll_collection );
 	$coll_assert( false === strpos( $coll_html, 'data-coll-share-item=' ), 'Disabled sharing hides all item switches.' );
+	$coll_assert( false === strpos( $coll_html, 'coll-public-status' ), 'Private collections must not show a public-page link.' );
 	$coll_private = wp_insert_post(
 		array(
 			'post_type'   => Item::POST_TYPE,
@@ -238,6 +239,7 @@ try {
 	);
 	$coll_html = $coll_render( 'collection.php', $coll_collection );
 	$coll_assert( (bool) preg_match( '~class="item-card-heading">.*?data-coll-share-item=.*?</div>~s', $coll_html ), 'Enabled sharing places switches beside the card title.' );
+	$coll_assert( false !== strpos( $coll_html, 'coll-public-status' ) && false !== strpos( $coll_html, esc_url( Sharing::get_url( get_post( $coll_collection ) ) ) ), 'Public collections show their public-page link on the internal overview.' );
 	wp_set_current_user( 0 );
 	$coll_input['nonce'] = wp_create_nonce( 'coll_share_item_' . $coll_item );
 	$coll_assert( 403 === $coll_ajax( $coll_input )['status'] && ! has_action( 'wp_ajax_nopriv_coll_share_item' ), 'Anonymous users must have no sharing mutation endpoint.' );

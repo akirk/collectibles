@@ -121,6 +121,12 @@ require __DIR__ . '/_head.php';
 						<?php echo esc_html( get_the_title( $coll_collection ) ); ?>
 					</h1>
 					<p class="eyebrow"><?php echo esc_html( Schema::get_kind_label( $coll_kind ) ); ?></p>
+					<?php if ( 'selected' === Sharing::get_settings( $coll_collection_id )['mode'] && 'publish' === $coll_collection->post_status && '' === $coll_collection->post_password ) : ?>
+						<p class="coll-public-status">
+							<span class="pill"><?php echo esc_html__( 'Public', 'collectibles' ); ?></span>
+							<a href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>"><?php echo esc_html__( 'View public page', 'collectibles' ); ?> &rarr;</a>
+						</p>
+					<?php endif; ?>
 				</div>
 				<div class="actions">
 					<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/item/new' ) ); ?>">
