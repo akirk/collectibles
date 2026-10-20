@@ -103,7 +103,7 @@ class Sharing {
 			)
 		) as $collection ) {
 			$settings = self::get_settings( $collection->ID );
-			if ( 'private' === $settings['mode'] ) {
+			if ( 'selected' !== $settings['mode'] ) {
 				continue;
 			}
 			$owner     = get_userdata( (int) $collection->post_author );
@@ -148,7 +148,7 @@ class Sharing {
 		}
 
 		return array(
-			'mode'        => 'selected' === ( $stored['mode'] ?? '' ) ? 'selected' : 'private',
+			'mode'        => in_array( $stored['mode'] ?? '', array( 'selected', 'unlisted' ), true ) ? $stored['mode'] : 'private',
 			'description' => (string) ( $stored['description'] ?? '' ),
 			'new_items'   => 'shared' === ( $stored['new_items'] ?? '' ) ? 'shared' : 'private',
 			'item_ids'    => array_map( 'absint', (array) ( $stored['item_ids'] ?? array() ) ),
@@ -167,7 +167,7 @@ class Sharing {
 			return;
 		}
 		$settings = self::get_settings( (int) $post->post_parent );
-		if ( 'selected' === $settings['mode'] && 'shared' === $settings['new_items'] ) {
+		if ( 'private' !== $settings['mode'] && 'shared' === $settings['new_items'] ) {
 			self::set_item_shared( (int) $post->post_parent, $id, true );
 		}
 	}
@@ -196,7 +196,7 @@ class Sharing {
 			return new \WP_Error( 'coll_sharing_forbidden', __( 'You cannot change sharing for this collection.', 'collectibles' ) );
 		}
 		$mode = $input['mode'] ?? 'private';
-		if ( ! in_array( $mode, array( 'private', 'selected' ), true ) ) {
+		if ( ! in_array( $mode, array( 'private', 'selected', 'unlisted' ), true ) ) {
 			return new \WP_Error( 'coll_sharing_mode', __( 'Choose a sharing mode.', 'collectibles' ) );
 		}
 		if ( 'private' !== $mode && ( 'publish' !== $collection->post_status || '' !== $collection->post_password ) ) {
@@ -279,7 +279,7 @@ class Sharing {
 		$item       = Item::get( $item_id );
 		$eligible   = $collection && $item && $collection_id === (int) $item->post_parent && 'publish' === $collection->post_status && '' === $collection->post_password && 'publish' === $item->post_status && '' === $item->post_password;
 		$selected   = in_array( $item_id, $settings['item_ids'], true );
-		$public     = $eligible && $selected && 'selected' === $settings['mode'];
+		$public     = $eligible && $selected && 'private' !== $settings['mode'];
 		return array(
 			'selected' => $selected,
 			'eligible' => (bool) $eligible,
@@ -343,7 +343,7 @@ class Sharing {
 		}
 		try {
 			$settings = self::get_settings( $collection_id );
-			if ( 'selected' !== $settings['mode'] ) {
+			if ( 'private' === $settings['mode'] ) {
 				return new \WP_Error( 'coll_sharing_disabled', __( 'Enable the public page first.', 'collectibles' ) );
 			}
 			$items = get_posts(
@@ -491,7 +491,7 @@ class Sharing {
 		if ( $include_unshared ) {
 			$items = Item::query( array( 'collection' => $collection->ID ) );
 		}
-		if ( 'selected' === $settings['mode'] && $settings['item_ids'] ) {
+		if ( 'private' !== $settings['mode'] && $settings['item_ids'] ) {
 			$args['post__in'] = $settings['item_ids'];
 			$items            = get_posts( $args );
 		}

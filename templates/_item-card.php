@@ -39,7 +39,7 @@ if ( ! empty( $coll_card_catalog['show_on_card'] ) && '' !== $coll_card_number )
 $coll_card_front   = Item::get_side_photo_id( $coll_card_item->ID, Item::FRONT_META_KEY );
 $coll_card_back    = Item::get_side_photo_id( $coll_card_item->ID, Item::BACK_META_KEY );
 $coll_card_sharing = array();
-if ( 'selected' === Sharing::get_settings( (int) $coll_card_collection_id )['mode'] && current_user_can( 'edit_post', $coll_card_collection_id ) && current_user_can( 'edit_post', $coll_card_item->ID ) ) {
+if ( 'private' !== Sharing::get_settings( (int) $coll_card_collection_id )['mode'] && current_user_can( 'edit_post', $coll_card_collection_id ) && current_user_can( 'edit_post', $coll_card_item->ID ) ) {
 	$coll_card_sharing                  = Sharing::get_item_state( (int) $coll_card_collection_id, (int) $coll_card_item->ID );
 	$coll_card_sharing['item_id']       = $coll_card_item->ID;
 	$coll_card_sharing['collection_id'] = $coll_card_collection_id;

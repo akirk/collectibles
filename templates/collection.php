@@ -95,7 +95,7 @@ if ( ! $coll_not_found && ! $coll_forbidden ) {
 	}
 }
 
-$coll_public_enabled = ! $coll_not_found && ! $coll_forbidden && 'selected' === Sharing::get_settings( $coll_collection_id )['mode'] && 'publish' === $coll_collection->post_status && '' === $coll_collection->post_password;
+$coll_public_enabled = ! $coll_not_found && ! $coll_forbidden && 'private' !== Sharing::get_settings( $coll_collection_id )['mode'] && 'publish' === $coll_collection->post_status && '' === $coll_collection->post_password;
 $coll_public_count   = 0;
 if ( $coll_public_enabled ) {
 	foreach ( $coll_all_items as $coll_public_item ) {
