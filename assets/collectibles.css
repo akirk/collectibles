@@ -1452,27 +1452,28 @@ input[type="file"] {
 }
 
 .coll-public-status {
-	flex-wrap: wrap;
-	margin: 0 0 0 auto;
-	align-self: center;
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	font-size: .875rem;
+	margin-left: auto;
 }
 
 .coll-share-bulk {
-	display: inline-flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 6px;
-}
-
-.coll-share-bulk .button {
-	font-size: .75rem;
-	padding: 4px 8px;
+	display: flex;
+	flex-direction: column;
 }
 
 .coll-share-bulk button[hidden] {
 	display: none;
+}
+
+.coll-share-bulk .coll-action-link {
+	border: 0;
+	background: transparent;
+	color: var(--coll-patina);
+	font: inherit;
+	text-align: left;
+	cursor: pointer;
+}
+
+.coll-share-bulk .coll-action-link:hover,
+.coll-share-bulk .coll-action-link:focus-visible {
+	background: var(--coll-patina-soft);
 }

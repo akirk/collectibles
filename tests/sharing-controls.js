@@ -37,8 +37,9 @@ const bulkButtons = [ '1', '0' ].map( value => {
 		closest: selector => selector === '[data-coll-share-all]' ? button : ( selector === '.coll-share-bulk' ? bulkRoot : null ) };
 	return button;
 } );
+const publicCount = { dataset: { collPublicCount: '10', collCount: '0' }, textContent: '0' };
 const document = {
-	querySelectorAll: selector => selector === '[data-coll-share-all]' ? bulkButtons : selector === '[data-coll-share-item]' ? cards.map( c => c.button ) : ( selector === '.coll-actions-menu[open]' && menu.open ? [ menu ] : [] ),
+	querySelectorAll: selector => selector === '[data-coll-public-count]' ? [ publicCount ] : selector === '[data-coll-share-all]' ? bulkButtons : selector === '[data-coll-share-item]' ? cards.map( c => c.button ) : ( selector === '.coll-actions-menu[open]' && menu.open ? [ menu ] : [] ),
 	addEventListener: ( type, callback ) => { ( handlers[ type ] ||= [] ).push( callback ); }
 };
 const context = { document, FormData, AbortController, setTimeout, clearTimeout, Promise, JSON,
@@ -60,6 +61,7 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	check( requests[0].options.method === 'POST' && requests[0].options.credentials === 'same-origin' && requests[0].options.body.get( 'nonce' ) === 'nonce-1' && requests[0].options.body.get( 'shared' ) === '1', 'AJAX sends an absolute selection with the item nonce and cookies.' );
 	pending[0].resolve( response( true, 'Shared' ) );
 	await tick();
+	check( publicCount.textContent === '1', 'Sharing an item updates the public stat.' );
 	check( requests.length === 2 && cards[0].button.getAttribute( 'aria-pressed' ) === 'true' && cards[0].label.textContent === 'Shared' && ! cards[0].button.disabled, 'The saved state appears after the server confirms it.' );
 	pending[1].resolve( { ok: false, json: async () => ( { success: false, data: 'Permission denied' } ) } );
 	await tick();
@@ -72,6 +74,7 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	click( 0 ); await tick();
 	check( requests.length === 4 && requests[3].options.body.get( 'shared' ) === '0', 'An earlier failure does not block later unsharing requests.' );
 	pending[3].resolve( response( false, 'Private' ) ); await tick();
+	check( publicCount.textContent === '0', 'Unsharing an item updates the public stat.' );
 	check( cards[0].button.getAttribute( 'aria-pressed' ) === 'false' && cards[0].label.textContent === 'Private', 'Switch-off displays the confirmed private state.' );
 	menu.open = true;
 	handlers.keydown.forEach( callback => callback( { key: 'Escape' } ) );
@@ -85,6 +88,7 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	check( bulkButtons.every( b => b.disabled ) && requests[4].options.body.get( 'action' ) === 'coll_share_collection' && requests[4].options.body.get( 'nonce' ) === 'bulk-nonce', 'Bulk requests use the collection nonce and disable both controls.' );
 	pending[4].resolve( { ok: true, json: async () => ( { success: true, data: { 1: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared' }, 2: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared' } } } ) } );
 	await tick();
+	check( publicCount.textContent === '2', 'Bulk sharing updates the public stat.' );
 	check( cards.every( c => c.label.textContent === 'Shared' && c.button.getAttribute( 'aria-pressed' ) === 'true' ) && bulkButtons.every( b => ! b.disabled ), 'Bulk success updates every visible switch without reloading.' );
 	handlers.click.forEach( callback => callback( { target: bulkButtons[1] } ) );
 	await tick();

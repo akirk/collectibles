@@ -11,6 +11,15 @@
 		}
 	}
 
+	function updatePublicCount( collection, change, absolute ) {
+		document.querySelectorAll( '[data-coll-public-count]' ).forEach( function ( count ) {
+			if ( count.dataset.collPublicCount !== collection ) return;
+			var value = absolute ? change : Number( count.dataset.collCount ) + change;
+			count.dataset.collCount = String( value );
+			count.textContent = value.toLocaleString();
+		} );
+	}
+
 	var shareQueue = Promise.resolve();
 	document.querySelectorAll( '[data-coll-share-item]' ).forEach( function ( button ) {
 		button.hidden = false;
@@ -42,6 +51,7 @@
 				var result = await response.json();
 				replied = result && typeof result.success === 'boolean';
 				if ( ! response.ok || ! result.success ) throw new Error( typeof result.data === 'string' ? result.data : button.dataset.collShareError );
+				updatePublicCount( button.dataset.collShareCollection, Number( result.data.selected ) - Number( button.getAttribute( 'aria-pressed' ) === 'true' ), false );
 				button.setAttribute( 'aria-pressed', result.data.selected ? 'true' : 'false' );
 				button.setAttribute( 'aria-label', button.dataset.collShareTitle + ': ' + result.data.action );
 				button.title = result.data.message;
@@ -95,6 +105,8 @@
 					card.querySelector( '[data-coll-share-label]' ).textContent = state.label;
 					card.disabled = ! state.eligible && ! state.selected;
 				} );
+				var total = Object.keys( result.data ).filter( function ( id ) { return result.data[id].selected && result.data[id].eligible; } ).length;
+				updatePublicCount( root.dataset.collShareCollection, total, true );
 				message.textContent = button.textContent;
 			} catch ( error ) {
 				message.textContent = replied ? error.message : root.dataset.collShareError;
