@@ -100,7 +100,15 @@ require __DIR__ . '/_head.php';
 							<?php endforeach; ?>
 						</ul>
 					<?php endif; ?>
-					<p class="field-hint"><?php echo esc_html__( 'Visitors at /collectibles/ see public collections and their owners’ display names. Each owner chooses which collections to share. Signed-in collectors keep their private dashboard.', 'collectibles' ); ?></p>
+					<p class="field-hint">
+						<?php
+						printf(
+							/* translators: %s: link to the public directory */
+							esc_html__( 'Visitors at %s see public collections and their owners’ display names. Each owner chooses which collections to share. Signed-in collectors keep their private dashboard.', 'collectibles' ),
+							'<a href="' . esc_url( add_query_arg( 'view', 'shared', App::get_url() ) ) . '">/collectibles/</a>'
+						);
+						?>
+					</p>
 					<details class="settings-indexing">
 						<summary><?php echo esc_html__( 'Search engine visibility', 'collectibles' ); ?></summary>
 						<div class="settings-indexing-content">
