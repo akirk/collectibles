@@ -181,6 +181,33 @@ try {
 	$coll_assert( false !== strpos( $coll_html, 'noindex,nofollow' ), 'Shared pages must discourage indexing.' );
 	$coll_assert( false !== strpos( $coll_html, 'id="coll-public-gallery"' ) && false !== strpos( $coll_html, 'id="coll-public-expanded"' ), 'Public collections offer gallery and detailed views.' );
 	$coll_assert( false === strpos( $coll_html, '<details' ) && false === strpos( $coll_html, '<summary' ), 'Public items must not use per-item Details controls.' );
+
+	$coll_assert( false === strpos( $coll_html, 'data-coll-share-item' ) && false === strpos( $coll_html, 'data-coll-flip' ), 'Public cards omit private controls and do not flip to unrelated attachments.' );
+	$coll_back    = wp_insert_attachment(
+		array(
+			'post_title'     => 'SECRET_BACK_TITLE',
+			'post_parent'    => $coll_item,
+			'post_mime_type' => 'image/jpeg',
+			'post_status'    => 'inherit',
+			'guid'           => 'https://example.org/shared-back.jpg',
+		)
+	);
+	$coll_posts[] = $coll_back;
+	update_attached_file( $coll_back, sys_get_temp_dir() . '/' . wp_generate_uuid4() . '-shared-back.jpg' );
+	update_post_meta( $coll_item, Item::FRONT_META_KEY, $coll_photo );
+	update_post_meta( $coll_item, Item::BACK_META_KEY, $coll_back );
+	$coll_html = $coll_render( Sharing::get_page( $coll_slug ) );
+	$coll_assert( false !== strpos( $coll_html, 'data-coll-flip' ) && false !== strpos( $coll_html, 'shared-back.jpg' ) && false === strpos( $coll_html, 'SECRET_BACK_TITLE' ), 'Public cards can flip between their own projected front and back photos without leaking attachment metadata.' );
+	wp_set_current_user( $coll_user );
+	$coll_card_item          = get_post( $coll_item );
+	$coll_card_collection_id = $coll_collection;
+	$coll_card_kind          = Schema::KIND_BANKNOTES;
+	$coll_card_currency      = 'EUR';
+	ob_start();
+	require dirname( __DIR__ ) . '/templates/_item-card.php';
+	$coll_internal_html = ob_get_clean();
+	$coll_assert( false !== strpos( $coll_internal_html, 'data-coll-flip' ) && false !== strpos( $coll_internal_html, 'data-coll-share-item' ), 'Internal cards use the shared photo layout while retaining their owner controls.' );
+	wp_set_current_user( 0 );
 	$coll_response = rest_do_request( new WP_REST_Request( 'GET', '/wp/v2/coll_item/' . $coll_item ) );
 	$coll_assert( 200 !== $coll_response->get_status(), 'Sharing must not open the private item REST endpoint.' );
 	wp_set_current_user( $coll_user );

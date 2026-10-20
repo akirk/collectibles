@@ -82,6 +82,15 @@ class App extends BaseApp {
 			$this->get_url_path()
 		);
 
+		wp_app_enqueue_script(
+			'collectibles-cards',
+			plugins_url( 'assets/item-cards.js', dirname( __DIR__ ) . '/collectibles.php' ),
+			array(),
+			(string) filemtime( dirname( __DIR__ ) . '/assets/item-cards.js' ),
+			true,
+			$this->get_url_path()
+		);
+
 		$script_path = dirname( __DIR__ ) . '/assets/collectibles.js';
 		$script_ver  = file_exists( $script_path ) ? (string) filemtime( $script_path ) : '1.0.0';
 

@@ -11,6 +11,7 @@ namespace Collectibles;
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+wp_enqueue_script( 'collectibles-cards', App::get_asset_url( 'item-cards.js' ), array(), (string) filemtime( dirname( __DIR__ ) . '/assets/item-cards.js' ), true );
 wp_enqueue_style( 'collectibles-public', App::get_asset_url( 'collectibles.css' ), array(), (string) filemtime( dirname( __DIR__ ) . '/assets/collectibles.css' ) );
 $coll_public_title = $coll_public_data ? $coll_public_data['title'] : __( 'Collection not available', 'collectibles' );
 if ( $coll_public_data && $coll_public_data['detail'] ) {
@@ -73,40 +74,43 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 	<?php endif; ?>
 	<div class="<?php echo $coll_public_data['detail'] ? 'coll-public-detail' : 'item-grid'; ?>">
 	<?php foreach ( $coll_public_data['items'] as $coll_public_entry ) : ?>
-		<article id="public-item-<?php echo esc_attr( $coll_public_entry['slug'] ); ?>" class="item-card" style="--coll-thumb-ratio: <?php echo esc_attr( $coll_public_data['ratio'] ); ?>">
-			<?php $coll_public_href = $coll_public_preview ? '#public-item-' . $coll_public_entry['slug'] : $coll_public_entry['url']; ?>
-			<a class="item-card-thumb<?php echo $coll_public_entry['photos'] ? '' : ' is-empty'; ?>" href="<?php echo esc_url( $coll_public_href ); ?>">
-				<?php if ( $coll_public_entry['photos'] ) : ?>
-					<img src="<?php echo esc_url( $coll_public_data['detail'] ? $coll_public_entry['photos'][0]['image'] : $coll_public_entry['photos'][0]['thumbnail'] ); ?>" alt="<?php echo esc_attr( $coll_public_entry['title'] ); ?>" loading="lazy">
-				<?php else : ?>
-					<span class="kind-icon" aria-hidden="true"><?php echo esc_html( $coll_public_data['icon'] ); ?></span>
-				<?php endif; ?>
-			</a>
-			<div class="item-card-body">
-				<?php if ( ! $coll_public_data['detail'] ) : ?>
-					<h2><a href="<?php echo esc_url( $coll_public_href ); ?>"><?php echo esc_html( $coll_public_entry['title'] ); ?></a></h2>
-				<?php endif; ?>
-				<div class="coll-public-expanded">
-					<dl class="coll-public-fields">
-						<?php foreach ( $coll_public_entry['fields'] as $coll_public_field ) : ?>
-							<div><dt><?php echo esc_html( $coll_public_field['label'] ); ?></dt><dd><?php echo esc_html( $coll_public_field['value'] ); ?></dd></div>
-						<?php endforeach; ?>
-					</dl>
-					<?php foreach ( $coll_public_entry['photos'] as $coll_public_photo ) : ?>
-						<figure class="coll-public-photo">
-							<a href="<?php echo esc_url( $coll_public_photo['url'] ); ?>"><img src="<?php echo esc_url( $coll_public_photo['image'] ); ?>" alt="<?php echo esc_attr( $coll_public_entry['title'] ); ?>" loading="lazy"></a>
-							<?php if ( $coll_public_photo['source'] ) : ?>
-								<figcaption><a href="<?php echo esc_url( $coll_public_photo['source'] ); ?>"><?php echo esc_html__( 'Catalogue image', 'collectibles' ); ?></a></figcaption>
-							<?php endif; ?>
-						</figure>
-					<?php endforeach; ?>
-				</div>
-			</div>
-		</article>
+		<?php
+		$coll_card_front = '';
+		$coll_card_back  = '';
+		foreach ( $coll_public_entry['photos'] as $coll_public_photo ) {
+			if ( 'front' === $coll_public_photo['side'] ) {
+				$coll_card_front = $coll_public_photo['thumbnail'];
+			} elseif ( 'back' === $coll_public_photo['side'] ) {
+				$coll_card_back = $coll_public_photo['thumbnail'];
+			}
+		}
+		$coll_card_display = array(
+			'title'          => $coll_public_entry['title'],
+			'url'            => $coll_public_preview ? '#public-item-' . $coll_public_entry['slug'] : $coll_public_entry['url'],
+			'ratio'          => $coll_public_data['ratio'],
+			'icon'           => $coll_public_data['icon'],
+			'image'          => $coll_card_front ? $coll_card_front : ( $coll_public_entry['photos'][0]['thumbnail'] ?? '' ),
+			'back'           => $coll_card_front && $coll_card_back !== $coll_card_front ? $coll_card_back : '',
+			'quantity'       => 1,
+			'facts'          => array(),
+			'collection'     => '',
+			'collection_url' => '',
+			'status'         => '',
+			'status_class'   => '',
+			'value'          => '',
+			'sharing'        => array(),
+			'fields'         => $coll_public_entry['fields'],
+			'photos'         => $coll_public_entry['photos'],
+		);
+		?>
+		<div id="public-item-<?php echo esc_attr( $coll_public_entry['slug'] ); ?>" class="coll-public-card">
+			<?php require __DIR__ . '/_item-card-display.php'; ?>
+		</div>
 	<?php endforeach; ?>
 	</div>
 	</div>
 <?php endif; ?>
 </main>
+<?php wp_scripts()->do_items( array( 'collectibles-cards' ) ); ?>
 </body>
 </html>

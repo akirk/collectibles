@@ -451,6 +451,7 @@ class Sharing {
 					$source   = get_post_meta( $photo_id, '_coll_catalog_source', true );
 					$source   = is_string( $source ) && preg_match( '~^https://rebrickable\.com/sets/[a-z0-9-]+/$~i', $source ) ? $source : '';
 					$photos[] = array(
+						'side'      => Item::get_side_photo_id( $item->ID, Item::FRONT_META_KEY ) === $photo_id ? 'front' : ( Item::get_side_photo_id( $item->ID, Item::BACK_META_KEY ) === $photo_id ? 'back' : '' ),
 						'url'       => $full,
 						'image'     => $thumb,
 						'source'    => $source,
