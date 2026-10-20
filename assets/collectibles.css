@@ -1451,10 +1451,6 @@ input[type="file"] {
 	margin-left: auto;
 }
 
-.coll-public-status {
-	margin-left: auto;
-}
-
 .coll-share-bulk {
 	display: flex;
 	flex-direction: column;
