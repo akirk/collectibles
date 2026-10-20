@@ -113,17 +113,23 @@ class App extends BaseApp {
 		$this->app->route( 'origins', 'origins.php' );
 		$this->app->route( 'settings', 'settings.php' );
 
-		$this->app->route( 'collection/new', 'collection-form.php' );
-		$this->app->route( 'collection/{id}', 'collection.php' );
-		$this->app->route( 'collection/{id}/edit', 'collection-form.php' );
-		$this->app->route( 'collection/{id}/export', 'collection-export.php' );
-		$this->app->route( 'collection/{id}/photos', 'collection-photos.php' );
-		$this->app->route( 'collection/{id}/origins', 'origins.php' );
-		$this->app->route( 'collection/{id}/sharing', 'collection-sharing.php' );
-
-		$this->app->route( 'collection/{collection_id}/item/new', 'item-form.php' );
-		$this->app->route( 'collection/{collection_id}/item/{id}', 'item.php' );
-		$this->app->route( 'collection/{collection_id}/item/{id}/edit', 'item-form.php' );
+		$collection_routes = array(
+			'new'                            => 'collection-form.php',
+			'{id}'                           => 'collection.php',
+			'{id}/edit'                      => 'collection-form.php',
+			'{id}/export'                    => 'collection-export.php',
+			'{id}/photos'                    => 'collection-photos.php',
+			'{id}/origins'                   => 'origins.php',
+			'{id}/sharing'                   => 'collection-sharing.php',
+			'{collection_id}/item/new'       => 'item-form.php',
+			'{collection_id}/item/{id}'      => 'item.php',
+			'{collection_id}/item/{id}/edit' => 'item-form.php',
+		);
+		foreach ( $collection_routes as $path => $template ) {
+			$this->app->route( $path, $template );
+			// Keep bookmarks and already-open forms working at their original URLs.
+			$this->app->route( 'collection/' . $path, $template );
+		}
 	}
 
 	/**
@@ -134,7 +140,7 @@ class App extends BaseApp {
 		if ( is_user_logged_in() ) {
 			foreach ( Collection::get_for_current_user() as $collection ) {
 				if ( current_user_can( 'edit_post', $collection->ID ) ) {
-					$this->app->add_menu_item( 'collection-' . $collection->ID, $collection->post_title, self::get_url( 'collection/' . $collection->ID ) );
+					$this->app->add_menu_item( 'collection-' . $collection->ID, $collection->post_title, self::get_url( $collection->ID ) );
 				}
 			}
 		}

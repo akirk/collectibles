@@ -110,7 +110,7 @@ require __DIR__ . '/_head.php';
 		<?php else : ?>
 			<header class="topbar">
 				<div>
-					<a class="crumb" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+					<a class="crumb" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>">
 						<?php echo esc_html( get_the_title( $coll_collection ) ); ?>
 					</a>
 					<h1><?php echo esc_html( get_the_title( $coll_item ) ); ?></h1>
@@ -132,11 +132,11 @@ require __DIR__ . '/_head.php';
 				</div>
 				<div class="actions">
 					<?php if ( current_user_can( 'edit_post', $coll_item_id ) ) : ?>
-						<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/item/' . $coll_item_id . '/edit' ) ); ?>">
+						<a class="button button-primary" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/item/' . $coll_item_id . '/edit' ) ); ?>">
 							<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
 						</a>
 					<?php endif; ?>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+					<a class="button" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>">
 						<?php echo esc_html__( 'Back to collection', 'collectibles' ); ?>
 					</a>
 				</div>
@@ -266,7 +266,7 @@ require __DIR__ . '/_head.php';
 					<?php if ( ! empty( $coll_tags ) ) : ?>
 						<p class="tag-list">
 							<?php foreach ( $coll_tags as $coll_tag_term ) : ?>
-								<a class="tag" href="<?php echo esc_url( add_query_arg( 'tag', $coll_tag_term->slug, App::get_url( 'collection/' . $coll_collection_id ) ) ); ?>">
+								<a class="tag" href="<?php echo esc_url( add_query_arg( 'tag', $coll_tag_term->slug, App::get_url( $coll_collection_id ) ) ); ?>">
 									<?php echo esc_html( $coll_tag_term->name ); ?>
 								</a>
 							<?php endforeach; ?>

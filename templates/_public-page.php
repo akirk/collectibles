@@ -36,7 +36,7 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 <?php if ( $coll_public_preview ) : ?>
 	<section class="notice coll-public-preview">
 		<p><strong><?php echo esc_html__( 'Public preview', 'collectibles' ); ?></strong> — <?php echo esc_html__( 'Only you can see this preview. No sharing settings have been changed.', 'collectibles' ); ?></p>
-		<form method="post" action="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id . '/sharing' ) ); ?>">
+		<form method="post" action="<?php echo esc_url( App::get_url( $coll_share_id . '/sharing' ) ); ?>">
 			<?php wp_nonce_field( 'coll_sharing_' . $coll_share_id ); ?>
 			<input type="hidden" name="coll_new_items" value="<?php echo esc_attr( $coll_share_values['new_items'] ); ?>">
 			<input type="hidden" name="coll_mode" value="<?php echo esc_attr( $coll_share_values['mode'] ); ?>">
@@ -45,7 +45,7 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 
 			<div class="actions">
 				<button class="button button-primary" name="coll_action" value="save"><?php echo esc_html__( 'Apply sharing settings', 'collectibles' ); ?></button>
-				<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Back to sharing', 'collectibles' ); ?></a>
+				<a class="button" href="<?php echo esc_url( App::get_url( $coll_share_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Back to sharing', 'collectibles' ); ?></a>
 			</div>
 		</form>
 	</section>

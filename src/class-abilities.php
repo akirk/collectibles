@@ -564,7 +564,7 @@ class Abilities {
 			}
 			return array(
 				'id'      => $id,
-				'url'     => App::get_url( 'collection/' . absint( $input['collection'] ) . '/item/' . $id ),
+				'url'     => App::get_url( absint( $input['collection'] ) . '/item/' . $id ),
 				'updated' => true,
 			);
 		} finally {
@@ -787,7 +787,7 @@ class Abilities {
 	private static function added_item_result( int $item_id, int $collection_id, bool $created ): array {
 		return array(
 			'id'            => $item_id,
-			'url'           => App::get_url( 'collection/' . $collection_id . '/item/' . $item_id ),
+			'url'           => App::get_url( $collection_id . '/item/' . $item_id ),
 			'created'       => $created,
 			'photo_warning' => (string) get_post_meta( $item_id, '_coll_photo_warning', true ),
 		);

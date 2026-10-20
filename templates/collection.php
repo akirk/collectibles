@@ -135,7 +135,7 @@ require __DIR__ . '/_head.php';
 
 				</div>
 				<div class="actions">
-					<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/item/new' ) ); ?>">
+					<a class="button button-primary" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/item/new' ) ); ?>">
 						<?php
 						echo esc_html(
 							sprintf(
@@ -149,7 +149,7 @@ require __DIR__ . '/_head.php';
 					<details class="coll-actions-menu">
 						<summary class="button"><?php echo esc_html__( 'Sharing', 'collectibles' ); ?></summary>
 						<nav aria-label="<?php echo esc_attr__( 'Sharing actions', 'collectibles' ); ?>">
-							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing settings', 'collectibles' ); ?></a>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing settings', 'collectibles' ); ?></a>
 							<?php if ( $coll_public_enabled ) : ?>
 								<a class="coll-action-link" href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>"><?php echo esc_html__( 'View public page', 'collectibles' ); ?></a>
 							<?php endif; ?>
@@ -166,15 +166,15 @@ require __DIR__ . '/_head.php';
 						<summary class="button"><?php echo esc_html__( 'More', 'collectibles' ); ?></summary>
 						<nav aria-label="<?php echo esc_attr__( 'Collection actions', 'collectibles' ); ?>">
 							<?php if ( Schema::supports_origins( $coll_kind ) ) : ?>
-								<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/origins' ) ); ?>"><?php echo esc_html__( 'Origins', 'collectibles' ); ?></a>
+								<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/origins' ) ); ?>"><?php echo esc_html__( 'Origins', 'collectibles' ); ?></a>
 							<?php endif; ?>
-							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/photos' ) ); ?>">
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/photos' ) ); ?>">
 								<?php echo esc_html__( 'Missing photos', 'collectibles' ); ?>
 							</a>
-							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/edit' ) ); ?>">
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/edit' ) ); ?>">
 								<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
 							</a>
-							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/export' ) ); ?>">
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/export' ) ); ?>">
 								<?php echo esc_html__( 'Export CSV', 'collectibles' ); ?>
 							</a>
 						</nav>
@@ -196,12 +196,12 @@ require __DIR__ . '/_head.php';
 			<?php endif; ?>
 
 			<section class="stat-strip" aria-label="<?php echo esc_attr__( 'Collection totals', 'collectibles' ); ?>">
-				<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+				<a class="stat" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>">
 					<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['items'] ) ); ?></span>
 					<span class="stat-label"><?php echo esc_html( _n( 'entry', 'entries', $coll_summary['items'], 'collectibles' ) ); ?></span>
 				</a>
 				<?php if ( $coll_summary['pieces'] > $coll_summary['items'] ) : ?>
-					<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+					<a class="stat" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['pieces'] ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html( _n( 'piece held', 'pieces held', $coll_summary['pieces'], 'collectibles' ) ); ?></span>
 					</a>
@@ -213,19 +213,19 @@ require __DIR__ . '/_head.php';
 					</div>
 				<?php endforeach; ?>
 				<?php if ( $coll_summary['paid'] > 0 ) : ?>
-					<a class="stat" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+					<a class="stat" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( Item::format_money( $coll_summary['paid'], $coll_currency ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'paid in total', 'collectibles' ); ?></span>
 					</a>
 				<?php endif; ?>
 				<?php if ( $coll_summary['value'] > 0 ) : ?>
-					<a class="stat" href="<?php echo esc_url( add_query_arg( 'sort', 'value_desc', App::get_url( 'collection/' . $coll_collection_id ) ) ); ?>">
+					<a class="stat" href="<?php echo esc_url( add_query_arg( 'sort', 'value_desc', App::get_url( $coll_collection_id ) ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( Item::format_money( $coll_summary['value'], $coll_currency ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'estimated value', 'collectibles' ); ?></span>
 					</a>
 				<?php endif; ?>
 				<?php if ( $coll_summary['wanted'] > 0 ) : ?>
-					<a class="stat" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( 'collection/' . $coll_collection_id ) ) ); ?>">
+					<a class="stat" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( $coll_collection_id ) ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['wanted'] ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'on the wishlist', 'collectibles' ); ?></span>
 					</a>
@@ -239,7 +239,7 @@ require __DIR__ . '/_head.php';
 			</section>
 
 			<?php if ( ! empty( $coll_all_items ) ) : ?>
-				<form class="toolbar" method="get" action="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+				<form class="toolbar" method="get" action="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>">
 					<div class="toolbar-search">
 						<label class="screen-reader-text" for="coll_q"><?php echo esc_html__( 'Search this collection', 'collectibles' ); ?></label>
 						<input id="coll_q" name="q" type="search" value="<?php echo esc_attr( $coll_search ); ?>" placeholder="<?php echo esc_attr__( 'Search this collection…', 'collectibles' ); ?>">
@@ -285,7 +285,7 @@ require __DIR__ . '/_head.php';
 					<button class="button" type="submit"><?php echo esc_html__( 'Apply', 'collectibles' ); ?></button>
 
 					<?php if ( '' !== $coll_search || '' !== $coll_status || '' !== $coll_tag || 'recent' !== $coll_sort ) : ?>
-						<a class="button button-quiet" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+						<a class="button button-quiet" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>">
 							<?php echo esc_html__( 'Reset', 'collectibles' ); ?>
 						</a>
 					<?php endif; ?>
@@ -297,7 +297,7 @@ require __DIR__ . '/_head.php';
 					<p class="empty-icon" aria-hidden="true"><?php echo esc_html( Schema::get_kind_icon( $coll_kind ) ); ?></p>
 					<h2><?php echo esc_html__( 'This collection is empty', 'collectibles' ); ?></h2>
 					<p><?php echo esc_html__( 'Add the first piece and the totals will start filling in.', 'collectibles' ); ?></p>
-					<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/item/new' ) ); ?>">
+					<a class="button button-primary" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/item/new' ) ); ?>">
 						<?php
 						echo esc_html(
 							sprintf(
@@ -313,10 +313,10 @@ require __DIR__ . '/_head.php';
 				<section class="empty-state">
 					<?php if ( ! $coll_is_filtered ) : ?>
 						<h2><?php echo esc_html__( 'No items outside the wishlist yet', 'collectibles' ); ?></h2>
-						<a class="button" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( 'collection/' . $coll_collection_id ) ) ); ?>"><?php echo esc_html__( 'View wishlist', 'collectibles' ); ?></a>
+						<a class="button" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( $coll_collection_id ) ) ); ?>"><?php echo esc_html__( 'View wishlist', 'collectibles' ); ?></a>
 					<?php else : ?>
 					<h2><?php echo esc_html__( 'Nothing matches those filters', 'collectibles' ); ?></h2>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>"><?php echo esc_html__( 'Reset filters', 'collectibles' ); ?></a>
+					<a class="button" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>"><?php echo esc_html__( 'Reset filters', 'collectibles' ); ?></a>
 					<?php endif; ?>
 				</section>
 			<?php else : ?>

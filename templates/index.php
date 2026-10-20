@@ -54,7 +54,7 @@ require __DIR__ . '/_head.php';
 				<h1><?php echo esc_html__( 'Collections', 'collectibles' ); ?></h1>
 			</div>
 			<div class="actions">
-				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/new' ) ); ?>">
+				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'new' ) ); ?>">
 					<?php echo esc_html__( 'New collection', 'collectibles' ); ?>
 				</a>
 				<a class="button" href="<?php echo esc_url( App::get_url( 'search' ) ); ?>">
@@ -108,17 +108,17 @@ require __DIR__ . '/_head.php';
 				<p><?php echo esc_html__( 'A collection groups items of one kind, so the app knows which fields to ask you for.', 'collectibles' ); ?></p>
 				<p class="kind-hints">
 					<?php foreach ( Schema::get_kinds() as $coll_kind_slug => $coll_kind_def ) : ?>
-						<a class="kind-hint" href="<?php echo esc_url( add_query_arg( 'kind', $coll_kind_slug, App::get_url( 'collection/new' ) ) ); ?>"><?php echo esc_html( $coll_kind_def['icon'] . ' ' . $coll_kind_def['label'] ); ?></a>
+						<a class="kind-hint" href="<?php echo esc_url( add_query_arg( 'kind', $coll_kind_slug, App::get_url( 'new' ) ) ); ?>"><?php echo esc_html( $coll_kind_def['icon'] . ' ' . $coll_kind_def['label'] ); ?></a>
 					<?php endforeach; ?>
 				</p>
-				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/new' ) ); ?>">
+				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'new' ) ); ?>">
 					<?php echo esc_html__( 'Start a collection', 'collectibles' ); ?>
 				</a>
 			</section>
 		<?php else : ?>
 			<section id="collections" class="collection-grid" aria-label="<?php echo esc_attr__( 'Collections', 'collectibles' ); ?>">
 				<?php foreach ( $coll_cards as $coll_card ) : ?>
-					<?php $coll_card_url = App::get_url( 'collection/' . absint( $coll_card['post']->ID ) ); ?>
+					<?php $coll_card_url = App::get_url( absint( $coll_card['post']->ID ) ); ?>
 					<article class="collection-card">
 						<a class="collection-card-icon" href="<?php echo esc_url( $coll_card_url ); ?>" aria-hidden="true" tabindex="-1">
 							<?php echo esc_html( Schema::get_kind_icon( $coll_card['kind'] ) ); ?>
@@ -156,7 +156,7 @@ require __DIR__ . '/_head.php';
 					</article>
 				<?php endforeach; ?>
 
-				<a class="collection-card collection-card-new" href="<?php echo esc_url( App::get_url( 'collection/new' ) ); ?>">
+				<a class="collection-card collection-card-new" href="<?php echo esc_url( App::get_url( 'new' ) ); ?>">
 					<span class="collection-card-icon" aria-hidden="true">＋</span>
 					<span class="collection-card-body">
 						<span class="collection-card-new-label"><?php echo esc_html__( 'New collection', 'collectibles' ); ?></span>

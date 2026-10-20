@@ -110,7 +110,7 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 		} elseif ( ! wp_delete_post( $coll_item_id, true ) ) {
 			$coll_form_error = __( 'The item could not be removed.', 'collectibles' );
 		} else {
-			wp_safe_redirect( add_query_arg( 'item_deleted', '1', App::get_url( 'collection/' . $coll_collection_id ) ) );
+			wp_safe_redirect( add_query_arg( 'item_deleted', '1', App::get_url( $coll_collection_id ) ) );
 			exit;
 		}
 	} elseif ( in_array( $coll_action, array( 'create_item', 'update_item' ), true ) ) {
@@ -214,7 +214,7 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 						add_query_arg(
 							'saved',
 							'1',
-							App::get_url( 'collection/' . $coll_collection_id . '/item/' . $coll_saved_id )
+							App::get_url( $coll_collection_id . '/item/' . $coll_saved_id )
 						)
 					);
 					exit;
@@ -293,11 +293,11 @@ $coll_page_title = $coll_is_new
 	)
 	: __( 'Edit item', 'collectibles' );
 $coll_form_url    = $coll_is_new
-	? App::get_url( 'collection/' . $coll_collection_id . '/item/new' )
-	: App::get_url( 'collection/' . $coll_collection_id . '/item/' . $coll_item_id . '/edit' );
+	? App::get_url( $coll_collection_id . '/item/new' )
+	: App::get_url( $coll_collection_id . '/item/' . $coll_item_id . '/edit' );
 $coll_cancel_url  = $coll_is_new
-	? App::get_url( 'collection/' . $coll_collection_id )
-	: App::get_url( 'collection/' . $coll_collection_id . '/item/' . $coll_item_id );
+	? App::get_url( $coll_collection_id )
+	: App::get_url( $coll_collection_id . '/item/' . $coll_item_id );
 $coll_shell_class = 'shell shell-narrow';
 
 require __DIR__ . '/_head.php';
@@ -318,7 +318,7 @@ require __DIR__ . '/_head.php';
 		<?php else : ?>
 			<header class="topbar">
 				<div>
-					<a class="crumb" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+					<a class="crumb" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>">
 						<?php echo esc_html( get_the_title( $coll_collection ) ); ?>
 					</a>
 					<h1><?php echo esc_html( $coll_page_title ); ?></h1>

@@ -99,11 +99,11 @@ line are all about the item as a whole, not one piece of it.
 Registered in `App::setup_routes()`, under `/collectibles/`:
 
 - `` (index), `search`, `origins`, `settings`
-- `collection/new`, `collection/{id}`, `collection/{id}/edit`,
-  `collection/{id}/export`
-- `collection/{collection_id}/item/new`,
-  `collection/{collection_id}/item/{id}`,
-  `collection/{collection_id}/item/{id}/edit`
+- `new`, `{id}`, `{id}/edit`,
+  `{id}/export`
+- `{collection_id}/item/new`,
+  `{collection_id}/item/{id}`,
+  `{collection_id}/item/{id}/edit`
 
 Build in-app URLs with `Collectibles\App::get_url( $path )` and asset URLs with
 `App::get_asset_url( $relative )`.
@@ -111,7 +111,7 @@ Build in-app URLs with `Collectibles\App::get_url( $path )` and asset URLs with
 ### Public sharing
 
 Private collection management stays under `/collectibles/`, including
-`collection/{id}/sharing`. `Sharing` registers a separate anonymous WpApp at
+`{id}/sharing`. `Sharing` registers a separate anonymous WpApp at
 `/collections/{slug}/`, with item pages under `/{item_slug}/`. Never relax the
 private app or its REST capabilities to support public pages.
 

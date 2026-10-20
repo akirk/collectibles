@@ -30,7 +30,7 @@ if ( ! current_user_can( 'edit_post', $coll_collection_id ) ) {
 if ( ! Schema::supports_origins( Collection::get_kind( $coll_collection_id ) ) ) {
 	wp_die( esc_html__( 'Origins are not available for this collection kind.', 'collectibles' ), '', array( 'response' => 404 ) );
 }
-$coll_collection_url = App::get_url( 'collection/' . $coll_collection_id );
+$coll_collection_url = App::get_url( $coll_collection_id );
 $coll_search_url     = add_query_arg( 'collection', $coll_collection_id, App::get_url( 'search' ) );
 $coll_items          = Item::query(
 	array(

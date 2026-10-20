@@ -20,7 +20,7 @@ if ( ! isset( $coll_card_item ) || ! ( $coll_card_item instanceof \WP_Post ) ) {
 }
 
 $coll_card_show_collection = isset( $coll_card_show_collection ) ? (bool) $coll_card_show_collection : false;
-$coll_card_url             = App::get_url( 'collection/' . absint( $coll_card_collection_id ) . '/item/' . absint( $coll_card_item->ID ) );
+$coll_card_url             = App::get_url( absint( $coll_card_collection_id ) . '/item/' . absint( $coll_card_item->ID ) );
 $coll_card_photo           = get_post_thumbnail_id( $coll_card_item->ID );
 $coll_card_status          = Item::get_status( $coll_card_item->ID );
 $coll_card_quantity        = Item::get_quantity( $coll_card_item->ID );
@@ -55,7 +55,7 @@ $coll_card_display = array(
 	'quantity'       => $coll_card_quantity,
 	'facts'          => $coll_card_facts,
 	'collection'     => $coll_card_show_collection ? get_the_title( $coll_card_collection_id ) : '',
-	'collection_url' => App::get_url( 'collection/' . absint( $coll_card_collection_id ) ),
+	'collection_url' => App::get_url( absint( $coll_card_collection_id ) ),
 	'status'         => Schema::STATUS_OWNED !== $coll_card_status ? Schema::get_status_label( $coll_card_status ) : '',
 	'status_class'   => $coll_card_status,
 	'value'          => $coll_card_value > 0 ? Item::format_money( $coll_card_value, $coll_card_currency ) : '',

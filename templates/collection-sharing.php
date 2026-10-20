@@ -52,7 +52,7 @@ require __DIR__ . '/_head.php';
 ?>
 <header class="topbar">
 	<div>
-		<a class="crumb" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id ) ); ?>"><?php echo esc_html( $coll_collection->post_title ); ?></a>
+		<a class="crumb" href="<?php echo esc_url( App::get_url( $coll_share_id ) ); ?>"><?php echo esc_html( $coll_collection->post_title ); ?></a>
 		<h1><?php echo esc_html( $coll_page_title ); ?></h1>
 		<p><?php echo esc_html__( 'Share your collection, or just the items you choose.', 'collectibles' ); ?></p>
 	</div>
@@ -63,7 +63,7 @@ require __DIR__ . '/_head.php';
 <?php if ( $coll_share_saved ) : ?>
 	<p class="notice"><?php echo esc_html__( 'Sharing settings saved.', 'collectibles' ); ?></p>
 <?php endif; ?>
-<form class="panel" method="post" action="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id . '/sharing' ) ); ?>">
+<form class="panel" method="post" action="<?php echo esc_url( App::get_url( $coll_share_id . '/sharing' ) ); ?>">
 	<?php wp_nonce_field( 'coll_sharing_' . $coll_share_id ); ?>
 	<fieldset class="field coll-share-options">
 		<legend><?php echo esc_html__( 'Visibility', 'collectibles' ); ?></legend>
@@ -94,7 +94,7 @@ require __DIR__ . '/_head.php';
 		<label for="coll_description"><?php echo esc_html__( 'Public description', 'collectibles' ); ?></label>
 		<textarea id="coll_description" name="coll_description" rows="4"><?php echo esc_textarea( $coll_share_values['description'] ); ?></textarea>
 	</div>
-	<p><a href="<?php echo esc_url( App::get_url( 'collection/' . $coll_share_id ) ); ?>"><?php echo esc_html__( 'Choose shared items using the switches on the collection overview.', 'collectibles' ); ?></a></p>
+	<p><a href="<?php echo esc_url( App::get_url( $coll_share_id ) ); ?>"><?php echo esc_html__( 'Choose shared items using the switches on the collection overview.', 'collectibles' ); ?></a></p>
 	<p class="field-hint"><?php echo esc_html__( 'Enable the public page to show sharing switches on the collection overview.', 'collectibles' ); ?></p>
 	<p class="field-hint"><?php echo esc_html__( 'Public pages show titles, photos and descriptive catalogue fields. Prices, storage and acquisition details, serial numbers, personal notes and tags stay private.', 'collectibles' ); ?></p>
 	<p class="field-hint"><?php echo esc_html__( 'Anyone can view a shared page without logging in. Search engines are asked not to index it. Photo files already have their own WordPress upload URLs.', 'collectibles' ); ?></p>
