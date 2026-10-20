@@ -1541,10 +1541,10 @@ input[type="file"] {
 	width: 28px;
 	height: 28px;
 	opacity: 0;
-	border-top-left-radius: 5px;
-	background: linear-gradient(135deg, var(--coll-paper) 35%, var(--coll-line-strong) 49%, var(--coll-bg-alt) 52%);
-	box-shadow: -2px -2px 3px rgba(0, 0, 0, 0.12);
-	clip-path: polygon(0 0, 100% 100%, 0 100%);
+	border-top-right-radius: 5px;
+	background: linear-gradient(225deg, var(--coll-paper) 35%, var(--coll-line-strong) 49%, var(--coll-bg-alt) 52%);
+	box-shadow: 2px -2px 3px rgba(0, 0, 0, 0.12);
+	clip-path: polygon(100% 0, 100% 100%, 0 100%);
 	pointer-events: none;
 	transition: opacity 0.15s ease;
 }
