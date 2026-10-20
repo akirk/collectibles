@@ -149,7 +149,7 @@ class Numista {
 	 * Where a user registers a client and gets a key.
 	 */
 	public static function get_api_key_url(): string {
-		return 'https://en.numista.com/api/doc/index.php';
+		return 'https://numista.com/api/activate_api_key.php?plan=free';
 	}
 
 	/**
