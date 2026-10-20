@@ -778,6 +778,39 @@ img { max-width: 100%; height: auto; }
 	margin-top: 0;
 }
 
+.settings-checkbox {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	line-height: 1.5;
+}
+
+.settings-checkbox input {
+	flex-shrink: 0;
+	margin: 0;
+}
+
+.settings-indexing {
+	margin-top: 20px;
+	padding-top: 16px;
+	border-top: 1px solid var(--coll-line);
+}
+
+.settings-indexing summary {
+	cursor: pointer;
+	font-weight: 600;
+}
+
+.settings-indexing-content {
+	display: grid;
+	gap: 16px;
+	padding-top: 16px;
+}
+
+.settings-indexing-content p {
+	margin: 0;
+}
+
 .settings-numista {
 	display: grid;
 	gap: 24px;

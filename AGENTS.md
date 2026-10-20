@@ -124,8 +124,11 @@ private collection notes. Only field definitions with `'public' => true` are
 projected; new fields stay private by default. Prices, lots, acquisition and
 storage details, serial numbers, personal notes and tags are excluded. Public
 templates receive projected arrays rather than raw posts or item metadata.
-Pages use no-store headers, discourage indexing, and recheck sharing on every
-request. Upload URLs retain WordPress's existing public-file behavior.
+Pages use no-store headers and recheck sharing on every request. Indexing is
+discouraged by default. Administrators can opt the directory and public collections
+(including shared item pages) into indexing separately in Settings; both respect
+WordPress’s `blog_public` setting. Unlisted collections, previews, JSON and
+unavailable pages always discourage indexing. Upload URLs retain WordPress's existing public-file behavior.
 
 ### Numista lookups
 

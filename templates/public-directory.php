@@ -18,7 +18,7 @@ wp_enqueue_style( 'collectibles-public', App::get_asset_url( 'collectibles.css' 
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="robots" content="noindex,nofollow">
+	<meta name="robots" content="<?php echo Sharing::indexing_enabled( 'directory' ) ? 'index,follow' : 'noindex,nofollow'; ?>">
 	<title><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></title>
 	<?php wp_styles()->do_items( array( 'collectibles-public' ) ); ?>
 </head>
