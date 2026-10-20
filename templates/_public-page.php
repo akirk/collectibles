@@ -64,9 +64,16 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 	<?php if ( ! $coll_public_data['items'] ) : ?>
 		<section class="empty-state"><p><?php echo esc_html__( 'No items are shared here yet.', 'collectibles' ); ?></p></section>
 	<?php endif; ?>
+	<div class="coll-public-browser">
+	<?php if ( ! $coll_public_data['detail'] ) : ?>
+		<input class="screen-reader-text" type="radio" name="coll_public_view" id="coll-public-gallery" checked>
+		<label class="button coll-public-view" for="coll-public-gallery"><?php echo esc_html__( 'Gallery', 'collectibles' ); ?></label>
+		<input class="screen-reader-text" type="radio" name="coll_public_view" id="coll-public-expanded">
+		<label class="button coll-public-view" for="coll-public-expanded"><?php echo esc_html__( 'Detailed', 'collectibles' ); ?></label>
+	<?php endif; ?>
 	<div class="<?php echo $coll_public_data['detail'] ? 'coll-public-detail' : 'item-grid'; ?>">
 	<?php foreach ( $coll_public_data['items'] as $coll_public_entry ) : ?>
-		<article class="item-card" style="--coll-thumb-ratio: <?php echo esc_attr( $coll_public_data['ratio'] ); ?>">
+		<article id="public-item-<?php echo esc_attr( $coll_public_entry['slug'] ); ?>" class="item-card" style="--coll-thumb-ratio: <?php echo esc_attr( $coll_public_data['ratio'] ); ?>">
 			<?php $coll_public_href = $coll_public_preview ? '#public-item-' . $coll_public_entry['slug'] : $coll_public_entry['url']; ?>
 			<a class="item-card-thumb<?php echo $coll_public_entry['photos'] ? '' : ' is-empty'; ?>" href="<?php echo esc_url( $coll_public_href ); ?>">
 				<?php if ( $coll_public_entry['photos'] ) : ?>
@@ -79,8 +86,7 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 				<?php if ( ! $coll_public_data['detail'] ) : ?>
 					<h2><a href="<?php echo esc_url( $coll_public_href ); ?>"><?php echo esc_html( $coll_public_entry['title'] ); ?></a></h2>
 				<?php endif; ?>
-				<details id="public-item-<?php echo esc_attr( $coll_public_entry['slug'] ); ?>" <?php echo $coll_public_data['detail'] ? 'open' : ''; ?>>
-					<summary><?php echo esc_html__( 'Details', 'collectibles' ); ?></summary>
+				<div class="coll-public-expanded">
 					<dl class="coll-public-fields">
 						<?php foreach ( $coll_public_entry['fields'] as $coll_public_field ) : ?>
 							<div><dt><?php echo esc_html( $coll_public_field['label'] ); ?></dt><dd><?php echo esc_html( $coll_public_field['value'] ); ?></dd></div>
@@ -94,10 +100,11 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 							<?php endif; ?>
 						</figure>
 					<?php endforeach; ?>
-				</details>
+				</div>
 			</div>
 		</article>
 	<?php endforeach; ?>
+	</div>
 	</div>
 <?php endif; ?>
 </main>

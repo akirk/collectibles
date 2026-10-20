@@ -1288,11 +1288,6 @@ input[type="file"] {
 	margin: 0 0 1rem;
 }
 
-.coll-public summary {
-	cursor: pointer;
-	color: var(--coll-patina);
-}
-
 .coll-public-detail {
 	max-width: 52rem;
 	margin: 0 auto;
@@ -1473,3 +1468,47 @@ input[type="file"] {
 .coll-share-bulk .coll-action-link:focus-visible {
 	background: var(--coll-patina-soft);
 }
+
+.coll-public .item-card h2 a {
+	color: inherit;
+	text-decoration: none;
+}
+
+.coll-public .item-card h2 a:hover,
+.coll-public .item-card h2 a:focus-visible {
+	text-decoration: underline;
+}
+
+.coll-public-view {
+	margin-bottom: 1.5rem;
+	cursor: pointer;
+}
+
+#coll-public-gallery:checked + label,
+#coll-public-expanded:checked + label {
+	background: var(--coll-patina-soft);
+	border-color: var(--coll-patina);
+	color: var(--coll-ink);
+}
+
+#coll-public-gallery:focus-visible + label,
+#coll-public-expanded:focus-visible + label {
+	outline: 2px solid var(--coll-patina);
+	outline-offset: 3px;
+}
+
+#coll-public-gallery:checked ~ .item-grid .coll-public-expanded {
+	display: none;
+}
+
+#coll-public-expanded:checked ~ .item-grid {
+	grid-template-columns: minmax(0, 1fr);
+	max-width: 52rem;
+	margin: 0 auto;
+}
+
+#coll-public-expanded:checked ~ .item-grid .item-card-thumb,
+.coll-public-detail .item-card-thumb {
+	display: none;
+}
+

@@ -179,6 +179,8 @@ try {
 	$coll_assert( false !== strpos( $coll_html, '10 Example Dollars' ) && false !== strpos( $coll_html, 'shared-test-photo.jpg' ), 'Descriptive fields and own photos must remain visible.' );
 	$coll_assert( false === strpos( $coll_html, 'wp-app-masterbar' ) && false === strpos( $coll_html, '/collectibles/collection/' ), 'Public pages must omit private app navigation.' );
 	$coll_assert( false !== strpos( $coll_html, 'noindex,nofollow' ), 'Shared pages must discourage indexing.' );
+	$coll_assert( false !== strpos( $coll_html, 'id="coll-public-gallery"' ) && false !== strpos( $coll_html, 'id="coll-public-expanded"' ), 'Public collections offer gallery and detailed views.' );
+	$coll_assert( false === strpos( $coll_html, '<details' ) && false === strpos( $coll_html, '<summary' ), 'Public items must not use per-item Details controls.' );
 	$coll_response = rest_do_request( new WP_REST_Request( 'GET', '/wp/v2/coll_item/' . $coll_item ) );
 	$coll_assert( 200 !== $coll_response->get_status(), 'Sharing must not open the private item REST endpoint.' );
 	wp_set_current_user( $coll_user );
