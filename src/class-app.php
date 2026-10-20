@@ -35,6 +35,8 @@ class App extends BaseApp {
 			)
 		);
 
+		Sharing::init();
+
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_action( 'init', array( $this, 'register_meta' ) );
@@ -80,6 +82,15 @@ class App extends BaseApp {
 			$this->get_url_path()
 		);
 
+		wp_app_enqueue_script(
+			'collectibles-cards',
+			plugins_url( 'assets/item-cards.js', dirname( __DIR__ ) . '/collectibles.php' ),
+			array(),
+			(string) filemtime( dirname( __DIR__ ) . '/assets/item-cards.js' ),
+			true,
+			$this->get_url_path()
+		);
+
 		$script_path = dirname( __DIR__ ) . '/assets/collectibles.js';
 		$script_ver  = file_exists( $script_path ) ? (string) filemtime( $script_path ) : '1.0.0';
 
@@ -108,6 +119,7 @@ class App extends BaseApp {
 		$this->app->route( 'collection/{id}/export', 'collection-export.php' );
 		$this->app->route( 'collection/{id}/photos', 'collection-photos.php' );
 		$this->app->route( 'collection/{id}/origins', 'origins.php' );
+		$this->app->route( 'collection/{id}/sharing', 'collection-sharing.php' );
 
 		$this->app->route( 'collection/{collection_id}/item/new', 'item-form.php' );
 		$this->app->route( 'collection/{collection_id}/item/{id}', 'item.php' );

@@ -95,6 +95,17 @@ if ( ! $coll_not_found && ! $coll_forbidden ) {
 	}
 }
 
+$coll_public_enabled = ! $coll_not_found && ! $coll_forbidden && 'selected' === Sharing::get_settings( $coll_collection_id )['mode'] && 'publish' === $coll_collection->post_status && '' === $coll_collection->post_password;
+$coll_public_count   = 0;
+if ( $coll_public_enabled ) {
+	foreach ( $coll_all_items as $coll_public_item ) {
+		$coll_public_state = Sharing::get_item_state( $coll_collection_id, $coll_public_item->ID );
+		if ( $coll_public_state['eligible'] && $coll_public_state['selected'] ) {
+			++$coll_public_count;
+		}
+	}
+}
+
 $coll_page_title = $coll_collection ? get_the_title( $coll_collection ) : __( 'Collection', 'collectibles' );
 
 require __DIR__ . '/_head.php';
@@ -121,6 +132,7 @@ require __DIR__ . '/_head.php';
 						<?php echo esc_html( get_the_title( $coll_collection ) ); ?>
 					</h1>
 					<p class="eyebrow"><?php echo esc_html( Schema::get_kind_label( $coll_kind ) ); ?></p>
+
 				</div>
 				<div class="actions">
 					<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/item/new' ) ); ?>">
@@ -134,18 +146,39 @@ require __DIR__ . '/_head.php';
 						);
 						?>
 					</a>
-					<?php if ( Schema::supports_origins( $coll_kind ) ) : ?>
-						<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/origins' ) ); ?>"><?php echo esc_html__( 'Origins', 'collectibles' ); ?></a>
-					<?php endif; ?>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/photos' ) ); ?>">
-						<?php echo esc_html__( 'Missing photos', 'collectibles' ); ?>
-					</a>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/edit' ) ); ?>">
-						<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
-					</a>
-					<a class="button" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/export' ) ); ?>">
-						<?php echo esc_html__( 'Export CSV', 'collectibles' ); ?>
-					</a>
+					<details class="coll-actions-menu">
+						<summary class="button"><?php echo esc_html__( 'Sharing', 'collectibles' ); ?></summary>
+						<nav aria-label="<?php echo esc_attr__( 'Sharing actions', 'collectibles' ); ?>">
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/sharing' ) ); ?>"><?php echo esc_html__( 'Sharing settings', 'collectibles' ); ?></a>
+							<?php if ( $coll_public_enabled ) : ?>
+								<a class="coll-action-link" href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>"><?php echo esc_html__( 'View public page', 'collectibles' ); ?></a>
+							<?php endif; ?>
+							<?php if ( $coll_public_enabled ) : ?>
+								<span class="coll-share-bulk" data-coll-share-collection="<?php echo esc_attr( $coll_collection_id ); ?>" data-coll-share-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-coll-share-nonce="<?php echo esc_attr( wp_create_nonce( 'coll_share_collection_' . $coll_collection_id ) ); ?>" data-coll-share-error="<?php echo esc_attr__( 'Sharing could not be saved. Reload to check the current state and try again.', 'collectibles' ); ?>">
+									<button type="button" class="coll-action-link" data-coll-share-all="1" hidden><?php echo esc_html__( 'Share all', 'collectibles' ); ?></button>
+									<button type="button" class="coll-action-link" data-coll-share-all="0" hidden><?php echo esc_html__( 'Make all private', 'collectibles' ); ?></button>
+									<span class="coll-share-bulk-message screen-reader-text" role="status" aria-live="polite"></span>
+								</span>
+							<?php endif; ?>
+						</nav>
+					</details>
+					<details class="coll-actions-menu">
+						<summary class="button"><?php echo esc_html__( 'More', 'collectibles' ); ?></summary>
+						<nav aria-label="<?php echo esc_attr__( 'Collection actions', 'collectibles' ); ?>">
+							<?php if ( Schema::supports_origins( $coll_kind ) ) : ?>
+								<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/origins' ) ); ?>"><?php echo esc_html__( 'Origins', 'collectibles' ); ?></a>
+							<?php endif; ?>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/photos' ) ); ?>">
+								<?php echo esc_html__( 'Missing photos', 'collectibles' ); ?>
+							</a>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/edit' ) ); ?>">
+								<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
+							</a>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/export' ) ); ?>">
+								<?php echo esc_html__( 'Export CSV', 'collectibles' ); ?>
+							</a>
+						</nav>
+					</details>
 				</div>
 			</header>
 
@@ -195,6 +228,12 @@ require __DIR__ . '/_head.php';
 					<a class="stat" href="<?php echo esc_url( add_query_arg( 'status', Schema::STATUS_WANTED, App::get_url( 'collection/' . $coll_collection_id ) ) ); ?>">
 						<span class="stat-value"><?php echo esc_html( number_format_i18n( $coll_summary['wanted'] ) ); ?></span>
 						<span class="stat-label"><?php echo esc_html__( 'on the wishlist', 'collectibles' ); ?></span>
+					</a>
+				<?php endif; ?>
+				<?php if ( $coll_public_enabled ) : ?>
+					<a class="stat coll-public-status" href="<?php echo esc_url( Sharing::get_url( $coll_collection ) ); ?>" title="<?php echo esc_attr__( 'View public page', 'collectibles' ); ?>">
+						<span class="stat-value" data-coll-public-count="<?php echo esc_attr( $coll_collection_id ); ?>" data-coll-count="<?php echo esc_attr( $coll_public_count ); ?>"><?php echo esc_html( number_format_i18n( $coll_public_count ) ); ?></span>
+						<span class="stat-label"><?php echo esc_html__( 'Public', 'collectibles' ); ?></span>
 					</a>
 				<?php endif; ?>
 			</section>

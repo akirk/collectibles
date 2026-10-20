@@ -68,6 +68,7 @@ class Item {
 			),
 			array(
 				'key'         => self::YEAR_META_KEY,
+				'public'      => true,
 				'label'       => __( 'Year', 'collectibles' ),
 				'type'        => 'number',
 				'step'        => '1',
@@ -75,12 +76,14 @@ class Item {
 			),
 			array(
 				'key'     => self::COUNTRY_META_KEY,
+				'public'  => true,
 				'label'   => __( 'Origin', 'collectibles' ),
 				'type'    => 'select',
 				'options' => Geography::get_options(),
 			),
 			array(
 				'key'         => self::CATALOG_META_KEY,
+				'public'      => true,
 				'label'       => __( 'Catalog number', 'collectibles' ),
 				'type'        => 'text',
 				'placeholder' => __( 'Reference in a catalogue', 'collectibles' ),

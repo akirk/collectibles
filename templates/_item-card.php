@@ -35,42 +35,32 @@ $coll_card_title           = get_the_title( $coll_card_item );
 if ( ! empty( $coll_card_catalog['show_on_card'] ) && '' !== $coll_card_number ) {
 	$coll_card_title = $coll_card_number . ' ' . $coll_card_title;
 }
-?>
-<article class="item-card" style="--coll-thumb-ratio: <?php echo esc_attr( Schema::get_thumb_ratio( $coll_card_kind ) ); ?>">
-	<a class="item-card-thumb<?php echo $coll_card_photo ? '' : ' is-empty'; ?>" href="<?php echo esc_url( $coll_card_url ); ?>" aria-hidden="true" tabindex="-1">
-		<?php if ( $coll_card_photo ) : ?>
-			<?php echo wp_kses_post( wp_get_attachment_image( $coll_card_photo, 'medium', false, array( 'alt' => '' ) ) ); ?>
-		<?php else : ?>
-			<span class="kind-icon"><?php echo esc_html( Schema::get_kind_icon( $coll_card_kind ) ); ?></span>
-		<?php endif; ?>
-		<?php if ( $coll_card_quantity > 1 ) : ?>
-			<span class="qty-badge">&times;<?php echo esc_html( number_format_i18n( $coll_card_quantity ) ); ?></span>
-		<?php endif; ?>
-	</a>
 
-	<div class="item-card-body">
-		<h3><a href="<?php echo esc_url( $coll_card_url ); ?>"><?php echo esc_html( $coll_card_title ); ?></a></h3>
-
-		<?php if ( $coll_card_show_collection ) : ?>
-			<p class="item-card-collection">
-				<a href="<?php echo esc_url( App::get_url( 'collection/' . absint( $coll_card_collection_id ) ) ); ?>">
-					<?php echo esc_html( get_the_title( $coll_card_collection_id ) ); ?>
-				</a>
-			</p>
-		<?php endif; ?>
-
-		<?php if ( ! empty( $coll_card_facts ) ) : ?>
-			<p class="item-card-facts"><?php echo esc_html( implode( ' · ', $coll_card_facts ) ); ?></p>
-		<?php endif; ?>
-
-		<div class="item-card-foot">
-			<?php if ( Schema::STATUS_OWNED !== $coll_card_status ) : ?>
-				<span class="pill pill-<?php echo esc_attr( $coll_card_status ); ?>"><?php echo esc_html( Schema::get_status_label( $coll_card_status ) ); ?></span>
-			<?php endif; ?>
-
-			<?php if ( $coll_card_value > 0 ) : ?>
-				<span class="item-card-value"><?php echo esc_html( Item::format_money( $coll_card_value, $coll_card_currency ) ); ?></span>
-			<?php endif; ?>
-		</div>
-	</div>
-</article>
+$coll_card_front   = Item::get_side_photo_id( $coll_card_item->ID, Item::FRONT_META_KEY );
+$coll_card_back    = Item::get_side_photo_id( $coll_card_item->ID, Item::BACK_META_KEY );
+$coll_card_sharing = array();
+if ( 'selected' === Sharing::get_settings( (int) $coll_card_collection_id )['mode'] && current_user_can( 'edit_post', $coll_card_collection_id ) && current_user_can( 'edit_post', $coll_card_item->ID ) ) {
+	$coll_card_sharing                  = Sharing::get_item_state( (int) $coll_card_collection_id, (int) $coll_card_item->ID );
+	$coll_card_sharing['item_id']       = $coll_card_item->ID;
+	$coll_card_sharing['collection_id'] = $coll_card_collection_id;
+	$coll_card_sharing['nonce']         = wp_create_nonce( 'coll_share_item_' . $coll_card_item->ID );
+}
+$coll_card_display = array(
+	'title'          => $coll_card_title,
+	'url'            => $coll_card_url,
+	'ratio'          => Schema::get_thumb_ratio( $coll_card_kind ),
+	'icon'           => Schema::get_kind_icon( $coll_card_kind ),
+	'image'          => $coll_card_front ? wp_get_attachment_image_url( $coll_card_front, 'medium' ) : wp_get_attachment_image_url( $coll_card_photo, 'medium' ),
+	'back'           => $coll_card_front && $coll_card_back && $coll_card_front !== $coll_card_back ? wp_get_attachment_image_url( $coll_card_back, 'medium' ) : '',
+	'quantity'       => $coll_card_quantity,
+	'facts'          => $coll_card_facts,
+	'collection'     => $coll_card_show_collection ? get_the_title( $coll_card_collection_id ) : '',
+	'collection_url' => App::get_url( 'collection/' . absint( $coll_card_collection_id ) ),
+	'status'         => Schema::STATUS_OWNED !== $coll_card_status ? Schema::get_status_label( $coll_card_status ) : '',
+	'status_class'   => $coll_card_status,
+	'value'          => $coll_card_value > 0 ? Item::format_money( $coll_card_value, $coll_card_currency ) : '',
+	'sharing'        => $coll_card_sharing,
+	'fields'         => array(),
+	'photos'         => array(),
+);
+require __DIR__ . '/_item-card-display.php';
