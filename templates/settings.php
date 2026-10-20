@@ -50,7 +50,7 @@ $coll_budget      = Numista::get_monthly_budget();
 $coll_remaining   = Numista::get_remaining();
 
 $coll_page_title  = __( 'Settings', 'collectibles' );
-$coll_shell_class = 'shell shell-narrow';
+$coll_shell_class = 'shell shell-mid';
 
 require __DIR__ . '/_head.php';
 ?>
@@ -70,112 +70,146 @@ require __DIR__ . '/_head.php';
 			<div class="notice notice-success"><?php echo esc_html( $coll_form_notice ); ?></div>
 		<?php endif; ?>
 
-		<form class="panel" method="post" action="<?php echo esc_url( App::get_url( 'settings' ) ); ?>">
+		<form class="settings-form" method="post" action="<?php echo esc_url( App::get_url( 'settings' ) ); ?>">
 			<input type="hidden" name="coll_action" value="save_settings">
 			<?php wp_nonce_field( 'coll_save_settings', 'coll_nonce' ); ?>
 
 			<?php if ( current_user_can( 'manage_options' ) ) : ?>
-				<h2><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></h2>
-				<label><input type="checkbox" name="coll_public_directory" value="1" <?php checked( Sharing::directory_enabled() ); ?>> <?php echo esc_html__( 'Show shared collections to visitors at /collectibles/', 'collectibles' ); ?></label>
-				<p class="field-hint"><?php echo esc_html__( 'Lists all public collections and their owners’ display names. Signed-in collectors keep their private dashboard.', 'collectibles' ); ?></p>
+				<section class="panel" aria-labelledby="coll-sharing-settings">
+					<h2 id="coll-sharing-settings"><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></h2>
+					<?php $coll_shared_collections = Sharing::get_directory(); ?>
+					<label>
+						<input type="checkbox" name="coll_public_directory" value="1" <?php checked( Sharing::directory_enabled() ); ?>>
+						<?php
+						printf(
+							/* translators: %s: number of shared collections */
+							esc_html( _n( 'Enable public directory (%s shared collection)', 'Enable public directory (%s shared collections)', count( $coll_shared_collections ), 'collectibles' ) ),
+							esc_html( number_format_i18n( count( $coll_shared_collections ) ) )
+						);
+						?>
+					</label>
+					<p class="field-hint"><?php echo esc_html__( 'Visitors at /collectibles/ see public collections and their owners’ display names. Each owner chooses which collections to share. Signed-in collectors keep their private dashboard.', 'collectibles' ); ?></p>
+					<?php if ( $coll_shared_collections ) : ?>
+						<ul>
+							<?php foreach ( $coll_shared_collections as $coll_shared_collection ) : ?>
+								<li>
+									<a href="<?php echo esc_url( $coll_shared_collection['url'] ); ?>"><?php echo esc_html( $coll_shared_collection['title'] ); ?></a>
+									<span class="field-hint">— <?php echo esc_html( $coll_shared_collection['owner'] ); ?></span>
+								</li>
+							<?php endforeach; ?>
+						</ul>
+					<?php endif; ?>
+				</section>
 			<?php endif; ?>
 
-			<h2><?php echo esc_html__( 'Numista', 'collectibles' ); ?></h2>
-			<p class="field-hint">
-				<?php echo esc_html__( 'Coins and banknotes can be filled in from the Numista catalogue. Register a client on Numista to get these three; they belong to your account, not to the site.', 'collectibles' ); ?>
-				<a href="<?php echo esc_url( Numista::get_api_key_url() ); ?>" target="_blank" rel="noreferrer noopener">
-					<?php echo esc_html__( 'Numista API documentation', 'collectibles' ); ?>
-				</a>
-			</p>
+			<section class="panel settings-numista" aria-labelledby="coll-numista-settings">
+				<div>
+					<h2 id="coll-numista-settings"><?php echo esc_html__( 'Numista', 'collectibles' ); ?></h2>
+					<p class="field-hint">
+						<?php echo esc_html__( 'Coins and banknotes can be filled in from the Numista catalogue. Register a client on Numista to get these three; they belong to your account, not to the site.', 'collectibles' ); ?>
+						<a href="<?php echo esc_url( Numista::get_api_key_url() ); ?>" target="_blank" rel="noreferrer noopener">
+							<?php echo esc_html__( 'Numista API documentation', 'collectibles' ); ?>
+						</a>
+					</p>
 
-			<div class="field">
-				<label for="coll_numista_client_name"><?php echo esc_html__( 'Client name', 'collectibles' ); ?></label>
-				<input
-					id="coll_numista_client_name"
-					name="coll_numista_client_name"
-					type="text"
-					value="<?php echo esc_attr( $coll_credentials['client_name'] ); ?>"
-					autocomplete="off"
-				>
-				<p class="field-hint"><?php echo esc_html__( 'The name you registered the client under. It identifies the lookups as yours.', 'collectibles' ); ?></p>
-			</div>
+					<div class="field">
+						<label for="coll_numista_client_name"><?php echo esc_html__( 'Client name', 'collectibles' ); ?></label>
+						<input
+							id="coll_numista_client_name"
+							name="coll_numista_client_name"
+							type="text"
+							value="<?php echo esc_attr( $coll_credentials['client_name'] ); ?>"
+							autocomplete="off"
+						>
+						<p class="field-hint"><?php echo esc_html__( 'The name you registered the client under. It identifies the lookups as yours.', 'collectibles' ); ?></p>
+					</div>
 
-			<div class="field">
-				<label for="coll_numista_client_id"><?php echo esc_html__( 'Client ID', 'collectibles' ); ?></label>
-				<input
-					id="coll_numista_client_id"
-					name="coll_numista_client_id"
-					type="text"
-					value="<?php echo esc_attr( $coll_credentials['client_id'] ); ?>"
-					autocomplete="off"
-				>
-			</div>
+					<div class="field">
+						<label for="coll_numista_client_id"><?php echo esc_html__( 'Client ID', 'collectibles' ); ?></label>
+						<input
+							id="coll_numista_client_id"
+							name="coll_numista_client_id"
+							type="text"
+							value="<?php echo esc_attr( $coll_credentials['client_id'] ); ?>"
+							autocomplete="off"
+						>
+					</div>
 
-			<div class="field">
-				<label for="coll_numista_key"><?php echo esc_html__( 'API key', 'collectibles' ); ?></label>
-				<input
-					id="coll_numista_key"
-					name="coll_numista_key"
-					type="password"
-					value="<?php echo esc_attr( $coll_key_fixed ? '' : $coll_credentials['key'] ); ?>"
-					autocomplete="off"
-					spellcheck="false"
-					<?php disabled( $coll_key_fixed ); ?>
-				>
-				<?php if ( $coll_key_fixed ) : ?>
-					<p class="field-hint"><?php echo esc_html__( 'The key is set in wp-config.php, so it cannot be changed here.', 'collectibles' ); ?></p>
-				<?php endif; ?>
-			</div>
+					<div class="field">
+						<label for="coll_numista_key"><?php echo esc_html__( 'API key', 'collectibles' ); ?></label>
+						<input
+							id="coll_numista_key"
+							name="coll_numista_key"
+							type="password"
+							value="<?php echo esc_attr( $coll_key_fixed ? '' : $coll_credentials['key'] ); ?>"
+							autocomplete="off"
+							spellcheck="false"
+							<?php disabled( $coll_key_fixed ); ?>
+						>
+						<?php if ( $coll_key_fixed ) : ?>
+							<p class="field-hint"><?php echo esc_html__( 'The key is set in wp-config.php, so it cannot be changed here.', 'collectibles' ); ?></p>
+						<?php endif; ?>
+					</div>
 
-			<h2><?php echo esc_html__( 'Rebrickable', 'collectibles' ); ?></h2>
-			<p class="field-hint">
-				<?php echo esc_html__( 'Rebrickable allows an average of one API request per second per account, with a small allowance for bursts. It does not publish a monthly quota. Lookups are cached for a year; if requests are throttled, wait before trying again.', 'collectibles' ); ?>
-				<a href="https://rebrickable.com/api/v3/docs/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'API limits', 'collectibles' ); ?></a>
-			</p>
-			<p class="field-hint">
-				<?php echo esc_html__( 'Fill in LEGO sets using a personal Rebrickable API key. Other brands can be entered manually. Prices, completeness and condition are yours to record.', 'collectibles' ); ?>
-				<a href="https://rebrickable.com/api/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Get a Rebrickable API key', 'collectibles' ); ?></a>
-			</p>
-			<div class="field">
-				<label for="coll_rebrickable_key"><?php echo esc_html__( 'API key', 'collectibles' ); ?></label>
-				<input id="coll_rebrickable_key" name="coll_rebrickable_key" type="password" autocomplete="off" spellcheck="false" value="<?php echo esc_attr( Rebrickable::is_api_key_fixed() ? '' : Rebrickable::get_api_key() ); ?>" <?php disabled( Rebrickable::is_api_key_fixed() ); ?>>
-				<?php if ( Rebrickable::is_api_key_fixed() ) : ?>
-					<p class="field-hint"><?php echo esc_html__( 'The key is set in wp-config.php, so it cannot be changed here.', 'collectibles' ); ?></p>
-				<?php endif; ?>
-			</div>
+				</div>
 
-			<h2><?php echo esc_html__( 'LEGO.com', 'collectibles' ); ?></h2>
-			<div class="field">
-				<label for="coll_lego_locale"><?php echo esc_html__( 'Language and region', 'collectibles' ); ?></label>
-				<input id="coll_lego_locale" name="coll_lego_locale" type="text" value="<?php echo esc_attr( $coll_lego_locale ?? Rebrickable::get_lego_locale_override() ); ?>" placeholder="<?php echo esc_attr( Rebrickable::get_default_lego_locale() ); ?>" pattern="[A-Za-z]{2}-[A-Za-z]{2}" maxlength="5" spellcheck="false" autocomplete="off">
-				<p class="field-hint"><?php echo esc_html__( 'Use the code from your preferred LEGO.com address, such as en-us, en-gb or de-at. This applies to product and instructions links. Leave blank to follow your WordPress language and region. LEGO may not support that combination; enter an override if needed.', 'collectibles' ); ?></p>
-			</div>
+				<aside class="settings-usage" aria-labelledby="coll-numista-usage">
+					<h3 id="coll-numista-usage"><?php echo esc_html__( 'Numista lookups this month', 'collectibles' ); ?></h3>
+					<p>
+						<?php
+						printf(
+							/* translators: 1: lookups used, 2: monthly allowance */
+							esc_html__( '%1$d of %2$d used.', 'collectibles' ),
+							absint( $coll_used ),
+							absint( $coll_budget )
+						);
+						?>
+						<?php if ( 0 === $coll_remaining ) : ?>
+							<?php echo esc_html__( 'Lookups resume at the start of next month.', 'collectibles' ); ?>
+						<?php endif; ?>
+					</p>
+					<p class="field-hint">
+						<?php echo esc_html__( 'Every catalogue entry is kept once it has been fetched, so looking the same piece up again is free. Only a new entry costs a lookup.', 'collectibles' ); ?>
+					</p>
+				</aside>
+
+			</section>
+
+			<section class="panel" aria-labelledby="coll-rebrickable-settings">
+				<h2 id="coll-rebrickable-settings"><?php echo esc_html__( 'Rebrickable', 'collectibles' ); ?></h2>
+				<p class="field-hint">
+					<?php echo esc_html__( 'Rebrickable allows an average of one API request per second per account, with a small allowance for bursts. It does not publish a monthly quota. Lookups are cached for a year; if requests are throttled, wait before trying again.', 'collectibles' ); ?>
+					<a href="https://rebrickable.com/api/v3/docs/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'API limits', 'collectibles' ); ?></a>
+				</p>
+				<p class="field-hint">
+					<?php echo esc_html__( 'Fill in LEGO sets using a personal Rebrickable API key. Other brands can be entered manually. Prices, completeness and condition are yours to record.', 'collectibles' ); ?>
+					<a href="https://rebrickable.com/api/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Get a Rebrickable API key', 'collectibles' ); ?></a>
+				</p>
+				<div class="field">
+					<label for="coll_rebrickable_key"><?php echo esc_html__( 'API key', 'collectibles' ); ?></label>
+					<input id="coll_rebrickable_key" name="coll_rebrickable_key" type="password" autocomplete="off" spellcheck="false" value="<?php echo esc_attr( Rebrickable::is_api_key_fixed() ? '' : Rebrickable::get_api_key() ); ?>" <?php disabled( Rebrickable::is_api_key_fixed() ); ?>>
+					<?php if ( Rebrickable::is_api_key_fixed() ) : ?>
+						<p class="field-hint"><?php echo esc_html__( 'The key is set in wp-config.php, so it cannot be changed here.', 'collectibles' ); ?></p>
+					<?php endif; ?>
+				</div>
+
+			</section>
+
+			<section class="panel" aria-labelledby="coll-lego-settings">
+				<h2 id="coll-lego-settings"><?php echo esc_html__( 'LEGO.com', 'collectibles' ); ?></h2>
+				<div class="field">
+					<label for="coll_lego_locale"><?php echo esc_html__( 'Language and region', 'collectibles' ); ?></label>
+					<input id="coll_lego_locale" name="coll_lego_locale" type="text" value="<?php echo esc_attr( $coll_lego_locale ?? Rebrickable::get_lego_locale_override() ); ?>" placeholder="<?php echo esc_attr( Rebrickable::get_default_lego_locale() ); ?>" pattern="[A-Za-z]{2}-[A-Za-z]{2}" maxlength="5" spellcheck="false" autocomplete="off">
+					<p class="field-hint"><?php echo esc_html__( 'Use the code from your preferred LEGO.com address, such as en-us, en-gb or de-at. This applies to product and instructions links. Leave blank to follow your WordPress language and region. LEGO may not support that combination; enter an override if needed.', 'collectibles' ); ?></p>
+				</div>
+
+			</section>
 
 			<div class="form-actions">
 				<button class="button button-primary" type="submit"><?php echo esc_html__( 'Save settings', 'collectibles' ); ?></button>
 				<a class="button button-quiet" href="<?php echo esc_url( App::get_url() ); ?>"><?php echo esc_html__( 'Back', 'collectibles' ); ?></a>
 			</div>
 		</form>
-
-		<section class="panel">
-			<h2><?php echo esc_html__( 'Numista lookups this month', 'collectibles' ); ?></h2>
-			<p>
-				<?php
-				printf(
-					/* translators: 1: lookups used, 2: monthly allowance */
-					esc_html__( '%1$d of %2$d used.', 'collectibles' ),
-					absint( $coll_used ),
-					absint( $coll_budget )
-				);
-				?>
-				<?php if ( 0 === $coll_remaining ) : ?>
-					<?php echo esc_html__( 'Lookups resume at the start of next month.', 'collectibles' ); ?>
-				<?php endif; ?>
-			</p>
-			<p class="field-hint">
-				<?php echo esc_html__( 'Every catalogue entry is kept once it has been fetched, so looking the same piece up again is free. Only a new entry costs a lookup.', 'collectibles' ); ?>
-			</p>
-		</section>
 
 <?php
 require __DIR__ . '/_foot.php';
