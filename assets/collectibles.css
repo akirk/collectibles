@@ -1533,28 +1533,39 @@ input[type="file"] {
 	height: 100%;
 }
 
+.coll-card-flip:not(:disabled)[data-coll-curl-ready]::before,
 .coll-card-flip:not(:disabled)[data-coll-curl-ready]::after {
 	content: "";
 	position: absolute;
 	right: var(--coll-curl-right);
 	bottom: var(--coll-curl-bottom);
-	width: 28px;
-	height: 28px;
+	width: 24px;
+	height: 24px;
 	opacity: 0;
-	border-top-right-radius: 5px;
-	background: linear-gradient(225deg, var(--coll-paper) 35%, var(--coll-line-strong) 49%, var(--coll-bg-alt) 52%);
-	box-shadow: 2px -2px 3px rgba(0, 0, 0, 0.12);
-	clip-path: polygon(100% 0, 100% 100%, 0 100%);
 	pointer-events: none;
 	transition: opacity 0.15s ease;
 }
 
+.coll-card-flip:not(:disabled)[data-coll-curl-ready]::before {
+	background: var(--coll-bg-alt);
+}
+
+.coll-card-flip:not(:disabled)[data-coll-curl-ready]::after {
+	border-top-left-radius: 4px;
+	background: linear-gradient(135deg, var(--coll-paper) 15%, var(--coll-paper-alt) 38%, var(--coll-line-strong) 49%, transparent 50%);
+	clip-path: polygon(0 0, 100% 0, 0 100%);
+	filter: drop-shadow(-1px -1px 2px rgba(0, 0, 0, 0.2));
+}
+
+.coll-card-flip:not(:disabled)[data-coll-curl-ready]:hover::before,
 .coll-card-flip:not(:disabled)[data-coll-curl-ready]:hover::after,
+.coll-card-flip:not(:disabled)[data-coll-curl-ready]:focus-visible::before,
 .coll-card-flip:not(:disabled)[data-coll-curl-ready]:focus-visible::after {
 	opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.coll-card-flip::before,
 	.coll-card-flip::after {
 		transition: none;
 	}
