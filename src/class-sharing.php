@@ -467,9 +467,10 @@ class Sharing {
 	 * @param \WP_Post $collection Collection post.
 	 * @param array    $settings Validated sharing settings.
 	 * @param string   $item_slug Optional individual item slug.
+	 * @param bool     $include_unshared Include all items for an authorized private comparison.
 	 * @return array|null Public projection or null for an unavailable item.
 	 */
-	private static function build_page( \WP_Post $collection, array $settings, string $item_slug = '' ): ?array {
+	private static function build_page( \WP_Post $collection, array $settings, string $item_slug = '', bool $include_unshared = false ): ?array {
 		$kind = Collection::get_kind( $collection->ID );
 		$args = array(
 			'post_type'    => Item::POST_TYPE,
@@ -487,6 +488,9 @@ class Sharing {
 			$args['name'] = sanitize_title( $item_slug );
 		}
 		$items = array();
+		if ( $include_unshared ) {
+			$items = Item::query( array( 'collection' => $collection->ID ) );
+		}
 		if ( 'selected' === $settings['mode'] && $settings['item_ids'] ) {
 			$args['post__in'] = $settings['item_ids'];
 			$items            = get_posts( $args );
@@ -494,7 +498,10 @@ class Sharing {
 		if ( '' !== $item_slug && ! $items ) {
 			return null;
 		}
-		$url   = self::get_url( $collection, $settings['slug'] ?? '' );
+		$url = self::get_url( $collection, $settings['slug'] ?? '' );
+		if ( $include_unshared ) {
+			$url = App::get_url( $collection->ID );
+		}
 		$owner = get_userdata( (int) $collection->post_author );
 		$data  = array(
 			'owner'       => $owner ? $owner->display_name : '',
@@ -553,12 +560,33 @@ class Sharing {
 			$data['items'][] = array(
 				'title'  => $title,
 				'slug'   => $item->post_name,
-				'url'    => $url . $item->post_name . '/',
+				'url'    => $include_unshared ? App::get_url( $collection->ID . '/item/' . $item->ID ) : $url . $item->post_name . '/',
 				'fields' => $fields,
 				'photos' => $photos,
 			);
 		}
 		return $data;
+	}
+
+	/**
+	 * Comparison data for an editor, including unshared items but only public fields.
+	 *
+	 * @param int $id Collection ID.
+	 */
+	public static function get_comparison_data( int $id ): ?array {
+		$collection = Collection::get( $id );
+		if ( ! $collection || ! current_user_can( 'edit_posts' ) || ! current_user_can( 'edit_post', $id ) ) {
+			return null;
+		}
+		return self::build_page(
+			$collection,
+			array(
+				'mode'        => 'private',
+				'description' => '',
+			),
+			'',
+			true
+		);
 	}
 
 	/** Discourage indexing and prevent stale pages surviving unpublishing. */

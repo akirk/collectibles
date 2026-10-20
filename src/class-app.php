@@ -91,6 +91,15 @@ class App extends BaseApp {
 			$this->get_url_path()
 		);
 
+		wp_app_enqueue_script(
+			'collectibles-compare',
+			self::get_asset_url( 'compare.js' ),
+			array(),
+			(string) filemtime( dirname( __DIR__ ) . '/assets/compare.js' ),
+			true,
+			$this->get_url_path()
+		);
+
 		$script_path = dirname( __DIR__ ) . '/assets/collectibles.js';
 		$script_ver  = file_exists( $script_path ) ? (string) filemtime( $script_path ) : '1.0.0';
 
