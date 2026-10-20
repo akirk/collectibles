@@ -1533,25 +1533,25 @@ input[type="file"] {
 	height: 100%;
 }
 
-.coll-card-flip:not(:disabled)::after {
+.coll-card-flip:not(:disabled)[data-coll-curl-ready]::after {
 	content: "";
 	position: absolute;
-	right: 10px;
-	bottom: 10px;
-	width: 22px;
-	height: 22px;
+	right: var(--coll-curl-right);
+	bottom: var(--coll-curl-bottom);
+	width: 28px;
+	height: 28px;
+	opacity: 0;
 	border-top-left-radius: 5px;
 	background: linear-gradient(135deg, var(--coll-paper) 35%, var(--coll-line-strong) 49%, var(--coll-bg-alt) 52%);
 	box-shadow: -2px -2px 3px rgba(0, 0, 0, 0.12);
 	clip-path: polygon(0 0, 100% 100%, 0 100%);
 	pointer-events: none;
-	transition: width 0.15s ease, height 0.15s ease;
+	transition: opacity 0.15s ease;
 }
 
 .coll-card-flip:hover::after,
 .coll-card-flip:focus-visible::after {
-	width: 28px;
-	height: 28px;
+	opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
