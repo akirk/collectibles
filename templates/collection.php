@@ -297,6 +297,17 @@ require __DIR__ . '/_head.php';
 					<p class="empty-icon" aria-hidden="true"><?php echo esc_html( Schema::get_kind_icon( $coll_kind ) ); ?></p>
 					<h2><?php echo esc_html__( 'This collection is empty', 'collectibles' ); ?></h2>
 					<p><?php echo esc_html__( 'Add the first piece and the totals will start filling in.', 'collectibles' ); ?></p>
+					<?php if ( Numista::supports_kind( $coll_kind ) && ! Numista::has_api_key() ) : ?>
+						<p>
+							<?php echo esc_html__( 'Save time entering coins and banknotes: add your Numista API credentials in Settings to fill in details from the catalogue.', 'collectibles' ); ?>
+							<a href="<?php echo esc_url( App::get_url( 'settings' ) ); ?>"><?php echo esc_html__( 'Set up Numista', 'collectibles' ); ?></a>
+						</p>
+					<?php elseif ( Rebrickable::supports_kind( $coll_kind ) && '' === Rebrickable::get_api_key() ) : ?>
+						<p>
+							<?php echo esc_html__( 'Save time entering LEGO sets: add your Rebrickable API key in Settings to fill in details from the catalogue.', 'collectibles' ); ?>
+							<a href="<?php echo esc_url( App::get_url( 'settings' ) ); ?>"><?php echo esc_html__( 'Set up Rebrickable', 'collectibles' ); ?></a>
+						</p>
+					<?php endif; ?>
 					<a class="button button-primary" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/item/new' ) ); ?>">
 						<?php
 						echo esc_html(
