@@ -89,7 +89,7 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 				update_post_meta( $coll_saved_id, Collection::KIND_META_KEY, $coll_kind_input );
 				update_post_meta( $coll_saved_id, Collection::CURRENCY_META_KEY, $coll_currency_input );
 
-				wp_safe_redirect( add_query_arg( 'saved', '1', App::get_url( 'collection/' . $coll_saved_id ) ) );
+				wp_safe_redirect( add_query_arg( 'saved', '1', App::get_url( $coll_saved_id ) ) );
 				exit;
 			}
 		}
@@ -120,7 +120,7 @@ if ( '' !== $coll_form_error ) {
 }
 
 $coll_page_title  = $coll_is_new ? __( 'New collection', 'collectibles' ) : __( 'Edit collection', 'collectibles' );
-$coll_form_url    = $coll_is_new ? App::get_url( 'collection/new' ) : App::get_url( 'collection/' . $coll_collection_id . '/edit' );
+$coll_form_url    = $coll_is_new ? App::get_url( 'new' ) : App::get_url( $coll_collection_id . '/edit' );
 $coll_shell_class = 'shell shell-narrow';
 
 require __DIR__ . '/_head.php';
@@ -141,7 +141,7 @@ require __DIR__ . '/_head.php';
 		<?php else : ?>
 			<header class="topbar">
 				<div>
-					<a class="crumb" href="<?php echo esc_url( $coll_is_new ? App::get_url() : App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+					<a class="crumb" href="<?php echo esc_url( $coll_is_new ? App::get_url() : App::get_url( $coll_collection_id ) ); ?>">
 						<?php echo esc_html( $coll_is_new ? __( 'Collections', 'collectibles' ) : get_the_title( $coll_collection ) ); ?>
 					</a>
 					<h1><?php echo esc_html( $coll_page_title ); ?></h1>
@@ -269,7 +269,7 @@ require __DIR__ . '/_head.php';
 					<button class="button button-primary" type="submit">
 						<?php echo esc_html( $coll_is_new ? __( 'Create collection', 'collectibles' ) : __( 'Save collection', 'collectibles' ) ); ?>
 					</button>
-					<a class="button button-quiet" href="<?php echo esc_url( $coll_is_new ? App::get_url() : App::get_url( 'collection/' . $coll_collection_id ) ); ?>">
+					<a class="button button-quiet" href="<?php echo esc_url( $coll_is_new ? App::get_url() : App::get_url( $coll_collection_id ) ); ?>">
 						<?php echo esc_html__( 'Cancel', 'collectibles' ); ?>
 					</a>
 				</div>

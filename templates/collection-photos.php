@@ -60,7 +60,7 @@ if ( 'POST' === ( isset( $_SERVER['REQUEST_METHOD'] ) ? sanitize_text_field( wp_
 		if ( is_wp_error( $coll_result ) ) {
 			$coll_error = $coll_result->get_error_message();
 		} else {
-			wp_safe_redirect( App::get_url( 'collection/' . $coll_collection_id . '/photos' ) );
+			wp_safe_redirect( App::get_url( $coll_collection_id . '/photos' ) );
 			exit;
 		}
 	}
@@ -76,7 +76,7 @@ require __DIR__ . '/_head.php';
 ?>
 <header class="topbar">
 	<div>
-		<a class="crumb" href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id ) ); ?>"><?php echo esc_html( $coll_collection->post_title ); ?></a>
+		<a class="crumb" href="<?php echo esc_url( App::get_url( $coll_collection_id ) ); ?>"><?php echo esc_html( $coll_collection->post_title ); ?></a>
 		<h1><?php echo esc_html( $coll_page_title ); ?></h1>
 		<p><?php echo esc_html__( 'Add photos to the items below. Existing photos are preserved.', 'collectibles' ); ?></p>
 	</div>
@@ -94,7 +94,7 @@ require __DIR__ . '/_head.php';
 <div class="coll-photo-batch">
 <?php foreach ( $coll_missing as $coll_item ) : ?>
 	<section class="coll-photo-row">
-		<h2><a href="<?php echo esc_url( App::get_url( 'collection/' . $coll_collection_id . '/item/' . $coll_item->ID ) ); ?>"><?php echo esc_html( $coll_item->post_title ); ?></a></h2>
+		<h2><a href="<?php echo esc_url( App::get_url( $coll_collection_id . '/item/' . $coll_item->ID ) ); ?>"><?php echo esc_html( $coll_item->post_title ); ?></a></h2>
 		<?php if ( isset( $coll_preview[ $coll_item->ID ] ) ) : ?>
 			<figure>
 				<img class="coll-catalog-preview" src="<?php echo esc_url( $coll_preview[ $coll_item->ID ] ); ?>" alt="<?php echo esc_attr( $coll_item->post_title ); ?>">

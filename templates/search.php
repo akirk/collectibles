@@ -79,7 +79,7 @@ require __DIR__ . '/_head.php';
 		<?php if ( empty( $coll_collections ) ) : ?>
 			<section class="empty-state">
 				<h2><?php echo esc_html__( 'Nothing to search yet', 'collectibles' ); ?></h2>
-				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/new' ) ); ?>">
+				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'new' ) ); ?>">
 					<?php echo esc_html__( 'Start a collection', 'collectibles' ); ?>
 				</a>
 			</section>
