@@ -785,6 +785,10 @@ img { max-width: 100%; height: auto; }
 	line-height: 1.5;
 }
 
+.field-hint.settings-intro {
+	margin-bottom: 16px;
+}
+
 .settings-checkbox input {
 	flex-shrink: 0;
 	margin: 0;

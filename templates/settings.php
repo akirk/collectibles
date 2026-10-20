@@ -124,10 +124,10 @@ require __DIR__ . '/_head.php';
 			<section class="panel settings-numista" aria-labelledby="coll-numista-settings">
 				<div>
 					<h2 id="coll-numista-settings"><?php echo esc_html__( 'Numista', 'collectibles' ); ?></h2>
-					<p class="field-hint">
-						<?php echo esc_html__( 'Coins and banknotes can be filled in from the Numista catalogue. Register a client on Numista to get these three; they belong to your account, not to the site.', 'collectibles' ); ?>
+					<p class="field-hint settings-intro">
+						<?php echo esc_html__( 'Fill in coins and banknotes from Numista. Create a free account, get an API key, then copy the three details below from Numista.', 'collectibles' ); ?>
 						<a href="<?php echo esc_url( Numista::get_api_key_url() ); ?>" target="_blank" rel="noreferrer noopener">
-							<?php echo esc_html__( 'Numista API documentation', 'collectibles' ); ?>
+							<?php echo esc_html__( 'Get a Numista API key', 'collectibles' ); ?>
 						</a>
 					</p>
 
@@ -140,7 +140,7 @@ require __DIR__ . '/_head.php';
 							value="<?php echo esc_attr( $coll_credentials['client_name'] ); ?>"
 							autocomplete="off"
 						>
-						<p class="field-hint"><?php echo esc_html__( 'The name you registered the client under. It identifies the lookups as yours.', 'collectibles' ); ?></p>
+						<p class="field-hint"><?php echo esc_html__( 'Copy the client name shown on Numista.', 'collectibles' ); ?></p>
 					</div>
 
 					<div class="field">
@@ -166,7 +166,7 @@ require __DIR__ . '/_head.php';
 							<?php disabled( $coll_key_fixed ); ?>
 						>
 						<?php if ( $coll_key_fixed ) : ?>
-							<p class="field-hint"><?php echo esc_html__( 'The key is set in wp-config.php, so it cannot be changed here.', 'collectibles' ); ?></p>
+							<p class="field-hint"><?php echo esc_html__( 'Your site administrator has set this key.', 'collectibles' ); ?></p>
 						<?php endif; ?>
 					</div>
 
@@ -188,7 +188,7 @@ require __DIR__ . '/_head.php';
 						<?php endif; ?>
 					</p>
 					<p class="field-hint">
-						<?php echo esc_html__( 'Every catalogue entry is kept once it has been fetched, so looking the same piece up again is free. Only a new entry costs a lookup.', 'collectibles' ); ?>
+						<?php echo esc_html__( 'New items can use more than one lookup. Repeated lookups do not count towards the limit.', 'collectibles' ); ?>
 					</p>
 				</aside>
 
@@ -196,22 +196,28 @@ require __DIR__ . '/_head.php';
 
 			<section class="panel" aria-labelledby="coll-rebrickable-settings">
 				<h2 id="coll-rebrickable-settings"><?php echo esc_html__( 'Rebrickable', 'collectibles' ); ?></h2>
-				<p class="field-hint">
-					<?php echo esc_html__( 'Rebrickable allows an average of one API request per second per account, with a small allowance for bursts. It does not publish a monthly quota. Lookups are cached for a year; if requests are throttled, wait before trying again.', 'collectibles' ); ?>
-					<a href="https://rebrickable.com/api/v3/docs/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'API limits', 'collectibles' ); ?></a>
-				</p>
-				<p class="field-hint">
-					<?php echo esc_html__( 'Fill in LEGO sets using a personal Rebrickable API key. Other brands can be entered manually. Prices, completeness and condition are yours to record.', 'collectibles' ); ?>
-					<a href="https://rebrickable.com/api/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Get a Rebrickable API key', 'collectibles' ); ?></a>
+				<p class="field-hint settings-intro">
+					<?php
+					printf(
+						/* translators: %s: link to Rebrickable */
+						esc_html__( 'Fill in LEGO sets from %s.', 'collectibles' ),
+						'<a href="https://rebrickable.com/" target="_blank" rel="noreferrer noopener">Rebrickable</a>'
+					);
+					?>
+					<?php echo esc_html__( 'Create a free account or sign in, go to Account > Settings > API, then create a key and paste it below.', 'collectibles' ); ?>
 				</p>
 				<div class="field">
 					<label for="coll_rebrickable_key"><?php echo esc_html__( 'API key', 'collectibles' ); ?></label>
 					<input id="coll_rebrickable_key" name="coll_rebrickable_key" type="password" autocomplete="off" spellcheck="false" value="<?php echo esc_attr( Rebrickable::is_api_key_fixed() ? '' : Rebrickable::get_api_key() ); ?>" <?php disabled( Rebrickable::is_api_key_fixed() ); ?>>
 					<?php if ( Rebrickable::is_api_key_fixed() ) : ?>
-						<p class="field-hint"><?php echo esc_html__( 'The key is set in wp-config.php, so it cannot be changed here.', 'collectibles' ); ?></p>
+						<p class="field-hint"><?php echo esc_html__( 'Your site administrator has set this key.', 'collectibles' ); ?></p>
 					<?php endif; ?>
 				</div>
 
+				<p class="field-hint">
+					<?php echo esc_html__( 'Rebrickable limits how quickly you can look up sets. If asked to wait, try again shortly. Repeated lookups do not count towards the limit.', 'collectibles' ); ?>
+					<a href="https://rebrickable.com/api/v3/docs/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Details', 'collectibles' ); ?></a>
+				</p>
 			</section>
 
 			<section class="panel" aria-labelledby="coll-lego-settings">
@@ -219,7 +225,7 @@ require __DIR__ . '/_head.php';
 				<div class="field">
 					<label for="coll_lego_locale"><?php echo esc_html__( 'Language and region', 'collectibles' ); ?></label>
 					<input id="coll_lego_locale" name="coll_lego_locale" type="text" value="<?php echo esc_attr( $coll_lego_locale ?? Rebrickable::get_lego_locale_override() ); ?>" placeholder="<?php echo esc_attr( Rebrickable::get_default_lego_locale() ); ?>" pattern="[A-Za-z]{2}-[A-Za-z]{2}" maxlength="5" spellcheck="false" autocomplete="off">
-					<p class="field-hint"><?php echo esc_html__( 'Use the code from your preferred LEGO.com address, such as en-us, en-gb or de-at. This applies to product and instructions links. Leave blank to follow your WordPress language and region. LEGO may not support that combination; enter an override if needed.', 'collectibles' ); ?></p>
+					<p class="field-hint"><?php echo esc_html__( 'For LEGO.com links, use the code from your preferred address, such as en-us, en-gb or de-at. Leave blank to use your site language and region.', 'collectibles' ); ?></p>
 				</div>
 
 			</section>
