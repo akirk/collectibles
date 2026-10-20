@@ -187,10 +187,22 @@ try {
 	$coll_assert( false === strpos( $coll_html, 'value="all"' ) && false === strpos( $coll_html, 'name="coll_item_ids[]"' ), 'Sharing settings must omit all-items mode and the separate item picker.' );
 
 	$coll_assert( false !== strpos( $coll_html, 'name="coll_new_items"' ), 'Sharing settings offer a default for new items.' );
+	$coll_assert( false !== strpos( $coll_html, 'value="unlisted"' ), 'Sharing settings offer unlisted visibility.' );
+	$coll_directory_urls = array_column( Sharing::get_directory(), 'url' );
+	$coll_assert( in_array( Sharing::get_url( get_post( $coll_collection ) ), $coll_directory_urls, true ), 'Public collections appear in the directory.' );
+	Sharing::save( $coll_collection, array( 'mode' => 'unlisted' ) );
+	$coll_assert( 'unlisted' === Sharing::get_settings( $coll_collection )['mode'], 'Unlisted visibility is saved.' );
+	$coll_assert( ! in_array( Sharing::get_url( get_post( $coll_collection ) ), array_column( Sharing::get_directory(), 'url' ), true ), 'Unlisted collections stay out of the directory.' );
+	$coll_assert( null !== Sharing::get_page( $coll_slug ) && null !== Sharing::get_page( $coll_slug, get_post( $coll_second )->post_name ), 'Unlisted collection and selected item URLs remain available.' );
+	$coll_assert( 'Shared' === Sharing::get_item_state( $coll_collection, $coll_second )['label'], 'Unlisted items are labelled Shared.' );
+	$coll_html = $coll_render( 'collection.php', $coll_collection );
+	$coll_assert( false !== strpos( $coll_html, 'data-coll-share-item=' ) && false !== strpos( $coll_html, 'coll-public-status' ), 'Unlisted collections expose switches and their shared URL.' );
+	$coll_assert( ! is_wp_error( Sharing::set_all_shared( $coll_collection, true ) ), 'Unlisted collections support bulk sharing.' );
+
 	Sharing::save(
 		$coll_collection,
 		array(
-			'mode'      => 'selected',
+			'mode'      => 'unlisted',
 			'new_items' => 'shared',
 		)
 	);

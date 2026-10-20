@@ -115,7 +115,7 @@ Private collection management stays under `/collectibles/`, including
 `/collectibles/{slug}/`, with item pages under `/{item_slug}/`. Never relax the
 private app or its REST capabilities to support public pages.
 
-Sharing defaults to private. Owners enable a public page and choose its items with AJAX switches on
+Sharing defaults to private. Unlisted pages are accessible by URL but excluded from the public directory; public pages are listed when the directory is enabled. Owners enable a public page and choose its items with AJAX switches on
 the collection overview, visible only while sharing is enabled. New items default
 to private; owners can choose shared for future additions while sharing is enabled. Legacy all-items
 sharing is frozen to its currently published items on first read. Preview uses the same public

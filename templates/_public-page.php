@@ -58,6 +58,9 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 			<?php if ( $coll_public_data['detail'] ) : ?>
 				<a class="crumb" href="<?php echo esc_url( $coll_public_data['url'] ); ?>"><?php echo esc_html( $coll_public_data['title'] ); ?></a>
 			<?php else : ?>
+				<?php if ( Sharing::directory_enabled() ) : ?>
+					<a class="crumb" href="<?php echo esc_url( add_query_arg( 'view', 'shared', App::get_url() ) ); ?>"><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></a>
+				<?php endif; ?>
 				<p class="eyebrow"><?php echo esc_html( $coll_public_data['owner'] ); ?></p>
 			<?php endif; ?>
 			<h1><?php echo esc_html( $coll_public_data['detail'] ? $coll_public_data['items'][0]['title'] : $coll_public_data['title'] ); ?></h1>

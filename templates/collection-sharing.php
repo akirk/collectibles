@@ -70,11 +70,13 @@ require __DIR__ . '/_head.php';
 		<?php
 		foreach ( array(
 			'private'  => __( 'Private', 'collectibles' ),
-			'selected' => __( 'Enable public page', 'collectibles' ),
+			'unlisted' => __( 'Unlisted — anyone with the link', 'collectibles' ),
+			'selected' => __( 'Public — listed in the directory when enabled', 'collectibles' ),
 		) as $coll_mode => $coll_mode_label ) :
 			?>
 			<label><input type="radio" name="coll_mode" value="<?php echo esc_attr( $coll_mode ); ?>" <?php checked( $coll_share_values['mode'], $coll_mode ); ?>> <?php echo esc_html( $coll_mode_label ); ?></label>
 		<?php endforeach; ?>
+		<p class="field-hint"><?php echo esc_html__( 'Unlisted collections can be viewed and shared by anyone with the link, but do not appear in the public directory.', 'collectibles' ); ?></p>
 	</fieldset>
 	<div class="field">
 		<label for="coll_new_items"><?php echo esc_html__( 'New items', 'collectibles' ); ?></label>
