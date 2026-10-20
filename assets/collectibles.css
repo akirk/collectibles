@@ -1549,8 +1549,8 @@ input[type="file"] {
 	transition: opacity 0.15s ease;
 }
 
-.coll-card-flip:hover::after,
-.coll-card-flip:focus-visible::after {
+.coll-card-flip:not(:disabled)[data-coll-curl-ready]:hover::after,
+.coll-card-flip:not(:disabled)[data-coll-curl-ready]:focus-visible::after {
 	opacity: 1;
 }
 
