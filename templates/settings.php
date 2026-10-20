@@ -80,7 +80,7 @@ require __DIR__ . '/_head.php';
 				<section class="panel" aria-labelledby="coll-sharing-settings">
 					<h2 id="coll-sharing-settings"><?php echo esc_html__( 'Shared collections', 'collectibles' ); ?></h2>
 					<?php $coll_shared_collections = Sharing::get_directory(); ?>
-					<label>
+					<label class="settings-checkbox">
 						<input type="checkbox" name="coll_public_directory" value="1" <?php checked( Sharing::directory_enabled() ); ?>>
 						<?php
 						printf(
@@ -91,11 +91,15 @@ require __DIR__ . '/_head.php';
 						?>
 					</label>
 					<p class="field-hint"><?php echo esc_html__( 'Visitors at /collectibles/ see public collections and their owners’ display names. Each owner chooses which collections to share. Signed-in collectors keep their private dashboard.', 'collectibles' ); ?></p>
-					<h3><?php echo esc_html__( 'Search engine visibility', 'collectibles' ); ?></h3>
-					<p class="field-hint"><?php echo esc_html__( 'These options follow WordPress’s search engine visibility setting. If WordPress discourages indexing, these pages do too. Unlisted collections and previews always discourage indexing.', 'collectibles' ); ?></p>
-					<p><a href="<?php echo esc_url( admin_url( 'options-reading.php' ) ); ?>"><?php echo esc_html__( 'WordPress Reading settings', 'collectibles' ); ?></a> — <?php echo get_option( 'blog_public' ) ? esc_html__( 'Site indexing is allowed.', 'collectibles' ) : esc_html__( 'Site indexing is discouraged.', 'collectibles' ); ?></p>
-					<p><label><input type="checkbox" name="coll_index_directory" value="1" <?php checked( (bool) get_option( 'coll_index_directory', false ) ); ?>> <?php echo esc_html__( 'Allow search engines to index the public directory', 'collectibles' ); ?></label></p>
-					<p><label><input type="checkbox" name="coll_index_collections" value="1" <?php checked( (bool) get_option( 'coll_index_collections', false ) ); ?>> <?php echo esc_html__( 'Allow search engines to index public collections and their shared item pages', 'collectibles' ); ?></label></p>
+					<details class="settings-indexing">
+						<summary><?php echo esc_html__( 'Search engine visibility', 'collectibles' ); ?></summary>
+						<div class="settings-indexing-content">
+							<p class="field-hint"><?php echo esc_html__( 'These options follow WordPress’s search engine visibility setting. If WordPress discourages indexing, these pages do too. Unlisted collections and previews always discourage indexing.', 'collectibles' ); ?></p>
+							<p><a href="<?php echo esc_url( admin_url( 'options-reading.php' ) ); ?>"><?php echo esc_html__( 'WordPress Reading settings', 'collectibles' ); ?></a> — <?php echo get_option( 'blog_public' ) ? esc_html__( 'Site indexing is allowed.', 'collectibles' ) : esc_html__( 'Site indexing is discouraged.', 'collectibles' ); ?></p>
+							<label class="settings-checkbox"><input type="checkbox" name="coll_index_directory" value="1" <?php checked( (bool) get_option( 'coll_index_directory', false ) ); ?>> <?php echo esc_html__( 'Allow search engines to index the public directory', 'collectibles' ); ?></label>
+							<label class="settings-checkbox"><input type="checkbox" name="coll_index_collections" value="1" <?php checked( (bool) get_option( 'coll_index_collections', false ) ); ?>> <?php echo esc_html__( 'Allow search engines to index public collections and their shared item pages', 'collectibles' ); ?></label>
+						</div>
+					</details>
 					<?php if ( $coll_shared_collections ) : ?>
 						<ul>
 							<?php foreach ( $coll_shared_collections as $coll_shared_collection ) : ?>
