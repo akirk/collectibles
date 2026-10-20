@@ -18,13 +18,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 		<div class="field">
 			<label for="coll_rebrickable_ref"><?php echo esc_html__( 'Fill in from Rebrickable', 'collectibles' ); ?></label>
 			<div class="lookup-row">
-				<input id="coll_rebrickable_ref" name="coll_rebrickable_ref" type="text" value="<?php echo esc_attr( $coll_lookup_ref ); ?>" placeholder="<?php echo esc_attr__( 'Set number or Rebrickable set link', 'collectibles' ); ?>" required>
+				<input id="coll_rebrickable_ref" name="coll_rebrickable_ref" type="text" value="<?php echo esc_attr( $coll_lookup_ref ); ?>" placeholder="<?php echo esc_attr__( 'Set number, LEGO or Rebrickable link', 'collectibles' ); ?>" required>
 				<button class="button" type="submit"><?php echo esc_html__( 'Fetch', 'collectibles' ); ?></button>
 			</div>
 			<p class="field-hint"><?php echo esc_html__( 'LEGO sets only. A number without a variant uses -1. Cached lookups make no API calls. Review the details before saving.', 'collectibles' ); ?></p>
 			<?php if ( ! empty( $coll_prefill['values']['rebrickable_id'] ) ) : ?>
 				<p class="field-hint">
-					<?php echo esc_html__( 'Open the set page to find an image, then upload it below.', 'collectibles' ); ?>
+					<?php echo esc_html__( 'The catalogue image is imported when you save. You can also upload your own photo below.', 'collectibles' ); ?>
 					<?php foreach ( Rebrickable::get_set_links( $coll_prefill['values']['rebrickable_id'] ) as $coll_link_label => $coll_link_url ) : ?>
 						<a href="<?php echo esc_url( $coll_link_url ); ?>" target="_blank" rel="noreferrer noopener"><?php echo esc_html( $coll_link_label ); ?></a>
 					<?php endforeach; ?>

@@ -111,13 +111,16 @@ class Rebrickable {
 	}
 
 	/**
-	 * Normalize a set number or a Rebrickable set URL; bare numbers use variant 1.
+	 * Normalize a set number, LEGO product URL or Rebrickable set URL; bare numbers use variant 1.
 	 *
 	 * @param string $reference Submitted reference.
 	 */
 	public static function parse_id( string $reference ): string {
 		$reference = trim( $reference );
 		if ( preg_match( '~^https?://(?:www\.)?rebrickable\.com/sets/([^/]+)(?:/[^?#]*)?(?:[?#].*)?$~i', $reference, $matches ) ) {
+			$reference = $matches[1];
+		}
+		if ( preg_match( '~^https?://(?:www\.)?lego\.com/(?:[a-z]{2}(?:-[a-z]{2})?/)?product/(?:[a-z0-9-]*-)?(\d+)/?(?:[?#].*)?$~i', $reference, $matches ) ) {
 			$reference = $matches[1];
 		}
 		if ( ! preg_match( '/^[a-z0-9]+(?:-\d+)?$/i', $reference ) ) {
@@ -180,7 +183,7 @@ class Rebrickable {
 	public static function fetch_set( string $reference ) {
 		$id = self::parse_id( $reference );
 		if ( '' === $id ) {
-			return new \WP_Error( 'coll_rebrickable_reference', __( 'Enter a set number or a Rebrickable set link.', 'collectibles' ) );
+			return new \WP_Error( 'coll_rebrickable_reference', __( 'Enter a set number, LEGO product link or Rebrickable set link.', 'collectibles' ) );
 		}
 		$set = self::request( 'sets/' . rawurlencode( $id ) );
 		if ( is_wp_error( $set ) ) {

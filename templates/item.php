@@ -144,7 +144,12 @@ require __DIR__ . '/_head.php';
 
 			<?php // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Post-redirect query flag used only for a notice. ?>
 			<?php if ( isset( $_GET['saved'] ) ) : ?>
-				<div class="notice"><?php echo esc_html__( 'Item saved.', 'collectibles' ); ?></div>
+				<div class="notice">
+					<?php echo esc_html__( 'Item saved.', 'collectibles' ); ?>
+					<?php if ( current_user_can( 'edit_post', $coll_collection_id ) ) : ?>
+						<a href="<?php echo esc_url( App::get_url( $coll_collection_id . '/item/new' ) ); ?>"><?php echo esc_html__( 'Add another', 'collectibles' ); ?></a>
+					<?php endif; ?>
+				</div>
 			<?php endif; ?>
 
 			<div class="item-detail">
