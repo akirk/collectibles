@@ -105,6 +105,12 @@ $coll_notes_value    = $coll_collection ? $coll_collection->post_content : '';
 $coll_kind_value     = $coll_collection ? Collection::get_kind( $coll_collection_id ) : Schema::KIND_COINS;
 $coll_currency_value = $coll_collection ? Collection::get_currency( $coll_collection_id ) : 'EUR';
 
+// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only selection for a new collection.
+if ( $coll_is_new && isset( $_GET['kind'] ) && is_string( $_GET['kind'] ) ) {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only selection for a new collection.
+	$coll_kind_value = Schema::sanitize_kind( sanitize_key( wp_unslash( $_GET['kind'] ) ) );
+}
+
 if ( '' !== $coll_form_error ) {
 	// Keep what was typed so a validation error does not throw the form away.
 	$coll_name_value     = isset( $_POST['coll_name'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_name'] ) ) : $coll_name_value;
