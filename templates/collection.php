@@ -174,6 +174,7 @@ require __DIR__ . '/_head.php';
 							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/edit' ) ); ?>">
 								<?php echo esc_html__( 'Edit', 'collectibles' ); ?>
 							</a>
+							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/import' ) ); ?>"><?php echo esc_html__( 'Import CSV', 'collectibles' ); ?></a>
 							<a class="coll-action-link" href="<?php echo esc_url( App::get_url( $coll_collection_id . '/export' ) ); ?>">
 								<?php echo esc_html__( 'Export CSV', 'collectibles' ); ?>
 							</a>
