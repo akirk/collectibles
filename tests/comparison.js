@@ -15,7 +15,7 @@ const local = { version: 1, kind: 'coins', items: [item('Local title', 'KM 1'), 
 node('coll-compare-data').textContent = JSON.stringify(local);
 node('coll-public-items').children = local.items.map((item, index) => ({ original: index }));
 node('coll-compare-labels').textContent = JSON.stringify({ both: 'Both', local: 'Local', remote: 'Remote', loading: 'loading', done: 'done', error: 'error', kind: 'kind' });
-node('coll-compare-url').value = 'https://other.example/collections/test/';
+node('coll-compare-url').value = 'https://other.example/collectibles/test/';
 let submit;
 node('coll-compare-form').addEventListener = (name, callback) => { submit = callback; };
 node('coll-compare-form').querySelector = () => node('button');
@@ -30,7 +30,7 @@ vm.runInNewContext(fs.readFileSync('assets/compare.js', 'utf8'), {
 });
 (async () => {
 	await submit({ preventDefault() {} });
-	assert.equal(requested.url, 'https://other.example/collections/test/?format=json');
+	assert.equal(requested.url, 'https://other.example/collectibles/test/?format=json');
 	assert.equal(requested.options.credentials, 'omit');
 	assert.equal(requested.options.referrerPolicy, 'no-referrer');
 	const grouped = node('coll-public-items').children;

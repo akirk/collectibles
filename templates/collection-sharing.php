@@ -87,7 +87,7 @@ require __DIR__ . '/_head.php';
 	<div class="field">
 		<label for="coll_slug"><?php echo esc_html__( 'Public URL name', 'collectibles' ); ?></label>
 		<input id="coll_slug" name="coll_slug" type="text" value="<?php echo esc_attr( $coll_share_values['slug'] ); ?>" required>
-		<p class="field-hint"><?php echo esc_html( home_url( '/collections/' ) ); ?><strong><?php echo esc_html( $coll_share_values['slug'] ); ?></strong>/</p>
+		<p class="field-hint"><?php echo esc_html( home_url( '/collectibles/' ) ); ?><strong><?php echo esc_html( $coll_share_values['slug'] ); ?></strong>/</p>
 		<p class="field-hint"><?php echo esc_html__( 'A number is appended if that name is already in use. Changing the name changes the shared link.', 'collectibles' ); ?></p>
 	</div>
 	<div class="field">
