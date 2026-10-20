@@ -117,6 +117,7 @@ class App extends BaseApp {
 			'new'                            => 'collection-form.php',
 			'{id}'                           => 'collection.php',
 			'{id}/edit'                      => 'collection-form.php',
+			'{id}/import'                    => 'collection-import.php',
 			'{id}/export'                    => 'collection-export.php',
 			'{id}/photos'                    => 'collection-photos.php',
 			'{id}/origins'                   => 'origins.php',
