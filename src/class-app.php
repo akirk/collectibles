@@ -127,8 +127,6 @@ class App extends BaseApp {
 		);
 		foreach ( $collection_routes as $path => $template ) {
 			$this->app->route( $path, $template );
-			// Keep bookmarks and already-open forms working at their original URLs.
-			$this->app->route( 'collection/' . $path, $template );
 		}
 	}
 
