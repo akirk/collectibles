@@ -44,6 +44,7 @@ $coll_action   = isset( $_POST['coll_action'] ) ? sanitize_key( wp_unslash( $_PO
 $coll_form_notice     = '';
 $coll_lookup_ref      = '';
 $coll_prefill         = array();
+$coll_catalog_preview = '';
 $coll_issues          = array();
 $coll_issue_id        = 0;
 $coll_can_look_up     = $coll_is_new && Numista::supports_kind( $coll_kind );
@@ -98,6 +99,9 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 			if ( is_wp_error( $coll_set ) ) {
 				$coll_form_error = $coll_set->get_error_message();
 			} else {
+				if ( isset( $coll_set['set_img_url'] ) && is_string( $coll_set['set_img_url'] ) && preg_match( '~^https://cdn\.rebrickable\.com/media/sets/[^?#]+\.(?:jpg|jpeg|png|webp)$~i', $coll_set['set_img_url'] ) ) {
+					$coll_catalog_preview = $coll_set['set_img_url'];
+				}
 				$coll_prefill     = Rebrickable::map_set( $coll_set );
 				$coll_form_notice = __( 'Filled in from Rebrickable. Look it over, then add it to the collection.', 'collectibles' );
 			}
@@ -397,6 +401,12 @@ require __DIR__ . '/_head.php';
 				<input type="hidden" name="coll_action" value="<?php echo esc_attr( $coll_is_new ? 'create_item' : 'update_item' ); ?>">
 				<?php wp_nonce_field( $coll_is_new ? 'coll_create_item_' . $coll_collection_id : 'coll_update_item_' . $coll_item_id, 'coll_nonce' ); ?>
 
+				<?php if ( $coll_is_new ) : ?>
+					<div class="form-actions">
+						<button class="button button-primary" type="submit"><?php echo esc_html__( 'Add to collection', 'collectibles' ); ?></button>
+					</div>
+				<?php endif; ?>
+
 				<div class="field">
 					<label for="coll_name"><?php echo esc_html__( 'Name', 'collectibles' ); ?></label>
 					<input id="coll_name" name="coll_name" type="text" value="<?php echo esc_attr( $coll_name_value ); ?>" required autofocus>
@@ -440,6 +450,12 @@ require __DIR__ . '/_head.php';
 									<div class="photo-side-current">
 										<?php echo wp_kses_post( wp_get_attachment_image( $coll_side_id, 'thumbnail', false, array( 'alt' => '' ) ) ); ?>
 									</div>
+								<?php endif; ?>
+								<?php if ( ! $coll_side_id && 'photo_front' === $coll_side_key && '' !== $coll_catalog_preview ) : ?>
+									<div class="photo-side-current">
+										<img src="<?php echo esc_url( $coll_catalog_preview ); ?>" alt="<?php echo esc_attr__( 'Rebrickable catalogue image', 'collectibles' ); ?>" referrerpolicy="no-referrer">
+									</div>
+									<p class="field-hint"><?php echo esc_html__( 'This catalogue image will be imported when you save. Uploading your own photo uses it instead.', 'collectibles' ); ?></p>
 								<?php endif; ?>
 								<input id="coll_<?php echo esc_attr( $coll_side_key ); ?>" name="coll_<?php echo esc_attr( $coll_side_key ); ?>" type="file" accept="image/*">
 								<?php if ( $coll_side_id ) : ?>
