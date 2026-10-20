@@ -108,7 +108,7 @@ require __DIR__ . '/_head.php';
 				<p><?php echo esc_html__( 'A collection groups items of one kind, so the app knows which fields to ask you for.', 'collectibles' ); ?></p>
 				<p class="kind-hints">
 					<?php foreach ( Schema::get_kinds() as $coll_kind_slug => $coll_kind_def ) : ?>
-						<span class="kind-hint"><?php echo esc_html( $coll_kind_def['icon'] . ' ' . $coll_kind_def['label'] ); ?></span>
+						<a class="kind-hint" href="<?php echo esc_url( add_query_arg( 'kind', $coll_kind_slug, App::get_url( 'collection/new' ) ) ); ?>"><?php echo esc_html( $coll_kind_def['icon'] . ' ' . $coll_kind_def['label'] ); ?></a>
 					<?php endforeach; ?>
 				</p>
 				<a class="button button-primary" href="<?php echo esc_url( App::get_url( 'collection/new' ) ); ?>">

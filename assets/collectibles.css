@@ -503,6 +503,13 @@ img { max-width: 100%; height: auto; }
 	background: var(--coll-paper);
 	font-size: 0.85rem;
 	color: var(--coll-ink-soft);
+	text-decoration: none;
+}
+
+.kind-hint:hover,
+.kind-hint:focus-visible {
+	border-color: var(--coll-patina);
+	color: var(--coll-patina);
 }
 
 /* ---- Collection cards ---- */
