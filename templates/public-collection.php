@@ -12,9 +12,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 $coll_public_data    = Sharing::get_page( $coll_public_slug, $coll_public_item );
 $coll_public_preview = false;
-Sharing::send_headers();
 // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Public read-only representation.
 $coll_public_json = isset( $_GET['format'] ) && 'json' === $_GET['format'];
+Sharing::send_headers( ! $coll_public_json && ! empty( $coll_public_data['indexable'] ) );
 if ( $coll_public_json ) {
 	header( 'Access-Control-Allow-Origin: *' );
 	header( 'X-Content-Type-Options: nosniff' );

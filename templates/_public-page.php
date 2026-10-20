@@ -24,7 +24,7 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="robots" content="noindex,nofollow">
+	<meta name="robots" content="<?php echo ! $coll_public_preview && ! empty( $coll_public_data['indexable'] ) ? 'index,follow' : 'noindex,nofollow'; ?>">
 	<?php if ( $coll_public_data && ! $coll_public_preview ) : ?>
 		<link rel="alternate" type="application/json" href="<?php echo esc_url( add_query_arg( 'format', 'json', $coll_public_data['detail'] ? $coll_public_data['items'][0]['url'] : $coll_public_data['url'] ) ); ?>">
 	<?php endif; ?>

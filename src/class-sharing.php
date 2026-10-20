@@ -69,6 +69,17 @@ class Sharing {
 		return (bool) get_option( 'coll_public_directory', false );
 	}
 
+	/**
+	 * Respect WordPress visibility as well as the administrator's opt-in.
+	 *
+	 * @param string $area Public area: directory or collections.
+	 */
+	public static function indexing_enabled( string $area ): bool {
+		return in_array( $area, array( 'directory', 'collections' ), true )
+			&& (bool) get_option( 'blog_public' )
+			&& (bool) get_option( 'coll_index_' . $area, false );
+	}
+
 	/** Serve only the public root, leaving private routing and REST access intact. */
 	public static function maybe_show_directory(): void {
 		if ( ! self::directory_enabled() ) {
@@ -83,7 +94,7 @@ class Sharing {
 		if ( current_user_can( 'edit_posts' ) && ! $shared ) {
 			return;
 		}
-		self::send_headers();
+		self::send_headers( self::indexing_enabled( 'directory' ) );
 		status_header( 200 );
 		require dirname( __DIR__ ) . '/templates/public-directory.php';
 		exit;
@@ -506,6 +517,7 @@ class Sharing {
 		$data  = array(
 			'owner'       => $owner ? $owner->display_name : '',
 			'version'     => 1,
+			'indexable'   => 'selected' === $settings['mode'] && self::indexing_enabled( 'collections' ),
 			'kind'        => $kind,
 			'title'       => $collection->post_title,
 			'description' => $settings['description'],
@@ -589,10 +601,14 @@ class Sharing {
 		);
 	}
 
-	/** Discourage indexing and prevent stale pages surviving unpublishing. */
-	public static function send_headers(): void {
+	/**
+	 * Set indexing policy and prevent stale pages surviving unpublishing.
+	 *
+	 * @param bool $indexable Whether this response may be indexed.
+	 */
+	public static function send_headers( bool $indexable = false ): void {
 		nocache_headers();
 		header( 'Cache-Control: private, no-store, max-age=0' );
-		header( 'X-Robots-Tag: noindex, nofollow' );
+		header( 'X-Robots-Tag: ' . ( $indexable ? 'index, follow' : 'noindex, nofollow' ) );
 	}
 }
