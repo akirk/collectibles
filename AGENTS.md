@@ -261,3 +261,21 @@ partial patch.
 
 - Brass `#a9762b` on warm paper, with verdigris `#3e6f63` for links and
   positive states. Both themes are defined in `assets/collectibles.css`.
+
+### Client-side comparison
+
+Public collection overview pages include a comparison form (omitted from
+item pages and previews). Both collections use only public projections; no
+login is needed. The browser fetches a pasted public URL with `?format=json` directly, without credentials
+or a referrer; no remote URL or comparison data goes to the private server.
+Public collection and item URLs support this JSON representation with wildcard
+CORS, no-store headers and the same sharing checks as HTML. Version 1 includes
+`kind` and public `fields` with stable `key`, string `raw`, `label` and formatted
+`value`. Never add private matching identifiers outside the public allowlist.
+Comparison groups cards in the existing gallery under full-width headings,
+including cards built in the browser for items unique to the pasted collection.
+Gallery and Detailed apply to every group. Remote text uses textContent and
+remote links and image URLs accept HTTP(S) only.
+Comparison uses catalog number, origin and year, falling back to title; it
+compares item presence, not quantities, and remote results cover shared items
+only. Run `node tests/comparison.js` for browser logic checks without HTTP.

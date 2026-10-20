@@ -415,6 +415,8 @@ class Sharing {
 		}
 		$url  = self::get_url( $collection, $settings['slug'] ?? '' );
 		$data = array(
+			'version'     => 1,
+			'kind'        => $kind,
 			'title'       => $collection->post_title,
 			'description' => $settings['description'],
 			'url'         => $url,
@@ -433,6 +435,8 @@ class Sharing {
 				$value = Item::format_field_value( $field, $values[ $field['key'] ] ?? '', '' );
 				if ( '' !== $value ) {
 					$fields[] = array(
+						'key'   => $field['key'],
+						'raw'   => (string) ( $values[ $field['key'] ] ?? '' ),
 						'label' => $field['label'],
 						'value' => $value,
 					);
