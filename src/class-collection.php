@@ -27,6 +27,7 @@ class Collection {
 				'labels'       => array(
 					'name'          => __( 'Collections', 'collectibles' ),
 					'singular_name' => __( 'Collection', 'collectibles' ),
+					'menu_name'     => __( 'Collectibles', 'collectibles' ),
 					'add_new_item'  => __( 'Add New Collection', 'collectibles' ),
 					'edit_item'     => __( 'Edit Collection', 'collectibles' ),
 					'new_item'      => __( 'New Collection', 'collectibles' ),
@@ -36,7 +37,7 @@ class Collection {
 				'description'  => __( 'Collections cataloged with Collectibles.', 'collectibles' ),
 				'public'       => false,
 				'show_ui'      => true,
-				'menu_icon'    => 'dashicons-archive',
+				'menu_icon'    => App::get_asset_url( 'icon.svg' ),
 				'show_in_rest' => true,
 				'supports'     => array( 'title', 'editor', 'author', 'custom-fields' ),
 				'map_meta_cap' => true,

@@ -40,6 +40,8 @@ class App extends BaseApp {
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );
 		add_action( 'init', array( $this, 'register_meta' ) );
+		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
+		add_action( 'admin_footer-edit.php', array( $this, 'add_admin_frontend_link' ) );
 
 		add_action( 'template_redirect', array( $this, 'maybe_setup_assets' ) );
 		add_action( 'before_delete_post', array( $this, 'delete_related_resources' ), 10, 2 );
@@ -160,6 +162,46 @@ class App extends BaseApp {
 	 * No custom tables: everything is posts, post meta and terms.
 	 */
 	protected function setup_database(): void {
+	}
+
+	/**
+	 * Link to the frontend from the collection admin menu.
+	 */
+	public function add_admin_menu(): void {
+		add_submenu_page(
+			'edit.php?post_type=' . Collection::POST_TYPE,
+			__( 'Open App', 'collectibles' ),
+			__( 'Open App', 'collectibles' ),
+			'edit_posts',
+			self::get_url()
+		);
+	}
+
+	/**
+	 * Add a frontend shortcut beside the collection list's heading actions.
+	 */
+	public function add_admin_frontend_link(): void {
+		$screen = get_current_screen();
+		if ( ! $screen || Collection::POST_TYPE !== $screen->post_type || ! current_user_can( 'edit_posts' ) ) {
+			return;
+		}
+		?>
+		<script>
+		(function () {
+			var heading = document.querySelector( '.wrap h1.wp-heading-inline' );
+			if ( ! heading ) {
+				return;
+			}
+			var link = document.createElement( 'a' );
+			link.className = 'page-title-action';
+			link.href = <?php echo wp_json_encode( self::get_url() ); ?>;
+			link.textContent = <?php echo wp_json_encode( __( 'Open App', 'collectibles' ) ); ?>;
+			var action = heading.nextElementSibling;
+			var anchor = action && action.classList.contains( 'page-title-action' ) ? action : heading;
+			anchor.insertAdjacentElement( 'afterend', link );
+		}());
+		</script>
+		<?php
 	}
 
 	/**
