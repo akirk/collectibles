@@ -7,6 +7,7 @@ function check( condition, message ) { assert.ok( condition, message ); checks++
 function card( id ) {
 	const attributes = { 'aria-pressed': 'false' };
 	const label = { textContent: 'Private' };
+	const warning = { hidden: true };
 	const classes = new Set( [ 'screen-reader-text' ] );
 	const message = { textContent: '', classList: { add: x => classes.add( x ), remove: x => classes.delete( x ) } };
 	const button = {
@@ -15,10 +16,10 @@ function card( id ) {
 		getAttribute: name => attributes[ name ],
 		setAttribute: ( name, value ) => { attributes[ name ] = value; },
 		removeAttribute: name => { delete attributes[ name ]; },
-		querySelector: () => label,
+		querySelector: selector => selector === '[data-coll-share-warning]' ? warning : label,
 		closest: selector => selector === '[data-coll-share-item]' ? button : ( selector === '.item-card-body' ? { querySelector: () => message } : null )
 	};
-	return { button, label, message, classes };
+	return { button, label, warning, message, classes };
 }
 const cards = [ card( 1 ), card( 2 ) ];
 const handlers = {};
@@ -50,7 +51,7 @@ const context = { document, FormData, AbortController, setTimeout, clearTimeout,
 };
 vm.runInNewContext( fs.readFileSync( require.resolve( '../assets/collectibles.js' ), 'utf8' ), context );
 function click( index ) { handlers.click.forEach( callback => callback( { target: cards[ index ].button } ) ); }
-function response( selected, label ) { return { ok: true, json: async () => ( { success: true, data: { selected, label, eligible: true, action: selected ? 'Remove' : 'Include', message: label } } ) }; }
+function response( selected, label, warning = '' ) { return { ok: true, json: async () => ( { success: true, data: { selected, label, eligible: true, action: selected ? 'Remove' : 'Include', warning, message: label } } ) }; }
 const tick = () => new Promise( resolve => setImmediate( resolve ) );
 ( async () => {
 	check( cards.every( c => ! c.button.hidden ), 'JavaScript reveals the AJAX controls.' );
@@ -59,10 +60,11 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	await tick();
 	check( requests.length === 1, 'Requests for different cards are serialized.' );
 	check( requests[0].options.method === 'POST' && requests[0].options.credentials === 'same-origin' && requests[0].options.body.get( 'nonce' ) === 'nonce-1' && requests[0].options.body.get( 'shared' ) === '1', 'AJAX sends an absolute selection with the item nonce and cookies.' );
-	pending[0].resolve( response( true, 'Shared' ) );
+	pending[0].resolve( response( true, 'Shared', 'Title is private' ) );
 	await tick();
 	check( publicCount.textContent === '1', 'Sharing an item updates the public stat.' );
 	check( requests.length === 2 && cards[0].button.getAttribute( 'aria-pressed' ) === 'true' && cards[0].label.textContent === 'Shared' && ! cards[0].button.disabled, 'The saved state appears after the server confirms it.' );
+	check( ! cards[0].warning.hidden && cards[0].button.title === 'Title is private', 'Individual sharing updates preserve the private-title warning and short tooltip.' );
 	pending[1].resolve( { ok: false, json: async () => ( { success: false, data: 'Permission denied' } ) } );
 	await tick();
 	check( cards[1].label.textContent === 'Private' && ! cards[1].button.disabled && cards[1].button.getAttribute( 'aria-pressed' ) === 'false', 'A rejected request preserves the previous selection.' );
@@ -86,10 +88,11 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	handlers.click.forEach( callback => callback( { target: bulkButtons[0] } ) );
 	await tick();
 	check( bulkButtons.every( b => b.disabled ) && requests[4].options.body.get( 'action' ) === 'coll_share_collection' && requests[4].options.body.get( 'nonce' ) === 'bulk-nonce', 'Bulk requests use the collection nonce and disable both controls.' );
-	pending[4].resolve( { ok: true, json: async () => ( { success: true, data: { 1: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared' }, 2: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared' } } } ) } );
+	pending[4].resolve( { ok: true, json: async () => ( { success: true, data: { 1: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared', warning: '' }, 2: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared', warning: 'Title is private' } } } ) } );
 	await tick();
 	check( publicCount.textContent === '2', 'Bulk sharing updates the public stat.' );
 	check( cards.every( c => c.label.textContent === 'Shared' && c.button.getAttribute( 'aria-pressed' ) === 'true' ) && bulkButtons.every( b => ! b.disabled ), 'Bulk success updates every visible switch without reloading.' );
+	check( cards[0].warning.hidden && ! cards[1].warning.hidden && cards[1].button.title === 'Title is private', 'Bulk sharing updates each title warning independently.' );
 	handlers.click.forEach( callback => callback( { target: bulkButtons[1] } ) );
 	await tick();
 	pending[5].reject( new Error( 'Network failed' ) );

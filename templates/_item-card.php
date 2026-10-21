@@ -48,6 +48,7 @@ if ( 'private' !== Sharing::get_settings( (int) $coll_card_collection_id )['mode
 $coll_card_display = array(
 	'title'          => $coll_card_title,
 	'url'            => $coll_card_url,
+	'edit_url'       => current_user_can( 'edit_post', $coll_card_item->ID ) ? App::get_url( absint( $coll_card_collection_id ) . '/item/' . absint( $coll_card_item->ID ) . '/edit' ) : '',
 	'ratio'          => Schema::get_thumb_ratio( $coll_card_kind ),
 	'icon'           => Schema::get_kind_icon( $coll_card_kind ),
 	'image'          => $coll_card_front ? wp_get_attachment_image_url( $coll_card_front, 'medium' ) : wp_get_attachment_image_url( $coll_card_photo, 'medium' ),

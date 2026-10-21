@@ -72,4 +72,9 @@ $coll_field_label    = Item::get_field_label( $coll_field, $coll_field_currency 
 			value="<?php echo esc_attr( $coll_field_value ); ?>"
 		>
 	<?php endif; ?>
+	<?php
+	$coll_source_key   = $coll_field['key'];
+	$coll_source_input = $coll_field_id;
+	require __DIR__ . '/_numista-source.php';
+	?>
 </div>

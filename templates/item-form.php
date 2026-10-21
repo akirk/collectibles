@@ -41,17 +41,30 @@ $coll_fields   = Item::get_fields_for_kind( $coll_kind );
 $coll_action   = isset( $_POST['coll_action'] ) ? sanitize_key( wp_unslash( $_POST['coll_action'] ) ) : '';
 
 // Catalogue lookups fill the form in without saving anything.
-$coll_form_notice     = '';
-$coll_lookup_ref      = '';
-$coll_prefill         = array();
-$coll_catalog_preview = '';
-$coll_issues          = array();
-$coll_issue_id        = 0;
-$coll_can_look_up     = $coll_is_new && Numista::supports_kind( $coll_kind );
-$coll_can_rebrickable = $coll_is_new && Rebrickable::supports_kind( $coll_kind );
+$coll_form_notice      = '';
+$coll_lookup_ref       = '';
+$coll_prefill          = array();
+$coll_catalog_preview  = '';
+$coll_issues           = array();
+$coll_issue_id         = 0;
+$coll_can_look_up      = $coll_is_new && Numista::supports_kind( $coll_kind );
+$coll_can_rebrickable  = $coll_is_new && Rebrickable::supports_kind( $coll_kind );
+$coll_numista_source   = '';
+$coll_numista_own      = array();
+$coll_numista_private  = array();
+$coll_numista_keys     = $coll_item ? Numista::get_imported_keys( $coll_item_id ) : array();
+$coll_numista_hashes   = $coll_item ? Numista::get_source_hashes( $coll_item_id ) : array();
+$coll_numista_released = $coll_item ? Numista::get_released_keys( $coll_item_id ) : array();
+$coll_numista_own      = $coll_numista_released;
+$coll_numista_hashes   = is_array( $coll_numista_hashes ) ? $coll_numista_hashes : array();
 
 if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
-	$coll_nonce = isset( $_POST['coll_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_nonce'] ) ) : '';
+	$coll_nonce          = isset( $_POST['coll_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_nonce'] ) ) : '';
+	$coll_numista_source = isset( $_POST['coll_numista_source'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_numista_source'] ) ) : '';
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitize_confirmations() accepts only string field keys.
+	$coll_numista_own = Numista::sanitize_confirmations( isset( $_POST['coll_numista_own'] ) ? wp_unslash( $_POST['coll_numista_own'] ) : array() );
+	// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- sanitize_confirmations() accepts only string field keys.
+	$coll_numista_private = Numista::sanitize_confirmations( isset( $_POST['coll_numista_private'] ) ? wp_unslash( $_POST['coll_numista_private'] ) : array() );
 
 	if ( 'numista_lookup' === $coll_action && $coll_can_look_up ) {
 		$coll_lookup_ref = isset( $_POST['coll_numista_ref'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_numista_ref'] ) ) : '';
@@ -84,8 +97,12 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 					$coll_issue_id = absint( $coll_issue['id'] ?? 0 );
 				}
 
-				$coll_prefill     = Numista::map_type( $coll_type, $coll_kind, $coll_issue );
-				$coll_form_notice = empty( $coll_issue ) && count( $coll_issues ) > 1
+				$coll_prefill = Numista::map_type( $coll_type, $coll_kind, $coll_issue );
+				// Fresh catalogue values need fresh source decisions.
+				$coll_numista_own     = array();
+				$coll_numista_private = array();
+				$coll_numista_source  = Numista::source_token( $coll_prefill, $coll_kind, $coll_collection_id );
+				$coll_form_notice     = empty( $coll_issue ) && count( $coll_issues ) > 1
 					? __( 'Filled in from Numista. Pick the issue you are holding to add its year and signatures.', 'collectibles' )
 					: __( 'Filled in from Numista. Look it over, then add it to the collection.', 'collectibles' );
 			}
@@ -125,6 +142,8 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 
 		if ( ! wp_verify_nonce( $coll_nonce, $coll_expected_nonce ) ) {
 			$coll_form_error = __( 'The item could not be saved. Reload and try again.', 'collectibles' );
+		} elseif ( '' !== $coll_numista_source && null === Numista::read_source_token( $coll_numista_source, $coll_collection_id ) ) {
+			$coll_form_error = __( 'The Numista source record is invalid. Run the lookup again.', 'collectibles' );
 		} elseif ( '' === $coll_name ) {
 			$coll_form_error = __( 'The item needs a name.', 'collectibles' );
 		} else {
@@ -134,6 +153,12 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 			);
 
 			if ( $coll_is_new ) {
+				if ( Numista::supports_kind( $coll_kind ) ) {
+					// An empty record distinguishes manual entry from an older import.
+					$coll_postarr['meta_input']['_coll_numista_sources'] = '' !== $coll_numista_source
+						? Numista::read_source_token( $coll_numista_source, $coll_collection_id )
+						: array();
+				}
 				$coll_postarr['post_type']   = Item::POST_TYPE;
 				$coll_postarr['post_status'] = 'publish';
 				$coll_postarr['post_parent'] = $coll_collection_id;
@@ -237,7 +262,7 @@ $coll_primary_id  = $coll_item ? absint( get_post_thumbnail_id( $coll_item_id ) 
 $coll_lot_fields  = Item::get_lot_fields( $coll_kind );
 $coll_lot_rows    = $coll_item ? Item::get_lots( $coll_item_id ) : array();
 
-if ( '' !== $coll_form_error ) {
+if ( '' !== $coll_form_error || in_array( $coll_action, array( 'numista_lookup', 'rebrickable_lookup' ), true ) ) {
 	// Keep what was typed so a validation error does not throw the form away.
 	$coll_name_value  = isset( $_POST['coll_name'] ) ? sanitize_text_field( wp_unslash( $_POST['coll_name'] ) ) : $coll_name_value;
 	$coll_notes_value = isset( $_POST['coll_notes'] ) ? sanitize_textarea_field( wp_unslash( $_POST['coll_notes'] ) ) : $coll_notes_value;
@@ -289,6 +314,21 @@ if ( ! empty( $coll_prefill ) ) {
 	}
 }
 
+if ( $coll_is_new && '' !== $coll_numista_source ) {
+	$coll_numista_hashes = Numista::read_source_token( $coll_numista_source, $coll_collection_id );
+	$coll_numista_keys   = array_keys( $coll_numista_hashes ?? array() );
+}
+
+$coll_status_source = array(
+	'coll_name'            => $coll_name_value,
+	'coll_numista_own'     => $coll_numista_own,
+	'coll_numista_private' => $coll_numista_private,
+);
+foreach ( $coll_values as $coll_status_key => $coll_status_value ) {
+	$coll_status_source[ 'coll_field_' . $coll_status_key ] = $coll_status_value;
+}
+$coll_numista_states = Numista::source_statuses( $coll_kind, $coll_numista_hashes ?? array(), $coll_status_source, $coll_numista_released );
+
 $coll_page_title = $coll_is_new
 	? sprintf(
 		/* translators: %s: singular item noun, e.g. "Coin" */
@@ -338,12 +378,12 @@ require __DIR__ . '/_head.php';
 			<?php endif; ?>
 
 			<?php if ( $coll_can_look_up && Numista::has_api_key() ) : ?>
-				<form class="panel panel-lookup" method="post" action="<?php echo esc_url( $coll_form_url ); ?>">
+				<form class="panel panel-lookup" data-coll-numista-lookup method="post" action="<?php echo esc_url( $coll_form_url ); ?>">
 					<input type="hidden" name="coll_action" value="numista_lookup">
 					<?php wp_nonce_field( 'coll_numista_lookup_' . $coll_collection_id, 'coll_nonce' ); ?>
 
 					<div class="field">
-						<label for="coll_numista_ref"><?php echo esc_html__( 'Fill in from Numista', 'collectibles' ); ?></label>
+						<label for="coll_numista_ref"><?php echo esc_html__( 'Look up on Numista', 'collectibles' ); ?></label>
 						<div class="lookup-row">
 							<input
 								id="coll_numista_ref"
@@ -356,7 +396,6 @@ require __DIR__ . '/_head.php';
 							<button class="button" type="submit"><?php echo esc_html__( 'Fetch', 'collectibles' ); ?></button>
 						</div>
 						<p class="field-hint">
-							<?php echo esc_html__( 'The catalogue fills in what it knows and leaves the rest to you.', 'collectibles' ); ?>
 							<?php
 							printf(
 								/* translators: 1: lookups left, 2: monthly allowance */
@@ -367,6 +406,8 @@ require __DIR__ . '/_head.php';
 							?>
 						</p>
 					</div>
+
+						<p class="field-hint"><?php echo esc_html__( 'You can use Numista data for your private, personal collection. If you want to share your collection, you cannot publish that data directly. We remember which values came from Numista and keep them private until you update them with your own entries or confirm that you checked them independently.', 'collectibles' ); ?> <a href="https://en.numista.com/api/license.php" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Numista API terms', 'collectibles' ); ?></a></p>
 
 					<?php if ( count( $coll_issues ) > 1 ) : ?>
 						<div class="field">
@@ -397,7 +438,11 @@ require __DIR__ . '/_head.php';
 				<?php require __DIR__ . '/_rebrickable-lookup.php'; ?>
 			<?php endif; ?>
 
-			<form class="panel" method="post" action="<?php echo esc_url( $coll_form_url ); ?>" enctype="multipart/form-data">
+			<form class="panel" data-coll-item-form
+				data-coll-source-private="<?php echo esc_attr__( 'Private until changed', 'collectibles' ); ?>"
+				data-coll-source-confirmed="<?php echo esc_attr__( 'I’ve verified this', 'collectibles' ); ?>"
+				method="post" action="<?php echo esc_url( $coll_form_url ); ?>" enctype="multipart/form-data">
+				<input type="hidden" name="coll_numista_source" value="<?php echo esc_attr( $coll_numista_source ); ?>">
 				<input type="hidden" name="coll_action" value="<?php echo esc_attr( $coll_is_new ? 'create_item' : 'update_item' ); ?>">
 				<?php wp_nonce_field( $coll_is_new ? 'coll_create_item_' . $coll_collection_id : 'coll_update_item_' . $coll_item_id, 'coll_nonce' ); ?>
 
@@ -410,6 +455,11 @@ require __DIR__ . '/_head.php';
 				<div class="field">
 					<label for="coll_name"><?php echo esc_html__( 'Name', 'collectibles' ); ?></label>
 					<input id="coll_name" name="coll_name" type="text" value="<?php echo esc_attr( $coll_name_value ); ?>" required autofocus>
+					<?php
+					$coll_source_key   = 'title';
+					$coll_source_input = 'coll_name';
+					require __DIR__ . '/_numista-source.php';
+					?>
 				</div>
 
 				<?php require __DIR__ . '/_lots.php'; ?>

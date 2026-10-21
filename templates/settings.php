@@ -131,6 +131,8 @@ require __DIR__ . '/_head.php';
 						</a>
 					</p>
 
+					<p class="field-hint"><?php echo esc_html__( 'Lookups send the catalogue reference, language, API key and client details to Numista. Saved data is subject to its storage and publication restrictions.', 'collectibles' ); ?> <a href="https://en.numista.com/api/license.php" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'API terms', 'collectibles' ); ?></a> · <a href="https://en.numista.com/privacy.php" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Privacy policy', 'collectibles' ); ?></a></p>
+
 					<div class="field">
 						<label for="coll_numista_client_name"><?php echo esc_html__( 'Client name', 'collectibles' ); ?></label>
 						<input
@@ -206,6 +208,8 @@ require __DIR__ . '/_head.php';
 					?>
 					<?php echo esc_html__( 'Create a free account or sign in, go to Account > Settings > API, then create a key and paste it below.', 'collectibles' ); ?>
 				</p>
+				<p class="field-hint"><?php echo esc_html__( 'Lookups send the set reference and API key to Rebrickable. Saving a new linked set without a photo can download its catalogue image into your Media Library.', 'collectibles' ); ?> <a href="https://rebrickable.com/terms/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Terms', 'collectibles' ); ?></a> · <a href="https://rebrickable.com/privacy/" target="_blank" rel="noreferrer noopener"><?php echo esc_html__( 'Privacy policy', 'collectibles' ); ?></a></p>
+
 				<div class="field">
 					<label for="coll_rebrickable_key"><?php echo esc_html__( 'API key', 'collectibles' ); ?></label>
 					<input id="coll_rebrickable_key" name="coll_rebrickable_key" type="password" autocomplete="off" spellcheck="false" value="<?php echo esc_attr( Rebrickable::is_api_key_fixed() ? '' : Rebrickable::get_api_key() ); ?>" <?php disabled( Rebrickable::is_api_key_fixed() ); ?>>

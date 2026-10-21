@@ -42,6 +42,274 @@ class Numista {
 	public const LANGUAGES = array( 'en', 'es', 'fr', 'de' );
 
 	/**
+	 * Signed source hashes carried from a lookup to a new item's save.
+	 *
+	 * @param array  $mapped Mapped catalogue entry.
+	 * @param string $kind Collection kind.
+	 * @param int    $collection_id Collection ID.
+	 */
+	public static function source_token( array $mapped, string $kind, int $collection_id ): string {
+		$hashes = array( 'title' => hash( 'sha256', sanitize_text_field( $mapped['title'] ) ) );
+		foreach ( Item::get_fields_for_kind( $kind ) as $field ) {
+			$value = Item::sanitize_field_value( $field, $mapped['values'][ $field['key'] ] ?? '' );
+			if ( '' !== $value && empty( $field['numista_exempt'] ) ) {
+				$hashes[ $field['key'] ] = hash( 'sha256', $value );
+			}
+		}
+		// Hex survives WordPress text sanitization of submitted hidden fields.
+		$payload = bin2hex( wp_json_encode( array( get_current_user_id(), $collection_id, $hashes ) ) );
+		return $payload . '.' . hash_hmac( 'sha256', $payload, wp_salt( 'auth' ) );
+	}
+
+	/**
+	 * Verify a form's source record without trusting hidden input values.
+	 *
+	 * @param string $token Signed source record.
+	 * @param int    $collection_id Collection ID.
+	 * @return array|null Source hashes, or null for an invalid token.
+	 */
+	public static function read_source_token( string $token, int $collection_id ): ?array {
+		$parts = explode( '.', $token );
+		if ( 2 !== count( $parts ) || ! hash_equals( hash_hmac( 'sha256', $parts[0], wp_salt( 'auth' ) ), $parts[1] ) ) {
+			return null;
+		}
+		$data = json_decode( hex2bin( $parts[0] ), true );
+		if ( ! is_array( $data ) || 3 !== count( $data ) || get_current_user_id() !== $data[0] || $collection_id !== $data[1] || ! is_array( $data[2] ) ) {
+			return null;
+		}
+		return $data[2];
+	}
+
+	/**
+	 * Freeze a conservative baseline for older linked items before editing.
+	 *
+	 * Older imports have no per-field history. Their nonempty fields and title
+	 * remain private until changed; this also covers CSV and ability additions.
+	 * Numista identifiers are not catalogue descriptions and need no restriction.
+	 *
+	 * @param int $item_id Item ID.
+	 */
+	public static function snapshot_sources( int $item_id ): void {
+		if ( metadata_exists( 'post', $item_id, '_coll_numista_sources' ) || ! get_post_meta( $item_id, 'numista_id', true ) ) {
+			return;
+		}
+		$item = Item::get( $item_id );
+		if ( ! $item ) {
+			return;
+		}
+		$hashes = array( 'title' => hash( 'sha256', $item->post_title ) );
+		foreach ( Item::get_fields_for_kind( Collection::get_kind( (int) $item->post_parent ) ) as $field ) {
+			$value = (string) get_post_meta( $item_id, $field['key'], true );
+			if ( ! Item::is_lot_field( $field ) && empty( $field['numista_exempt'] ) && '' !== $value ) {
+				$hashes[ $field['key'] ] = hash( 'sha256', $value );
+			}
+		}
+		update_post_meta( $item_id, '_coll_numista_sources', $hashes );
+	}
+
+	/**
+	 * Keep fixed catalogue facts out of the source restriction and its history.
+	 *
+	 * @param array  $hashes Stored source hashes.
+	 * @param string $kind Collection kind.
+	 */
+	public static function restricted_source_hashes( array $hashes, string $kind ): array {
+		foreach ( Item::get_fields_for_kind( $kind ) as $field ) {
+			if ( ! empty( $field['numista_exempt'] ) ) {
+				unset( $hashes[ $field['key'] ] );
+			}
+		}
+		return $hashes;
+	}
+
+	/**
+	 * Return keys whose current values still come from Numista.
+	 *
+	 * Actual changes clear the source marker. An unchanged save does not.
+	 * Reads compare again so REST/meta changes also respect the same boundary.
+	 *
+	 * @param int $item_id Item ID.
+	 * @return string[] Imported keys, including title when applicable.
+	 */
+	public static function get_imported_keys( int $item_id ): array {
+		self::snapshot_sources( $item_id );
+		$stored   = get_post_meta( $item_id, '_coll_numista_sources', true );
+		$item     = Item::get( $item_id );
+		$kind     = $item ? Collection::get_kind( (int) $item->post_parent ) : Schema::KIND_OTHER;
+		$hashes   = self::restricted_source_hashes( is_array( $stored ) ? $stored : array(), $kind );
+		$previous = get_post_meta( $item_id, '_coll_numista_history', true );
+		$history  = self::restricted_source_hashes( array_merge( is_array( $previous ) ? $previous : array(), $hashes ), $kind );
+		if ( $history !== $previous && ( $history || is_array( $previous ) ) ) {
+			update_post_meta( $item_id, '_coll_numista_history', $history );
+		}
+		// Preserve an opaque URL even after the imported name is replaced.
+		$item = Item::get( $item_id );
+		if ( $item ) {
+			self::public_item_slug( $item );
+		}
+		foreach ( $hashes as $key => $hash ) {
+			$value = 'title' === $key ? (string) get_post_field( 'post_title', $item_id ) : (string) get_post_meta( $item_id, $key, true );
+			if ( ! hash_equals( $hash, hash( 'sha256', $value ) ) ) {
+				unset( $hashes[ $key ] );
+			}
+		}
+		if ( $hashes !== $stored && is_array( $stored ) ) {
+			update_post_meta( $item_id, '_coll_numista_sources', $hashes );
+		}
+		return array_keys( $hashes );
+	}
+
+	/**
+	 * Read all source hashes, including fields previously released by their owner.
+	 *
+	 * @param int $item_id Item ID.
+	 */
+	public static function get_source_hashes( int $item_id ): array {
+		$history = get_post_meta( $item_id, '_coll_numista_history', true );
+		$current = get_post_meta( $item_id, '_coll_numista_sources', true );
+		$item    = Item::get( $item_id );
+		$kind    = $item ? Collection::get_kind( (int) $item->post_parent ) : Schema::KIND_OTHER;
+		return self::restricted_source_hashes( array_merge( is_array( $history ) ? $history : array(), is_array( $current ) ? $current : array() ), $kind );
+	}
+
+	/**
+	 * Source fields already released on an earlier save remain toggleable.
+	 *
+	 * @param int $item_id Item ID.
+	 */
+	public static function get_released_keys( int $item_id ): array {
+		$current = get_post_meta( $item_id, '_coll_numista_sources', true );
+		return array_values( array_diff( array_keys( self::get_source_hashes( $item_id ) ), array_keys( is_array( $current ) ? $current : array() ) ) );
+	}
+
+	/**
+	 * Sanitize the field keys a user explicitly confirms as their own entries.
+	 *
+	 * @param mixed $keys Submitted confirmation keys.
+	 * @return string[] Field keys.
+	 */
+	public static function sanitize_confirmations( $keys ): array {
+		$clean = array();
+		foreach ( is_array( $keys ) ? $keys : array() as $key ) {
+			if ( is_string( $key ) ) {
+				$clean[] = sanitize_key( $key );
+			}
+		}
+		return array_values( array_unique( $clean ) );
+	}
+
+	/**
+	 * Apply explicit per-field source confirmations only when the item is saved.
+	 *
+	 * @param int   $item_id Item ID.
+	 * @param mixed $keys Submitted confirmation keys.
+	 */
+	public static function confirm_sources( int $item_id, $keys ): void {
+		$hashes = get_post_meta( $item_id, '_coll_numista_sources', true );
+		if ( ! is_array( $hashes ) ) {
+			return;
+		}
+		foreach ( self::sanitize_confirmations( $keys ) as $key ) {
+			unset( $hashes[ $key ] );
+		}
+		update_post_meta( $item_id, '_coll_numista_sources', $hashes );
+	}
+
+
+	/**
+	 * Keep explicitly toggled-back values private using their current baseline.
+	 *
+	 * @param int   $item_id Item ID.
+	 * @param mixed $keys Submitted private field keys.
+	 */
+	public static function keep_sources_private( int $item_id, $keys ): void {
+		$keys = self::sanitize_confirmations( $keys );
+		if ( ! $keys ) {
+			return;
+		}
+		$item = Item::get( $item_id );
+		if ( ! $item ) {
+			return;
+		}
+		$fields = array_column( Item::get_fields_for_kind( Collection::get_kind( (int) $item->post_parent ) ), null, 'key' );
+		$stored = get_post_meta( $item_id, '_coll_numista_sources', true );
+		$hashes = is_array( $stored ) ? $stored : array();
+		foreach ( $keys as $key ) {
+			if ( 'title' === $key ) {
+				$value = $item->post_title;
+			} elseif ( isset( $fields[ $key ] ) && ! Item::is_lot_field( $fields[ $key ] ) && empty( $fields[ $key ]['numista_exempt'] ) ) {
+				$value = (string) get_post_meta( $item_id, $key, true );
+			} else {
+				continue;
+			}
+			if ( '' !== $value ) {
+				$hashes[ $key ] = hash( 'sha256', $value );
+			}
+		}
+		update_post_meta( $item_id, '_coll_numista_sources', $hashes );
+	}
+
+	/**
+	 * Compare proposed values with their imported source, without saving edits.
+	 *
+	 * @param string $kind Collection kind.
+	 * @param array  $hashes Source hashes from storage or a verified token.
+	 * @param array  $source Unslashed proposed form values.
+	 * @param array  $released Field keys already released on an earlier save.
+	 * @return array Field key => status and translated explanation.
+	 */
+	public static function source_statuses( string $kind, array $hashes, array $source, array $released = array() ): array {
+		$fields    = array_column( Item::get_fields_for_kind( $kind ), null, 'key' );
+		$states    = array();
+		$confirmed = self::sanitize_confirmations( $source['coll_numista_own'] ?? array() );
+		$private   = self::sanitize_confirmations( $source['coll_numista_private'] ?? array() );
+		foreach ( self::restricted_source_hashes( $hashes, $kind ) as $key => $hash ) {
+			if ( 'title' === $key ) {
+				$value = sanitize_text_field( is_scalar( $source['coll_name'] ?? '' ) ? (string) ( $source['coll_name'] ?? '' ) : '' );
+			} elseif ( isset( $fields[ $key ] ) ) {
+				$value = Item::sanitize_field_value( $fields[ $key ], $source[ 'coll_field_' . $key ] ?? '' );
+			} else {
+				continue;
+			}
+			$state = '' === $value ? 'cleared' : ( hash_equals( $hash, hash( 'sha256', $value ) ) ? 'private' : 'updated' );
+			if ( '' !== $value && ( in_array( $key, $confirmed, true ) || in_array( $key, $released, true ) ) ) {
+				$state = 'confirmed';
+			}
+			if ( '' !== $value && in_array( $key, $private, true ) ) {
+				$state = 'private';
+			}
+			$labels         = array(
+				'private'   => __( 'Private until changed', 'collectibles' ),
+				'updated'   => __( 'I’ve verified this', 'collectibles' ),
+				'cleared'   => '',
+				'confirmed' => __( 'I’ve verified this', 'collectibles' ),
+			);
+			$states[ $key ] = array(
+				'state' => $state,
+				'label' => $labels[ $state ],
+			);
+		}
+		return $states;
+	}
+
+	/**
+	 * Opaque public slugs prevent an imported title leaking through its URL.
+	 *
+	 * @param \WP_Post $item Item post.
+	 */
+	public static function public_item_slug( \WP_Post $item ): string {
+		self::snapshot_sources( $item->ID );
+		$slug   = get_post_meta( $item->ID, '_coll_numista_public_slug', true );
+		$source = get_post_meta( $item->ID, '_coll_numista_sources', true );
+		if ( ! $slug && is_array( $source ) && isset( $source['title'] ) ) {
+			$slug = 'item-' . substr( hash_hmac( 'sha256', 'numista-item-' . $item->ID, wp_salt( 'auth' ) ), 0, 20 );
+			update_post_meta( $item->ID, '_coll_numista_public_slug', $slug );
+		}
+		return $slug ? $slug : $item->post_name;
+	}
+
+
+	/**
 	 * The kinds a Numista lookup can fill in. Numista catalogues coins,
 	 * banknotes and exonumia; the other kinds have nothing to gain from it.
 	 *

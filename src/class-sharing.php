@@ -285,13 +285,15 @@ class Sharing {
 	 * @param int $item_id Item ID.
 	 */
 	public static function get_item_state( int $collection_id, int $item_id ): array {
-		$settings   = self::get_settings( $collection_id );
-		$collection = Collection::get( $collection_id );
-		$item       = Item::get( $item_id );
-		$eligible   = $collection && $item && $collection_id === (int) $item->post_parent && 'publish' === $collection->post_status && '' === $collection->post_password && 'publish' === $item->post_status && '' === $item->post_password;
-		$selected   = in_array( $item_id, $settings['item_ids'], true );
-		$public     = $eligible && $selected && 'private' !== $settings['mode'];
+		$settings      = self::get_settings( $collection_id );
+		$collection    = Collection::get( $collection_id );
+		$item          = Item::get( $item_id );
+		$eligible      = $collection && $item && $collection_id === (int) $item->post_parent && 'publish' === $collection->post_status && '' === $collection->post_password && 'publish' === $item->post_status && '' === $item->post_password;
+		$selected      = in_array( $item_id, $settings['item_ids'], true );
+		$public        = $eligible && $selected && 'private' !== $settings['mode'];
+		$title_private = $eligible && in_array( 'title', Numista::get_imported_keys( $item_id ), true );
 		return array(
+			'warning'  => $title_private ? __( 'Title is private', 'collectibles' ) : '',
 			'selected' => $selected,
 			'eligible' => (bool) $eligible,
 			'label'    => $public ? __( 'Shared', 'collectibles' ) : ( $selected ? __( 'Selected', 'collectibles' ) : __( 'Private', 'collectibles' ) ),
@@ -495,9 +497,6 @@ class Sharing {
 		if ( '' !== $item_slug && '' === sanitize_title( $item_slug ) ) {
 			return null;
 		}
-		if ( '' !== $item_slug ) {
-			$args['name'] = sanitize_title( $item_slug );
-		}
 		$items = array();
 		if ( $include_unshared ) {
 			$items = Item::query( array( 'collection' => $collection->ID ) );
@@ -528,10 +527,15 @@ class Sharing {
 			'items'       => array(),
 		);
 		foreach ( $items as $item ) {
-			$values = Item::get_values( $item->ID, $kind );
-			$fields = array();
+			$public_slug = Numista::public_item_slug( $item );
+			if ( '' !== $item_slug && $item_slug !== $public_slug ) {
+				continue;
+			}
+			$imported = Numista::get_imported_keys( $item->ID );
+			$values   = Item::get_values( $item->ID, $kind );
+			$fields   = array();
 			foreach ( Item::get_fields_for_kind( $kind ) as $field ) {
-				if ( empty( $field['public'] ) || Item::is_lot_field( $field ) ) {
+				if ( empty( $field['public'] ) || Item::is_lot_field( $field ) || in_array( $field['key'], $imported, true ) ) {
 					continue;
 				}
 				$value = Item::format_field_value( $field, $values[ $field['key'] ] ?? '', '' );
@@ -565,19 +569,19 @@ class Sharing {
 					);
 				}
 			}
-			$title = $item->post_title;
-			if ( ! empty( Schema::get_kind( $kind )['catalog']['show_on_card'] ) && ! empty( $values['catalog_number'] ) ) {
+			$title = in_array( 'title', $imported, true ) ? __( 'Collectible', 'collectibles' ) : $item->post_title;
+			if ( ! empty( Schema::get_kind( $kind )['catalog']['show_on_card'] ) && ! empty( $values['catalog_number'] ) && ! in_array( 'catalog_number', $imported, true ) ) {
 				$title = $values['catalog_number'] . ' ' . $title;
 			}
 			$data['items'][] = array(
 				'title'  => $title,
-				'slug'   => $item->post_name,
-				'url'    => $include_unshared ? App::get_url( $collection->ID . '/item/' . $item->ID ) : $url . $item->post_name . '/',
+				'slug'   => $public_slug,
+				'url'    => $include_unshared ? App::get_url( $collection->ID . '/item/' . $item->ID ) : $url . $public_slug . '/',
 				'fields' => $fields,
 				'photos' => $photos,
 			);
 		}
-		return $data;
+		return '' !== $item_slug && ! $data['items'] ? null : $data;
 	}
 
 	/**

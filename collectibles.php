@@ -5,14 +5,12 @@
  * Description: Catalog what you collect — coins, stamps, banknotes, cards, records, books — each kind with its own fields, grading scale and totals.
  * Version: 1.0.0
  * Requires at least: 6.0
- * Tested up to: 7.1
  * Requires PHP: 7.4
  * Author: Alex Kirk
  * Author URI: https://alex.kirk.at/
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: collectibles
- * Domain Path: /languages
  *
  * @package Collectibles
  */
@@ -46,13 +44,6 @@ spl_autoload_register(
 		if ( file_exists( $file ) ) {
 			require $file;
 		}
-	}
-);
-
-add_action(
-	'init',
-	function () {
-		load_plugin_textdomain( 'collectibles', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	}
 );
 

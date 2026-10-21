@@ -1758,3 +1758,81 @@ input[type="file"] {
 .item-grid[hidden] {
 	display: none;
 }
+
+.coll-numista-status[data-state="updated"],
+.coll-numista-status[data-state="confirmed"] {
+	color: var(--coll-patina);
+	font-weight: 600;
+}
+
+.coll-numista-status {
+	display: block;
+	margin: 6px 0 0;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: var(--coll-ink-faint);
+	font: inherit;
+	font-size: 0.8rem;
+	text-align: start;
+	text-decoration: underline dotted;
+	text-underline-offset: 3px;
+	cursor: pointer;
+}
+
+.coll-numista-controls {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.coll-numista-controls .coll-numista-status[aria-pressed="true"] {
+	color: var(--coll-patina);
+	font-weight: 600;
+}
+
+.coll-numista-status[aria-pressed="true"]::before {
+	content: "✓ ";
+}
+
+.coll-numista-clear {
+	margin-left: auto;
+	padding: 0 3px;
+	border: 0;
+	background: transparent;
+	color: var(--coll-ink-faint);
+	font: inherit;
+	font-size: 1rem;
+	cursor: pointer;
+}
+
+.coll-numista-clear:hover {
+	color: var(--coll-danger);
+}
+
+.coll-numista-controls[hidden] {
+	display: none;
+}
+
+.coll-share-warning {
+	color: var(--coll-brass-deep);
+}
+
+.item-card-heading .coll-item-edit {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	min-height: 24px;
+	margin-left: 3px;
+	border-radius: 4px;
+	color: var(--coll-ink-faint);
+	vertical-align: middle;
+}
+
+.item-card-heading .coll-item-edit:hover,
+.item-card-heading .coll-item-edit:focus-visible {
+	color: var(--coll-patina);
+	background: var(--coll-patina-soft);
+}
