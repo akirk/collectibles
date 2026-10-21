@@ -63,6 +63,11 @@
 		title.appendChild(link);
 		heading.appendChild(title);
 		body.appendChild(heading);
+		const facts = ['origin_code'].map(key => item.fields.find(field => field.key === key))
+			.filter(Boolean).map(field => typeof field.value === 'string' ? field.value : field.raw);
+		const year = item.fields.find(field => field.key === 'year');
+		if (year) heading.appendChild(element('span', 'item-card-year', typeof year.value === 'string' ? year.value : year.raw));
+		if (facts.length) body.appendChild(element('p', 'item-card-facts', facts.join(' · ')));
 		const expanded = element('div', 'coll-public-expanded');
 		const fields = element('dl', 'coll-public-fields');
 		item.fields.forEach(field => {

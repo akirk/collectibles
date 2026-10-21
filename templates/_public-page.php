@@ -92,6 +92,16 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 		<?php
 		$coll_card_front = '';
 		$coll_card_back  = '';
+		$coll_card_facts = array();
+		$coll_card_year  = '';
+		foreach ( $coll_public_entry['fields'] as $coll_card_field ) {
+			if ( Item::YEAR_META_KEY === $coll_card_field['key'] ) {
+				$coll_card_year = $coll_card_field['value'];
+			}
+			if ( Item::COUNTRY_META_KEY === $coll_card_field['key'] ) {
+				$coll_card_facts[] = $coll_card_field['value'];
+			}
+		}
 		foreach ( $coll_public_entry['photos'] as $coll_public_photo ) {
 			if ( 'front' === $coll_public_photo['side'] ) {
 				$coll_card_front = $coll_public_photo['thumbnail'];
@@ -107,7 +117,8 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 			'image'          => $coll_card_front ? $coll_card_front : ( $coll_public_entry['photos'][0]['thumbnail'] ?? '' ),
 			'back'           => $coll_card_front && $coll_card_back !== $coll_card_front ? $coll_card_back : '',
 			'quantity'       => 1,
-			'facts'          => array(),
+			'facts'          => $coll_card_facts,
+			'year'           => $coll_card_year,
 			'collection'     => '',
 			'collection_url' => '',
 			'status'         => '',
