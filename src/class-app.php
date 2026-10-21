@@ -36,6 +36,7 @@ class App extends BaseApp {
 		);
 
 		Sharing::init();
+		add_action( 'pre_post_update', array( Numista::class, 'snapshot_sources' ) );
 
 		add_action( 'init', array( $this, 'register_post_types' ) );
 		add_action( 'init', array( $this, 'register_taxonomies' ) );

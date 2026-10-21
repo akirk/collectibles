@@ -1,10 +1,9 @@
 # Collectibles
 
 - Contributors: akirk
-- Tags: collection, inventory, coins, stamps, wp-app
+- Tags: collection, inventory, coins, stamps, catalog
 - Requires at least: 6.0
 - Requires PHP: 7.4
-- Tested up to: 7.1
 - Stable tag: 1.0.0
 - License: GPL-2.0-or-later
 - License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -78,6 +77,19 @@ credentials you register for your own Numista account and enter under Settings.
 Answers are cached and metered against a monthly budget, and no lookup happens
 without credentials.
 
+Numista lookups fill in the item form for you to review before saving. Imported names and descriptive fields show "Private until changed".
+Edit a value or click the label to confirm it; "✓ I’ve verified this" appears in
+green. Click again to make the value private. The × clears the field and hides
+its status. Live feedback runs entirely in your browser, with no network requests;
+saving enforces your choices on the server. Pick/KM catalogue numbers, origin and
+denomination are exempt and can be shared unchanged. Notes are always private.
+Your own photos remain shareable. The overview’s sharing toggle shows a warning
+when the imported title is still private; public pages use a generic name until
+you change or confirm it. You are responsible for what you publish.
+Older linked entries have no source history, so their existing names and fields
+are treated as imported until changed or independently confirmed. Items with imported names use opaque public
+URLs to keep those names out of the URL.
+
 Brick sets support any brand, with fields for theme, parts per set, completeness,
 box and instructions. LEGO sets can be filled in from [Rebrickable](https://rebrickable.com/api/)
 using a personal API key entered under Settings. Enter a set number (e.g.
@@ -91,7 +103,8 @@ catalogue page. LEGO product and instructions links follow your WordPress
 language and region, with a language-region override under Settings when
 LEGO.com does not support the inferred code. Rebrickable publishes a rate limit
 of one request per second on average, rather than a monthly quota. Responses
-are cached for a year. Prices and photos are recorded manually. The shared
+are cached for a year. Prices are recorded manually. When you save a new set without a photo, the plugin
+can download its catalogue image from Rebrickable into the Media Library. The shared
 quantity field counts copies of the set, not the parts inside it. Completeness
 and packaging describe the item; use separate entries if copies differ in those
 respects. `COLLECTIBLES_REBRICKABLE_API_KEY` in wp-config.php can supply a site key.
@@ -102,9 +115,9 @@ One file per collection, for an insurance list or a spreadsheet.
 
 ### Abilities
 
-Read-only lookups (`collectibles/list-collections`, `collectibles/search-items`,
-`collectibles/get-item`) are exposed through the Abilities API, so an assistant
-can answer "do I already have this one?".
+Authenticated abilities let an assistant list collections, search and read items,
+look up catalogue entries, and add, update or delete items within the connected
+user’s permissions. An assistant connection is required; none is set up automatically.
 
 ### Storage
 
@@ -124,7 +137,7 @@ Pull requests welcome.
 
 ## AI assistant abilities
 
-When the WordPress Abilities API is available, the plugin registers five abilities,
+When the WordPress Abilities API is available, the plugin registers abilities,
 exposed through the authenticated Abilities REST API:
 
 - `collectibles/list-collections`: list your collections and their totals.
@@ -133,7 +146,9 @@ exposed through the authenticated Abilities REST API:
 - `collectibles/lookup-catalog-entry`: fetch metadata using a collection ID and a
   `reference` (a Rebrickable set number/link or Numista type number/link). Uses the
   configured user's credentials and existing provider caches. Numista results
-  include issue choices; repeat with `issue_id` to select one.
+  include issue choices; repeat with `issue_id` to select one. When the user asks
+  to import Numista values, pass the returned `numista_source` to `add-item`
+  unchanged so per-field sharing restrictions are preserved.
 - `collectibles/add-item`: create an item from a collection ID, `title`, a unique
   `request_id`, and optional `values`, `notes`, comma-separated `tags` and `lots`.
   All field values are strings. Reusing the same request ID and payload returns
@@ -167,13 +182,18 @@ The checks use temporary posts, remove them afterward, and block all HTTP reques
 ### Does this plugin create custom tables?
 
 No. A collection is a post, an item is a post parented to it, field values are
-post meta, tags are a taxonomy and photos are ordinary attachments. Delete the
-plugin and your database is as slim as before.
+post meta, tags are a taxonomy and photos are ordinary attachments. Deactivating or deleting the plugin preserves your catalog and settings.
+Delete collections in the app before uninstalling if you want to remove their
+items and attached photos.
 
 ### Who can see my collection?
 
-The app requires a login and the `edit_posts` capability, and collections and
-items belong to their author.
+The private app requires a login and the `edit_posts` capability. Collections
+and items belong to their author; users with permission to edit other authors’
+posts may also manage them. Sharing is off by default. Owners can enable a public
+or unlisted collection page and choose individual items to share. Prices, lots,
+serial numbers, storage details and private notes are excluded from shared pages.
+Uploaded files use ordinary WordPress media URLs and are not access protected.
 
 ### Can I add a kind of collectible that is not shipped?
 
@@ -191,6 +211,48 @@ name, client id and API key under Settings.
 ### Can I get my data back out?
 
 Every collection has a CSV export, with one row per lot.
+
+## External services
+
+Catalog integrations are optional. The app works without provider accounts or API
+keys. It does not include analytics or send catalog data to the plugin author.
+
+### Numista
+
+When you request a coin or banknote lookup through the form or an authenticated
+ability, the server contacts `api.numista.com` with the type/issue identifier,
+requested language and your API key. The user agent includes the configured
+client details. Numista also receives the server IP address. Private notes,
+prices and uploaded photos are not sent. Responses are cached locally for a year.
+An account and API credentials are required. Use of saved catalogue data,
+including public sharing, is subject to Numista’s storage and publication terms.
+
+[API and terms](https://en.numista.com/api/license.php) |
+[Privacy policy](https://en.numista.com/privacy.php)
+
+### Rebrickable
+
+When you request a brick-set lookup, the server contacts `rebrickable.com` with
+the set/theme identifier and your API key. It also receives the server IP
+address. Responses are cached locally for a year. Saving a new linked set without
+a photo, adding it through an ability, or requesting a catalogue photo can also
+download an image from `cdn.rebrickable.com` into WordPress. These requests send
+the image URL and server IP, without the API key. An account and API key are
+required for lookups. Private notes, prices and your own photos are not sent.
+
+[API documentation](https://rebrickable.com/api/) |
+[Terms](https://rebrickable.com/terms/) |
+[Privacy policy](https://rebrickable.com/privacy/)
+
+### Public collection comparison
+
+When a visitor submits another public collection URL for comparison, their
+browser fetches that URL directly. That site receives the visitor’s IP address.
+No credentials or referrer are sent, and the URL and comparison data are not
+forwarded to your WordPress server. External LEGO and catalogue links contact
+their respective sites only when opened.
+
+This plugin is not affiliated with Numista, Rebrickable or the LEGO Group.
 
 ## Screenshots
 

@@ -34,14 +34,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 	<div class="item-card-body">
 		<div class="item-card-heading">
-			<h3><a href="<?php echo esc_url( $coll_card_display['url'] ); ?>"><?php echo esc_html( $coll_card_display['title'] ); ?></a></h3>
+			<h3>
+				<a href="<?php echo esc_url( $coll_card_display['url'] ); ?>"><?php echo esc_html( $coll_card_display['title'] ); ?></a>
+				<?php if ( ! empty( $coll_card_display['edit_url'] ) ) : ?>
+					<a class="coll-item-edit" href="<?php echo esc_url( $coll_card_display['edit_url'] ); ?>" title="<?php echo esc_attr__( 'Edit item', 'collectibles' ); ?>" aria-label="<?php echo esc_attr( sprintf( /* translators: %s: item title. */ __( 'Edit %s', 'collectibles' ), $coll_card_display['title'] ) ); ?>">
+						<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m16 3 5 5-12 12-6 1 1-6zM14 5l5 5"/></svg>
+					</a>
+				<?php endif; ?>
+			</h3>
 			<?php if ( ! empty( $coll_card_display['year'] ) ) : ?>
 				<span class="item-card-year"><?php echo esc_html( $coll_card_display['year'] ); ?></span>
 			<?php endif; ?>
 			<?php if ( ! empty( $coll_card_display['sharing'] ) ) : ?>
 				<?php $coll_card_sharing = $coll_card_display['sharing']; ?>
-				<button type="button" class="coll-share-toggle" data-coll-share-item="<?php echo esc_attr( $coll_card_sharing['item_id'] ); ?>" data-coll-share-collection="<?php echo esc_attr( $coll_card_sharing['collection_id'] ); ?>" data-coll-share-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-coll-share-nonce="<?php echo esc_attr( $coll_card_sharing['nonce'] ); ?>" data-coll-share-saving="<?php echo esc_attr__( 'Saving…', 'collectibles' ); ?>" data-coll-share-unknown="<?php echo esc_attr__( 'Check sharing', 'collectibles' ); ?>" data-coll-share-error="<?php echo esc_attr__( 'Sharing could not be saved. Reload to check the current state and try again.', 'collectibles' ); ?>" data-coll-share-title="<?php echo esc_attr( $coll_card_display['title'] ); ?>" aria-pressed="<?php echo $coll_card_sharing['selected'] ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( $coll_card_display['title'] . ': ' . $coll_card_sharing['action'] ); ?>" title="<?php echo esc_attr( $coll_card_sharing['selected'] ? $coll_card_sharing['message'] : $coll_card_sharing['action'] ); ?>" <?php disabled( ! $coll_card_sharing['eligible'] && ! $coll_card_sharing['selected'] ); ?> hidden>
+				<button type="button" class="coll-share-toggle" data-coll-share-item="<?php echo esc_attr( $coll_card_sharing['item_id'] ); ?>" data-coll-share-collection="<?php echo esc_attr( $coll_card_sharing['collection_id'] ); ?>" data-coll-share-url="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" data-coll-share-nonce="<?php echo esc_attr( $coll_card_sharing['nonce'] ); ?>" data-coll-share-saving="<?php echo esc_attr__( 'Saving…', 'collectibles' ); ?>" data-coll-share-unknown="<?php echo esc_attr__( 'Check sharing', 'collectibles' ); ?>" data-coll-share-error="<?php echo esc_attr__( 'Sharing could not be saved. Reload to check the current state and try again.', 'collectibles' ); ?>" data-coll-share-warning="<?php echo esc_attr( $coll_card_sharing['warning'] ?? '' ); ?>" data-coll-share-title="<?php echo esc_attr( $coll_card_display['title'] ); ?>" aria-pressed="<?php echo $coll_card_sharing['selected'] ? 'true' : 'false'; ?>" aria-label="<?php echo esc_attr( $coll_card_display['title'] . ': ' . $coll_card_sharing['action'] . ( empty( $coll_card_sharing['warning'] ) ? '' : '. ' . $coll_card_sharing['warning'] ) ); ?>" title="<?php echo esc_attr( ! empty( $coll_card_sharing['warning'] ) ? $coll_card_sharing['warning'] : ( $coll_card_sharing['selected'] ? $coll_card_sharing['message'] : $coll_card_sharing['action'] ) ); ?>" <?php disabled( ! $coll_card_sharing['eligible'] && ! $coll_card_sharing['selected'] ); ?> hidden>
 					<span class="coll-share-switch" aria-hidden="true"></span><span data-coll-share-label><?php echo esc_html( $coll_card_sharing['label'] ); ?></span>
+					<span class="coll-share-warning" data-coll-share-warning aria-hidden="true" <?php echo empty( $coll_card_sharing['warning'] ) ? 'hidden' : ''; ?>>⚠</span>
 				</button>
 			<?php endif; ?>
 		</div>

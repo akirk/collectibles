@@ -57,11 +57,12 @@ class Schema {
 				),
 				'fields'  => array(
 					array(
-						'key'         => 'denomination',
-						'public'      => true,
-						'label'       => __( 'Denomination', 'collectibles' ),
-						'type'        => 'text',
-						'placeholder' => __( 'e.g. 5 Schilling', 'collectibles' ),
+						'key'            => 'denomination',
+						'numista_exempt' => true,
+						'public'         => true,
+						'label'          => __( 'Denomination', 'collectibles' ),
+						'type'           => 'text',
+						'placeholder'    => __( 'e.g. 5 Schilling', 'collectibles' ),
 					),
 					array(
 						'key'         => 'mint',
@@ -131,11 +132,12 @@ class Schema {
 				),
 				'fields'  => array(
 					array(
-						'key'         => 'denomination',
-						'public'      => true,
-						'label'       => __( 'Face value', 'collectibles' ),
-						'type'        => 'text',
-						'placeholder' => __( 'e.g. 50 Groschen', 'collectibles' ),
+						'key'            => 'denomination',
+						'numista_exempt' => true,
+						'public'         => true,
+						'label'          => __( 'Face value', 'collectibles' ),
+						'type'           => 'text',
+						'placeholder'    => __( 'e.g. 50 Groschen', 'collectibles' ),
 					),
 					array(
 						'key'    => 'color',
@@ -197,10 +199,11 @@ class Schema {
 				),
 				'fields'  => array(
 					array(
-						'key'    => 'denomination',
-						'public' => true,
-						'label'  => __( 'Denomination', 'collectibles' ),
-						'type'   => 'text',
+						'key'            => 'denomination',
+						'numista_exempt' => true,
+						'public'         => true,
+						'label'          => __( 'Denomination', 'collectibles' ),
+						'type'           => 'text',
 					),
 					array(
 						'key'   => 'serial_number',
@@ -793,11 +796,12 @@ class Schema {
 	 */
 	private static function get_numista_field(): array {
 		return array(
-			'key'         => 'numista_id',
-			'label'       => __( 'Numista number', 'collectibles' ),
-			'type'        => 'text',
-			'placeholder' => __( 'e.g. 202650', 'collectibles' ),
-			'link'        => 'https://en.numista.com/catalogue/pieces%s.html',
+			'key'            => 'numista_id',
+			'numista_exempt' => true,
+			'label'          => __( 'Numista number', 'collectibles' ),
+			'type'           => 'text',
+			'placeholder'    => __( 'e.g. 202650', 'collectibles' ),
+			'link'           => 'https://en.numista.com/catalogue/pieces%s.html',
 		);
 	}
 

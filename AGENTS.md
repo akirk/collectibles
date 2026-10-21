@@ -132,6 +132,32 @@ unavailable pages always discourage indexing. Upload URLs retain WordPress's exi
 
 ### Numista lookups
 
+Lookups always fill the item form, carrying a
+signed `coll_numista_source` token scoped to user and collection, containing
+hashes of normalized imported fields and title. `Item::save_values()` stores
+these in private `_coll_numista_sources` meta; `Numista::get_imported_keys()`
+removes markers when values actually change. Users may also independently
+confirm individual fields with `coll_numista_own[]`; `Item::save_values()` applies
+these confirmations only on save. Unchanged, unconfirmed values stay private.
+Live indicators run client-side using normalized values and SHA-256 source
+hashes. There is no status AJAX endpoint. `coll_numista_private[]` explicitly
+restores the current value as a private baseline. `_coll_numista_history` keeps
+released fields toggleable after save/reload; public restrictions still read
+only `_coll_numista_sources`. A field definition's `numista_exempt` flag exempts
+catalogue numbers, origin, denomination and Numista IDs from these restrictions.
+Cleared values have no visible controls or active private marker. The overview
+sharing toggle shows a warning while the title still has an active import marker;
+the same warning is returned for individual and bulk sharing updates. Notes are
+always private and are not monitored.
+Legacy linked items conservatively snapshot all nonempty non-lot fields and
+name before editing or public projection. Numista identifiers are exempt.
+All public projections (including preview, JSON and comparison) omit imported
+fields and replace an imported title with a generic label. Items with imported names use
+opaque public slugs so imported titles cannot leak in URLs. Own photos remain
+shareable. Abilities pass `numista_source` from lookup to creation; older clients
+without the token get conservative legacy restrictions. Test offline with
+`wp --url=alex.kirk.at --user=<editor> eval-file tests/numista-sources.php`.
+
 Coins and banknotes can be filled in from the Numista catalogue. The public
 catalogue pages sit behind a bot challenge, so the plugin uses the v3 API at
 `api.numista.com`, which needs credentials the user registers for their own

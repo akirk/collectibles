@@ -68,7 +68,6 @@ if ( $coll_public_data && $coll_public_data['detail'] ) {
 				<p class="coll-public-description"><?php echo esc_html( $coll_public_data['description'] ); ?></p>
 			<?php endif; ?>
 		</div>
-		<p class="eyebrow"><?php echo esc_html__( 'Powered by', 'collectibles' ); ?> <a href="https://wpapps.kirk.at/apps/collectibles/" rel="noreferrer">Collectibles</a></p>
 	</header>
 	<?php if ( ! $coll_public_data['items'] ) : ?>
 		<section class="empty-state"><p><?php echo esc_html__( 'No items are shared here yet.', 'collectibles' ); ?></p></section>

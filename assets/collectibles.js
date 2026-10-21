@@ -1,4 +1,94 @@
 ( function () {
+	// Live source feedback stays in the browser; saving remains authoritative.
+	function normalizeSourceValue( input ) {
+		var value = input.value.replace( /^[\x00\t\n\r\v ]+|[\x00\t\n\r\v ]+$/g, '' );
+		if ( ! value ) return '';
+		if ( input.type === 'number' ) {
+			var number = Number( value );
+			if ( ! Number.isFinite( number ) ) return '';
+			if ( input.min !== '' ) number = Math.max( number, Number( input.min ) );
+			value = new Intl.NumberFormat( 'en-US', { useGrouping: false, maximumFractionDigits: 4 } ).format( number );
+			return Number( value ) === 0 ? '0' : value;
+		}
+		if ( input.tagName === 'SELECT' || input.type === 'date' ) return value;
+		// Match the plain-text cleanup used for saved catalogue fields.
+		value = value.replace( /<[^>]*?((?=<)|>|$)/g, function ( part ) {
+			return part.includes( '>' ) ? part : part.replace( /</g, '&lt;' );
+		} ).replace( /<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, '' )
+			.replace( /<!--[\s\S]*?-->|<[^>]*>/g, '' )
+			.replace( /<\n/g, '&lt;\n' ).replace( /[\r\n\t ]+/g, ' ' ).trim();
+		while ( /%[a-f0-9]{2}/i.test( value ) ) value = value.replace( /%[a-f0-9]{2}/gi, '' );
+		return value.replace( / +/g, ' ' ).trim();
+	}
+
+	document.querySelectorAll( '[data-coll-item-form]' ).forEach( function ( form ) {
+		form.querySelectorAll( '[data-coll-numista-key]' ).forEach( function ( indicator ) {
+			var key = indicator.dataset.collNumistaKey;
+			var input = form.elements.namedItem( indicator.dataset.collSourceInput );
+			var own = Array.from( form.querySelectorAll( '[data-coll-numista-own]' ) ).find( function ( control ) { return control.value === key; } );
+			var privateChoice = Array.from( form.querySelectorAll( '[data-coll-numista-private]' ) ).find( function ( control ) { return control.value === key; } );
+			var clear = Array.from( form.querySelectorAll( '[data-coll-clear-source]' ) ).find( function ( control ) { return control.dataset.collClearSource === key; } );
+			if ( ! input || ! own || ! privateChoice ) return;
+			var revision = 0;
+			var initialValue = normalizeSourceValue( input );
+			var initiallyPrivate = indicator.dataset.state === 'private';
+			function update( confirmed, state ) {
+				indicator.dataset.state = state;
+				indicator.closest( '.coll-numista-controls' ).hidden = state === 'cleared';
+				indicator.setAttribute( 'aria-pressed', confirmed ? 'true' : 'false' );
+				indicator.textContent = confirmed ? form.dataset.collSourceConfirmed : form.dataset.collSourcePrivate;
+			}
+			async function refresh() {
+				var current = ++revision;
+				var value = normalizeSourceValue( input );
+				if ( ! value || ! privateChoice.disabled ) { update( false, value ? 'private' : 'cleared' ); return; }
+				if ( own.checked || indicator.dataset.collSourceReleased === 'true' ) { update( true, 'confirmed' ); return; }
+				var unchanged;
+				if ( globalThis.crypto && globalThis.crypto.subtle ) {
+					var digest = await globalThis.crypto.subtle.digest( 'SHA-256', new TextEncoder().encode( value ) );
+					if ( current !== revision ) return;
+					var hash = Array.from( new Uint8Array( digest ) ).map( function ( byte ) { return byte.toString( 16 ).padStart( 2, '0' ); } ).join( '' );
+					unchanged = hash === indicator.dataset.collSourceHash;
+				} else {
+					// Older HTTP contexts can still compare against their initial private value.
+					unchanged = initiallyPrivate && value === initialValue;
+				}
+				update( ! unchanged, unchanged ? 'private' : 'updated' );
+			}
+			function edited() {
+				own.checked = false;
+				privateChoice.disabled = true;
+				refresh();
+			}
+			input.addEventListener( 'input', edited );
+			input.addEventListener( 'change', edited );
+			indicator.addEventListener( 'click', function () {
+				own.checked = indicator.getAttribute( 'aria-pressed' ) !== 'true';
+				privateChoice.disabled = own.checked;
+				refresh();
+			} );
+			if ( clear ) clear.addEventListener( 'click', function () {
+				input.value = '';
+				input.dispatchEvent( new Event( 'input', { bubbles: true } ) );
+				input.focus();
+			} );
+		} );
+	} );
+
+
+	// Keep typed item values when the separate catalogue form is submitted.
+	document.querySelectorAll( '[data-coll-numista-lookup]' ).forEach( function ( lookup ) {
+		lookup.addEventListener( 'formdata', function ( event ) {
+			var itemForm = document.querySelector( '[data-coll-item-form]' );
+			if ( ! itemForm ) return;
+			new FormData( itemForm ).forEach( function ( value, name ) {
+				if ( typeof value === 'string' && name !== 'coll_action' && name !== 'coll_nonce' && name !== '_wp_http_referer' ) {
+					event.formData.append( name, value );
+				}
+			} );
+		} );
+	} );
+
 	function parseJSON( value ) {
 		if ( ! value ) {
 			return {};
@@ -18,6 +108,16 @@
 			count.dataset.collCount = String( value );
 			count.textContent = value.toLocaleString();
 		} );
+	}
+
+
+	function updateShareWarning( button, state ) {
+		var warning = typeof state.warning === 'string' ? state.warning : ( button.dataset.collShareWarning || '' );
+		button.dataset.collShareWarning = warning;
+		var icon = button.querySelector( '[data-coll-share-warning]' );
+		if ( icon ) icon.hidden = ! warning;
+		button.title = warning || state.message || '';
+		button.setAttribute( 'aria-label', button.dataset.collShareTitle + ': ' + state.action + ( warning ? '. ' + warning : '' ) );
 	}
 
 	var shareQueue = Promise.resolve();
@@ -53,8 +153,7 @@
 				if ( ! response.ok || ! result.success ) throw new Error( typeof result.data === 'string' ? result.data : button.dataset.collShareError );
 				updatePublicCount( button.dataset.collShareCollection, Number( result.data.selected ) - Number( button.getAttribute( 'aria-pressed' ) === 'true' ), false );
 				button.setAttribute( 'aria-pressed', result.data.selected ? 'true' : 'false' );
-				button.setAttribute( 'aria-label', button.dataset.collShareTitle + ': ' + result.data.action );
-				button.title = result.data.message;
+				updateShareWarning( button, result.data );
 				label.textContent = result.data.label;
 				message.textContent = result.data.message;
 			} catch ( error ) {
@@ -100,8 +199,7 @@
 					var state = result.data[ card.dataset.collShareItem ];
 					if ( ! state ) return;
 					card.setAttribute( 'aria-pressed', state.selected ? 'true' : 'false' );
-					card.setAttribute( 'aria-label', card.dataset.collShareTitle + ': ' + state.action );
-					card.title = state.message;
+					updateShareWarning( card, state );
 					card.querySelector( '[data-coll-share-label]' ).textContent = state.label;
 					card.disabled = ! state.eligible && ! state.selected;
 				} );

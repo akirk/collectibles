@@ -245,7 +245,7 @@ class Abilities {
 			'collectibles/lookup-catalog-entry',
 			array(
 				'label'               => __( 'Look Up Catalog Entry', 'collectibles' ),
-				'description'         => 'Look up a Rebrickable set number/link for brick sets or a Numista type number/link for coins and banknotes. Returns title, values, notes and comma-separated tags for collectibles/add-item. Does not save an item. Multiple Numista issues require choosing an issue_id and repeating the lookup.',
+				'description'         => 'Look up a Rebrickable set number/link for brick sets or a Numista type number/link for coins and banknotes. Returns title, values, notes and comma-separated tags for collectibles/add-item. Does not save an item. Multiple Numista issues require choosing an issue_id and repeating the lookup. The app fills in Numista values with per-field privacy controls. Pass numista_source unchanged to add-item so imported values stay private until changed or confirmed.',
 				'category'            => 'collectibles',
 				'input_schema'        => array(
 					'type'                 => 'object',
@@ -269,12 +269,13 @@ class Abilities {
 				'output_schema'       => array(
 					'type'       => 'object',
 					'properties' => array(
-						'title'    => array( 'type' => 'string' ),
-						'values'   => array( 'type' => 'object' ),
-						'notes'    => array( 'type' => 'string' ),
-						'tags'     => array( 'type' => 'string' ),
-						'issue_id' => array( 'type' => 'integer' ),
-						'issues'   => array(
+						'title'          => array( 'type' => 'string' ),
+						'values'         => array( 'type' => 'object' ),
+						'notes'          => array( 'type' => 'string' ),
+						'tags'           => array( 'type' => 'string' ),
+						'issue_id'       => array( 'type' => 'integer' ),
+						'numista_source' => array( 'type' => 'string' ),
+						'issues'         => array(
 							'type'  => 'array',
 							'items' => array( 'type' => 'object' ),
 						),
@@ -297,35 +298,39 @@ class Abilities {
 			'collectibles/add-item',
 			array(
 				'label'               => __( 'Add Collectible Item', 'collectibles' ),
-				'description'         => 'Create an item in a collection. LEGO catalogue images are imported automatically when available; photo_warning reports image failures without undoing the saved item. Pass title, values, notes and tags from the catalog lookup, plus personal details when supplied. Field and lot values are strings. Defaults to owned with one set/copy; part_count is parts per set, quantity is number of sets/copies. Put condition_grade, quantity, purchase_price and estimated_value in lots. Prices are per piece in the collection currency. Do not guess condition, completeness or prices. Search for existing items before adding. Use a unique request_id per intended addition and reuse the same ID and payload on retries.',
+				'description'         => 'Create an item in a collection. LEGO catalogue images are imported automatically when available; photo_warning reports image failures without undoing the saved item. When the user requests catalogue import, pass title, values, notes and tags from the lookup, plus numista_source for Numista. Unchanged Numista values remain private. Field and lot values are strings. Defaults to owned with one set/copy; part_count is parts per set, quantity is number of sets/copies. Put condition_grade, quantity, purchase_price and estimated_value in lots. Prices are per piece in the collection currency. Do not guess condition, completeness or prices. Search for existing items before adding. Use a unique request_id per intended addition and reuse the same ID and payload on retries.',
 				'category'            => 'collectibles',
 				'input_schema'        => array(
 					'type'                 => 'object',
 					'properties'           => array(
-						'collection' => array(
+						'collection'     => array(
 							'type'    => 'integer',
 							'minimum' => 1,
 						),
-						'request_id' => array(
+						'request_id'     => array(
 							'type'      => 'string',
 							'minLength' => 1,
 							'maxLength' => 128,
 						),
-						'title'      => array(
+						'title'          => array(
 							'type'      => 'string',
 							'minLength' => 1,
 						),
-						'notes'      => array( 'type' => 'string' ),
-						'tags'       => array(
+						'numista_source' => array(
+							'type'        => 'string',
+							'description' => 'Unmodified source record from the Numista lookup, when importing its values.',
+						),
+						'notes'          => array( 'type' => 'string' ),
+						'tags'           => array(
 							'type'        => 'string',
 							'description' => 'Comma-separated tag names.',
 						),
-						'values'     => array(
+						'values'         => array(
 							'type'                 => 'object',
 							'properties'           => $value_properties,
 							'additionalProperties' => false,
 						),
-						'lots'       => array(
+						'lots'           => array(
 							'type'     => 'array',
 							'minItems' => 1,
 							'items'    => array(
@@ -524,6 +529,7 @@ class Abilities {
 			if ( ! self::can_mutate_item( $input, false ) ) {
 				return new \WP_Error( 'collectibles_item_forbidden', __( 'You do not have access to update this item.', 'collectibles' ) );
 			}
+			Numista::snapshot_sources( $id );
 			$item = get_post( $id );
 			$post = array( 'ID' => $id );
 			foreach ( array(
@@ -562,6 +568,7 @@ class Abilities {
 			if ( isset( $input['lots'] ) ) {
 				Item::save_lots( $id, $kind, array( 'coll_lot' => $input['lots'] ) );
 			}
+			Numista::get_imported_keys( $id );
 			return array(
 				'id'      => $id,
 				'url'     => App::get_url( absint( $input['collection'] ) . '/item/' . $id ),
@@ -650,9 +657,10 @@ class Abilities {
 		if ( ! $issue_id && 1 === count( $issues ) ) {
 			$issue = reset( $issues );
 		}
-		$result             = Numista::map_type( $type, $kind, $issue );
-		$result['issue_id'] = absint( $issue['id'] ?? 0 );
-		$result['issues']   = array();
+		$result                   = Numista::map_type( $type, $kind, $issue );
+		$result['issue_id']       = absint( $issue['id'] ?? 0 );
+		$result['numista_source'] = Numista::source_token( $result, $kind, absint( $input['collection'] ) );
+		$result['issues']         = array();
 		foreach ( $issues as $candidate ) {
 			$result['issues'][] = array(
 				'id'    => absint( $candidate['id'] ?? 0 ),
@@ -704,6 +712,12 @@ class Abilities {
 			}
 		}
 		$source['coll_lot'] = $input['lots'] ?? array();
+		if ( ! empty( $input['numista_source'] ) ) {
+			if ( ! is_string( $input['numista_source'] ) || null === Numista::read_source_token( $input['numista_source'], $collection_id ) ) {
+				return new \WP_Error( 'collectibles_source_invalid', __( 'The Numista source record is invalid. Run the lookup again.', 'collectibles' ) );
+			}
+			$source['coll_numista_source'] = $input['numista_source'];
+		}
 
 		// An atomic option lock serializes calls sharing a user/request ID.
 		$request_key = hash( 'sha256', get_current_user_id() . ':' . $request_id );
@@ -737,6 +751,13 @@ class Abilities {
 				}
 				return self::added_item_result( $item_id, $collection_id, false );
 			}
+			$meta_input = array(
+				'_coll_ability_request' => $request_key,
+				'_coll_ability_payload' => $fingerprint,
+			);
+			if ( isset( $source['coll_numista_source'] ) ) {
+				$meta_input['_coll_numista_sources'] = Numista::read_source_token( $source['coll_numista_source'], $collection_id );
+			}
 			$item_id = wp_insert_post(
 				wp_slash(
 					array(
@@ -746,10 +767,7 @@ class Abilities {
 						'post_author'  => get_current_user_id(),
 						'post_title'   => $title,
 						'post_content' => sanitize_textarea_field( $input['notes'] ?? '' ),
-						'meta_input'   => array(
-							'_coll_ability_request' => $request_key,
-							'_coll_ability_payload' => $fingerprint,
-						),
+						'meta_input'   => $meta_input,
 					)
 				),
 				true

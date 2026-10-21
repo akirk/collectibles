@@ -75,18 +75,20 @@ class Item {
 				'placeholder' => __( 'e.g. 1934', 'collectibles' ),
 			),
 			array(
-				'key'     => self::COUNTRY_META_KEY,
-				'public'  => true,
-				'label'   => __( 'Origin', 'collectibles' ),
-				'type'    => 'select',
-				'options' => Geography::get_options(),
+				'key'            => self::COUNTRY_META_KEY,
+				'numista_exempt' => true,
+				'public'         => true,
+				'label'          => __( 'Origin', 'collectibles' ),
+				'type'           => 'select',
+				'options'        => Geography::get_options(),
 			),
 			array(
-				'key'         => self::CATALOG_META_KEY,
-				'public'      => true,
-				'label'       => __( 'Catalog number', 'collectibles' ),
-				'type'        => 'text',
-				'placeholder' => __( 'Reference in a catalogue', 'collectibles' ),
+				'key'            => self::CATALOG_META_KEY,
+				'numista_exempt' => true,
+				'public'         => true,
+				'label'          => __( 'Catalog number', 'collectibles' ),
+				'type'           => 'text',
+				'placeholder'    => __( 'Reference in a catalogue', 'collectibles' ),
 			),
 			array(
 				'key'         => self::LOCATION_META_KEY,
@@ -501,6 +503,14 @@ class Item {
 	 * @param array  $source  Unslashed request data, usually $_POST.
 	 */
 	public static function save_values( int $item_id, string $kind, array $source ): void {
+		Numista::snapshot_sources( $item_id );
+		$token = isset( $source['coll_numista_source'] ) && is_string( $source['coll_numista_source'] ) ? $source['coll_numista_source'] : '';
+		if ( '' !== $token ) {
+			$hashes = Numista::read_source_token( $token, (int) get_post_field( 'post_parent', $item_id ) );
+			if ( null !== $hashes ) {
+				update_post_meta( $item_id, '_coll_numista_sources', $hashes );
+			}
+		}
 		foreach ( self::get_fields_for_kind( $kind ) as $field ) {
 			// The lot rows carry these, one set per condition.
 			if ( self::is_lot_field( $field ) ) {
@@ -519,6 +529,10 @@ class Item {
 		}
 
 		self::save_lots( $item_id, $kind, $source );
+		$private_sources = Numista::sanitize_confirmations( $source['coll_numista_private'] ?? array() );
+		Numista::keep_sources_private( $item_id, $private_sources );
+		Numista::get_imported_keys( $item_id );
+		Numista::confirm_sources( $item_id, array_diff( Numista::sanitize_confirmations( $source['coll_numista_own'] ?? array() ), $private_sources ) );
 	}
 
 	/**
