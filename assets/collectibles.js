@@ -299,3 +299,146 @@
 		} );
 	} );
 } )();
+
+( function () {
+	var lookup = document.querySelector( '[data-coll-rebrickable-lookup]' );
+	if ( ! lookup || ! window.fetch ) return;
+	var controls = lookup.querySelector( '[data-coll-bulk-controls]' );
+	var toggle = controls.querySelector( 'input' );
+	var input = lookup.querySelector( '[name="coll_rebrickable_ref"]' );
+	var results = document.querySelector( '[data-coll-bulk-results]' );
+	var ordinary = document.querySelector( '[data-coll-item-form]' );
+	var queue = Promise.resolve();
+	var pending = 0;
+	var unsaved = 0;
+	var seen = new Set();
+	var sequence = 0;
+	controls.hidden = false;
+
+	// A single queue covers lookups and saves (which can import a photo).
+	function enqueue( task ) {
+		pending++;
+		queue = queue.then( task ).catch( function () {} ).finally( function () { pending--; } );
+	}
+	function element( tag, text, parent ) {
+		var node = document.createElement( tag );
+		node.textContent = text;
+		parent.appendChild( node );
+		return node;
+	}
+	toggle.addEventListener( 'change', function () {
+		ordinary.hidden = toggle.checked;
+		input.focus();
+	} );
+	window.addEventListener( 'beforeunload', function ( event ) {
+		if ( ! pending && ! unsaved ) return;
+		event.preventDefault();
+		event.returnValue = controls.dataset.leave;
+	} );
+	lookup.addEventListener( 'submit', function ( event ) {
+		if ( ! toggle.checked ) return;
+		event.preventDefault();
+		var ref = input.value.trim();
+		if ( ! ref ) return;
+		var body = new FormData( lookup );
+		input.value = '';
+		input.focus();
+		var card = element( 'section', '', results );
+		card.className = 'panel';
+		element( 'h2', ref, card );
+		var status = element( 'p', controls.dataset.loading, card );
+		unsaved++;
+		var discard = element( 'button', '×', card );
+		discard.type = 'button';
+		discard.setAttribute( 'aria-label', controls.dataset.discard );
+		var discarded = false;
+		var setId;
+		discard.addEventListener( 'click', function () {
+			discarded = true;
+			unsaved--;
+			if ( setId ) seen.delete( setId );
+			card.remove();
+		} );
+		enqueue( async function () {
+			if ( discarded ) return;
+			try {
+				var response = await fetch( lookup.action, { method: 'POST', body: body, credentials: 'same-origin' } );
+				var doc = new DOMParser().parseFromString( await response.text(), 'text/html' );
+				if ( discarded ) return;
+				var error = doc.querySelector( '.notice-error' );
+				var form = doc.querySelector( '[data-coll-item-form]' );
+				var id = form && form.querySelector( '[name="coll_field_rebrickable_id"]' );
+				if ( ! response.ok || error || ! id || ! id.value ) throw new Error( error ? error.textContent.trim() : controls.dataset.error );
+				setId = id.value;
+				if ( seen.has( setId ) ) {
+					status.textContent = setId + ' — ' + controls.dataset.duplicate;
+					unsaved--;
+					discard.remove();
+					return;
+				}
+				seen.add( setId );
+				status.textContent = setId + ' — ' + form.querySelector( '[name="coll_name"]' ).value;
+				var preview = doc.querySelector( '.photo-side-current img' );
+				if ( preview ) {
+					var image = element( 'img', '', card );
+					image.src = preview.src;
+					image.alt = '';
+					image.style.maxWidth = '160px';
+					image.referrerPolicy = 'no-referrer';
+				}
+				// Use the server-rendered normal form so all item fields stay available.
+				var details = element( 'details', '', card );
+				element( 'summary', controls.dataset.refine, details );
+				var prefix = 'coll-bulk-' + ( ++sequence ) + '-';
+				form.querySelectorAll( '[id]' ).forEach( function ( field ) {
+					var oldId = field.id;
+					form.querySelectorAll( '[for]' ).forEach( function ( label ) {
+						if ( label.htmlFor === oldId ) label.htmlFor = prefix + oldId;
+					} );
+					field.id = prefix + oldId;
+				} );
+				form.querySelectorAll( '[autofocus]' ).forEach( function ( field ) { field.removeAttribute( 'autofocus' ); } );
+				form.querySelectorAll( '.button-quiet[href]' ).forEach( function ( link ) { link.remove(); } );
+				form.querySelectorAll( '[data-coll-add-lot]' ).forEach( function ( button ) { button.hidden = false; } );
+				details.appendChild( form );
+				var save = element( 'button', controls.dataset.save, card );
+				save.type = 'button';
+				save.className = 'button button-primary';
+				save.addEventListener( 'click', function () {
+					if ( ! form.reportValidity() ) { details.open = true; form.reportValidity(); return; }
+					form.requestSubmit();
+				} );
+				form.addEventListener( 'submit', function ( event ) {
+					event.preventDefault();
+					if ( save.disabled ) return;
+					save.disabled = true;
+					discard.disabled = true;
+					save.textContent = controls.dataset.saving;
+					var data = new FormData( form );
+					data.set( 'coll_bulk_save', '1' );
+					status.textContent = setId + ' — ' + form.querySelector( '[name="coll_name"]' ).value;
+					form.querySelectorAll( 'input, select, textarea, button' ).forEach( function ( field ) { field.disabled = true; } );
+					enqueue( async function () {
+						try {
+							var saved = await fetch( lookup.action, { method: 'POST', body: data, credentials: 'same-origin' } );
+							var result = await saved.json();
+							if ( ! saved.ok || ! result.success || ! result.data.url ) throw new Error();
+							var link = element( 'a', controls.dataset.saved, card );
+							link.href = result.data.url;
+							if ( result.data.warning ) element( 'p', result.data.warning, card );
+							details.remove();
+							save.remove();
+							discard.remove();
+							unsaved--;
+						} catch ( error ) {
+							// Never retry an uncertain write automatically.
+							status.textContent = controls.dataset.error;
+						}
+					} );
+				} );
+			} catch ( error ) {
+				status.textContent = error.message || controls.dataset.error;
+			}
+		} );
+	} );
+}() );

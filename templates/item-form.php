@@ -233,6 +233,16 @@ if ( ! $coll_not_found && ! $coll_forbidden && '' !== $coll_action ) {
 					}
 				}
 
+				// Bulk mode uses the same authorized save path, including photo imports.
+				if ( $coll_is_new && $coll_can_rebrickable && isset( $_POST['coll_bulk_save'] ) && '1' === $_POST['coll_bulk_save'] ) {
+					wp_send_json_success(
+						array(
+							'url'     => App::get_url( $coll_collection_id . '/item/' . $coll_saved_id ),
+							'warning' => $coll_upload_error,
+						)
+					);
+				}
+
 				if ( '' !== $coll_upload_error ) {
 					$coll_form_error = $coll_upload_error;
 					$coll_item_id    = $coll_saved_id;
