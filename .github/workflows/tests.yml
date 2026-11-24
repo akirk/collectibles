@@ -1,0 +1,73 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  browser-logic:
+    name: Browser logic (six scripts)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - name: Install in-memory DOM test dependency
+        run: npm --prefix tests install --ignore-scripts --no-audit --no-fund
+      - name: Run all browser-logic scripts
+        run: npm --prefix tests test
+
+  wordpress:
+    name: WordPress integration (nine scripts)
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: wordpress
+          MYSQL_DATABASE: collectibles_tests
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --password=wordpress"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - uses: actions/checkout@v6
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: mysqli, intl, gd
+          tools: composer, wp-cli
+      - name: Install production dependencies
+        run: composer install --no-dev --prefer-dist --no-interaction
+      - name: Create runner-local WordPress and editor
+        env:
+          WP_PATH: ${{ runner.temp }}/wordpress
+        run: |
+          wp core download --path="$WP_PATH"
+          wp config create --path="$WP_PATH" --dbname=collectibles_tests --dbuser=root --dbpass=wordpress --dbhost=127.0.0.1
+          wp core install --path="$WP_PATH" --url=http://collectibles.test --title=Collectibles --admin_user=admin --admin_password=ci-admin-password --admin_email=admin@example.test --skip-email
+          wp user create editor editor@example.test --role=editor --user_pass=ci-editor-password --path="$WP_PATH"
+          ln -s "$GITHUB_WORKSPACE" "$WP_PATH/wp-content/plugins/collectibles"
+          wp plugin activate collectibles --path="$WP_PATH"
+      - name: Run every offline WordPress integration script
+        env:
+          WP_PATH: ${{ runner.temp }}/wordpress
+        run: |
+          for test in tests/*.php; do
+            echo "::group::$test"
+            wp --path="$WP_PATH" --url=http://collectibles.test --user=editor eval-file "$GITHUB_WORKSPACE/$test"
+            echo "::endgroup::"
+          done
