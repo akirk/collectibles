@@ -490,7 +490,7 @@ class Geography {
 		$flag = '';
 
 		foreach ( str_split( strtoupper( $iso ) ) as $letter ) {
-			$flag .= mb_chr( 0x1F1E6 + ord( $letter ) - ord( 'A' ), 'UTF-8' );
+			$flag .= html_entity_decode( '&#' . ( 0x1F1E6 + ord( $letter ) - ord( 'A' ) ) . ';', ENT_NOQUOTES, 'UTF-8' );
 		}
 
 		return $flag;
