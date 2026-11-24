@@ -1,56 +1,42 @@
-/* Run with node tests/sharing-controls.js. Uses the real UI script and a small DOM fixture. */
+/* Run with npm --prefix tests test. Real DOM and the existing controlled AJAX response seam. */
 const assert = require( 'node:assert/strict' );
 const fs = require( 'node:fs' );
-const vm = require( 'node:vm' );
+const { JSDOM } = require( 'jsdom' );
 let checks = 0;
 function check( condition, message ) { assert.ok( condition, message ); checks++; }
+const dom = new JSDOM( `<details class="coll-actions-menu"><summary>Actions</summary></details>
+    <span data-coll-public-count="10" data-coll-count="0">0</span>
+    <div class="coll-share-bulk" data-coll-share-collection="10" data-coll-share-nonce="bulk-nonce" data-coll-share-url="/admin-ajax.php" data-coll-share-error="Reload bulk">
+      <button data-coll-share-all="1" hidden>Share all</button><button data-coll-share-all="0" hidden>Make all private</button>
+      <span class="coll-share-bulk-message"></span>
+    </div>`, { runScripts: 'outside-only' } );
+const { window } = dom;
+const { document } = window;
 function card( id ) {
-	const attributes = { 'aria-pressed': 'false' };
-	const label = { textContent: 'Private' };
-	const warning = { hidden: true };
-	const classes = new Set( [ 'screen-reader-text' ] );
-	const message = { textContent: '', classList: { add: x => classes.add( x ), remove: x => classes.delete( x ) } };
-	const button = {
-		dataset: { collShareItem: String( id ), collShareCollection: '10', collShareNonce: 'nonce-' + id, collShareUrl: '/admin-ajax.php', collShareTitle: 'Item ' + id, collShareError: 'Reload and retry', collShareSaving: 'Saving', collShareUnknown: 'Check sharing' },
-		hidden: true, disabled: false,
-		getAttribute: name => attributes[ name ],
-		setAttribute: ( name, value ) => { attributes[ name ] = value; },
-		removeAttribute: name => { delete attributes[ name ]; },
-		querySelector: selector => selector === '[data-coll-share-warning]' ? warning : label,
-		closest: selector => selector === '[data-coll-share-item]' ? button : ( selector === '.item-card-body' ? { querySelector: () => message } : null )
-	};
-	return { button, label, warning, message, classes };
+    const root = document.createElement( 'div' );
+    root.className = 'item-card-body';
+    root.innerHTML = `<button data-coll-share-item="${id}" data-coll-share-collection="10" data-coll-share-nonce="nonce-${id}" data-coll-share-url="/admin-ajax.php" data-coll-share-title="Item ${id}" data-coll-share-error="Reload and retry" data-coll-share-saving="Saving" data-coll-share-unknown="Check sharing" aria-pressed="false" hidden>
+      <span data-coll-share-label>Private</span><span data-coll-share-warning hidden></span>
+    </button><span class="coll-share-message screen-reader-text"></span>`;
+    document.body.append( root );
+    const message = root.querySelector( '.coll-share-message' );
+    return { button: root.querySelector( 'button' ), label: root.querySelector( '[data-coll-share-label]' ),
+        warning: root.querySelector( '[data-coll-share-warning]' ), message, classes: message.classList };
 }
 const cards = [ card( 1 ), card( 2 ) ];
-const handlers = {};
 const requests = [];
 const pending = [];
-let focused = false;
-const menu = { open: false, contains: () => false, querySelector: () => ( { focus: () => { focused = true; } } ) };
-const bulkMessage = { textContent: '', classList: { remove: () => {} } };
-const bulkRoot = {
-	dataset: { collShareCollection: '10', collShareNonce: 'bulk-nonce', collShareUrl: '/admin-ajax.php', collShareError: 'Reload bulk' },
-	querySelectorAll: () => bulkButtons, querySelector: () => bulkMessage,
-	setAttribute: () => {}, removeAttribute: () => {}
+const menu = document.querySelector( 'details' );
+const bulkMessage = document.querySelector( '.coll-share-bulk-message' );
+const bulkButtons = Array.from( document.querySelectorAll( '[data-coll-share-all]' ) );
+const publicCount = document.querySelector( '[data-coll-public-count]' );
+// Same response seam as before: no request leaves this process.
+window.fetch = ( url, options ) => {
+    requests.push( { url, options } );
+    return new Promise( ( resolve, reject ) => pending.push( { resolve, reject } ) );
 };
-const bulkButtons = [ '1', '0' ].map( value => {
-	const button = { dataset: { collShareAll: value }, hidden: true, disabled: false, textContent: value === '1' ? 'Share all' : 'Make all private',
-		closest: selector => selector === '[data-coll-share-all]' ? button : ( selector === '.coll-share-bulk' ? bulkRoot : null ) };
-	return button;
-} );
-const publicCount = { dataset: { collPublicCount: '10', collCount: '0' }, textContent: '0' };
-const document = {
-	querySelectorAll: selector => selector === '[data-coll-public-count]' ? [ publicCount ] : selector === '[data-coll-share-all]' ? bulkButtons : selector === '[data-coll-share-item]' ? cards.map( c => c.button ) : ( selector === '.coll-actions-menu[open]' && menu.open ? [ menu ] : [] ),
-	addEventListener: ( type, callback ) => { ( handlers[ type ] ||= [] ).push( callback ); }
-};
-const context = { document, FormData, AbortController, setTimeout, clearTimeout, Promise, JSON,
-	fetch: ( url, options ) => {
-		requests.push( { url, options } );
-		return new Promise( ( resolve, reject ) => pending.push( { resolve, reject } ) );
-	}
-};
-vm.runInNewContext( fs.readFileSync( require.resolve( '../assets/collectibles.js' ), 'utf8' ), context );
-function click( index ) { handlers.click.forEach( callback => callback( { target: cards[ index ].button } ) ); }
+window.eval( fs.readFileSync( require.resolve( '../assets/collectibles.js' ), 'utf8' ) );
+function click( index ) { cards[ index ].button.click(); }
 function response( selected, label, warning = '' ) { return { ok: true, json: async () => ( { success: true, data: { selected, label, eligible: true, action: selected ? 'Remove' : 'Include', warning, message: label } } ) }; }
 const tick = () => new Promise( resolve => setImmediate( resolve ) );
 ( async () => {
@@ -68,7 +54,7 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	pending[1].resolve( { ok: false, json: async () => ( { success: false, data: 'Permission denied' } ) } );
 	await tick();
 	check( cards[1].label.textContent === 'Private' && ! cards[1].button.disabled && cards[1].button.getAttribute( 'aria-pressed' ) === 'false', 'A rejected request preserves the previous selection.' );
-	check( cards[1].message.textContent === 'Permission denied' && ! cards[1].classes.has( 'screen-reader-text' ), 'Server errors are visible and announced.' );
+	check( cards[1].message.textContent === 'Permission denied' && ! cards[1].classes.contains( 'screen-reader-text' ), 'Server errors are visible and announced.' );
 	click( 1 ); await tick();
 	pending[2].reject( new Error( 'Network failed' ) );
 	await tick();
@@ -79,13 +65,13 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	check( publicCount.textContent === '0', 'Unsharing an item updates the public stat.' );
 	check( cards[0].button.getAttribute( 'aria-pressed' ) === 'false' && cards[0].label.textContent === 'Private', 'Switch-off displays the confirmed private state.' );
 	menu.open = true;
-	handlers.keydown.forEach( callback => callback( { key: 'Escape' } ) );
-	check( ! menu.open && focused, 'Escape closes the actions dropdown and restores focus.' );
-	menu.open = true; click( 1 );
+	document.dispatchEvent( new window.KeyboardEvent( 'keydown', { key: 'Escape', bubbles: true } ) );
+	check( ! menu.open && document.activeElement === menu.querySelector( 'summary' ), 'Escape closes the actions dropdown and restores focus.' );
+	menu.open = true; document.body.click();
 	check( ! menu.open, 'Clicking outside closes the actions dropdown.' );
 
 	check( bulkButtons.every( b => ! b.hidden ), 'JavaScript reveals bulk controls.' );
-	handlers.click.forEach( callback => callback( { target: bulkButtons[0] } ) );
+	bulkButtons[0].click();
 	await tick();
 	check( bulkButtons.every( b => b.disabled ) && requests[4].options.body.get( 'action' ) === 'coll_share_collection' && requests[4].options.body.get( 'nonce' ) === 'bulk-nonce', 'Bulk requests use the collection nonce and disable both controls.' );
 	pending[4].resolve( { ok: true, json: async () => ( { success: true, data: { 1: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared', warning: '' }, 2: { selected: true, eligible: true, action: 'Remove', label: 'Shared', message: 'Shared', warning: 'Title is private' } } } ) } );
@@ -93,10 +79,10 @@ const tick = () => new Promise( resolve => setImmediate( resolve ) );
 	check( publicCount.textContent === '2', 'Bulk sharing updates the public stat.' );
 	check( cards.every( c => c.label.textContent === 'Shared' && c.button.getAttribute( 'aria-pressed' ) === 'true' ) && bulkButtons.every( b => ! b.disabled ), 'Bulk success updates every visible switch without reloading.' );
 	check( cards[0].warning.hidden && ! cards[1].warning.hidden && cards[1].button.title === 'Title is private', 'Bulk sharing updates each title warning independently.' );
-	handlers.click.forEach( callback => callback( { target: bulkButtons[1] } ) );
+	bulkButtons[1].click();
 	await tick();
 	pending[5].reject( new Error( 'Network failed' ) );
 	await tick();
 	check( bulkButtons.every( b => b.disabled ) && bulkMessage.textContent === 'Reload bulk', 'Lost bulk responses require checking the saved state.' );
 	console.log( 'Passed ' + checks + ' sharing UI checks.' );
-} )().catch( error => { console.error( error ); process.exitCode = 1; } );
+} )().catch( error => { console.error( error ); process.exitCode = 1; } ).finally( () => window.close() );

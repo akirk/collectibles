@@ -1,53 +1,30 @@
-/* Run with node tests/numista-status.js. No DOM package, network or WordPress needed. */
+/* Run with npm --prefix tests test. Real in-memory DOM; no network or WordPress. */
 const assert = require( 'node:assert/strict' );
 const fs = require( 'node:fs' );
-const vm = require( 'node:vm' );
+const { JSDOM } = require( 'jsdom' );
 const { createHash, webcrypto } = require( 'node:crypto' );
-function node( properties = {} ) {
-	const handlers = {};
-	const attributes = {};
-	return Object.assign( {
-		dataset: {}, value: '', type: 'text', min: '', tagName: 'INPUT', textContent: '',
-		addEventListener: ( name, callback ) => { ( handlers[ name ] ||= [] ).push( callback ); },
-		dispatchEvent( event ) { ( handlers[ event.type ] || [] ).forEach( callback => callback( event ) ); },
-		click() { this.dispatchEvent( { type: 'click' } ); },
-		setAttribute: ( name, value ) => { attributes[ name ] = value; },
-		getAttribute: name => attributes[ name ],
-		removeAttribute: name => { delete attributes[ name ]; },
-		focus() { this.focused = true; }
-	}, properties );
-}
+const dom = new JSDOM( `<form data-coll-item-form data-coll-source-private="Private until changed" data-coll-source-confirmed="I’ve verified this"></form>`, { runScripts: 'outside-only' } );
+const { window } = dom;
+const { document, Event } = window;
+Object.defineProperty( window, 'crypto', { value: webcrypto } );
+window.TextEncoder = TextEncoder;
+// Reuse the existing no-network contract: source feedback must remain local.
+window.fetch = () => { throw new Error( 'Live status must never make a network request.' ); };
 function fixture( key, name, value, type = 'text' ) {
-	const controls = { hidden: false };
-	const input = node( { name, value, type } );
-	const indicator = node( {
-		dataset: { collNumistaKey: key, collSourceInput: name, state: 'private', collSourceHash: createHash( 'sha256' ).update( value ).digest( 'hex' ), collSourceReleased: 'false' },
-		closest: () => controls,
-		textContent: 'Private until changed'
-	} );
-	indicator.setAttribute( 'aria-pressed', 'false' );
-	const own = node( { value: key, type: 'checkbox', name: 'coll_numista_own[]', checked: false } );
-	const privateChoice = node( { value: key, type: 'hidden', name: 'coll_numista_private[]', disabled: true } );
-	const clear = node( { dataset: { collClearSource: key } } );
-	return { input, indicator, own, privateChoice, clear, controls };
+    const field = document.createElement( 'div' );
+    const hash = createHash( 'sha256' ).update( value ).digest( 'hex' );
+    field.innerHTML = `<input name="${name}" value="${value}" type="${type}">
+        <span class="coll-numista-controls"><button type="button" data-coll-numista-key="${key}" data-coll-source-input="${name}" data-state="private" data-coll-source-hash="${hash}" data-coll-source-released="false" aria-pressed="false">Private until changed</button>
+        <button type="button" data-coll-clear-source="${key}">Clear</button></span>
+        <input type="checkbox" name="coll_numista_own[]" value="${key}" data-coll-numista-own>
+        <input type="hidden" name="coll_numista_private[]" value="${key}" data-coll-numista-private disabled>`;
+    document.querySelector( 'form' ).append( field );
+    return { input: field.querySelector( 'input' ), indicator: field.querySelector( '[data-coll-numista-key]' ),
+        own: field.querySelector( '[data-coll-numista-own]' ), privateChoice: field.querySelector( '[data-coll-numista-private]' ),
+        clear: field.querySelector( '[data-coll-clear-source]' ), controls: field.querySelector( '.coll-numista-controls' ) };
 }
 const fields = [ fixture( 'title', 'coll_name', 'Catalogue title' ), fixture( 'year', 'coll_field_year', '1981', 'number' ) ];
-const form = {
-	dataset: { collSourcePrivate: 'Private until changed', collSourceConfirmed: 'I’ve verified this' },
-	elements: { namedItem: name => fields.find( field => field.input.name === name )?.input },
-	querySelectorAll: selector => {
-		if ( selector === '[data-coll-numista-key]' ) return fields.map( field => field.indicator );
-		if ( selector === '[data-coll-numista-own]' ) return fields.map( field => field.own );
-		if ( selector === '[data-coll-numista-private]' ) return fields.map( field => field.privateChoice );
-		if ( selector === '[data-coll-clear-source]' ) return fields.map( field => field.clear );
-		return [];
-	}
-};
-const document = { querySelectorAll: selector => selector === '[data-coll-item-form]' ? [ form ] : [], addEventListener: () => {} };
-vm.runInNewContext( fs.readFileSync( require.resolve( '../assets/collectibles.js' ), 'utf8' ), {
-	document, crypto: webcrypto, TextEncoder, Uint8Array, Event, Promise,
-	fetch: () => { throw new Error( 'Live status must never make a network request.' ); }
-} );
+window.eval( fs.readFileSync( require.resolve( '../assets/collectibles.js' ), 'utf8' ) );
 const settle = () => new Promise( resolve => setTimeout( resolve, 30 ) );
 function edit( field, value ) { field.input.value = value; field.input.dispatchEvent( new Event( 'input' ) ); }
 ( async () => {
@@ -79,7 +56,7 @@ function edit( field, value ) { field.input.value = value; field.input.dispatchE
 	assert.equal( year.own.checked, false );
 	assert.equal( year.indicator.dataset.state, 'cleared' );
 	assert.equal( year.controls.hidden, true, 'Cleared fields must not retain a private label or clear button.' );
-	assert.equal( year.input.focused, true );
+	assert.equal( document.activeElement, year.input );
 	edit( year, '1982' ); await settle();
 	assert.equal( year.controls.hidden, false, 'Entering another value must restore the source controls.' );
 	assert.equal( year.indicator.getAttribute( 'aria-pressed' ), 'true' );
@@ -89,4 +66,4 @@ function edit( field, value ) { field.input.value = value; field.input.dispatchE
 	year.indicator.click();
 	assert.equal( year.indicator.dataset.state, 'private', 'A saved confirmation must still be toggleable back to private.' );
 	console.log( 'Client-side Numista checks passed: immediate two-way toggles, edits, normalization, clear, reload history and zero network requests.' );
-})().catch( error => { console.error( error ); process.exitCode = 1; } );
+})().catch( error => { console.error( error ); process.exitCode = 1; } ).finally( () => window.close() );

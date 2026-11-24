@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "test": "cd .. && node tests/bulk-add.js && node tests/comparison.js && node tests/item-cards.js && node tests/numista-lookup.js && node tests/numista-status.js && node tests/sharing-controls.js"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
+}
