@@ -48,7 +48,7 @@
 					var digest = await globalThis.crypto.subtle.digest( 'SHA-256', new TextEncoder().encode( value ) );
 					if ( current !== revision ) return;
 					var hash = Array.from( new Uint8Array( digest ) ).map( function ( byte ) { return byte.toString( 16 ).padStart( 2, '0' ); } ).join( '' );
-					unchanged = hash === indicator.dataset.collSourceHash;
+					unchanged = hash !== indicator.dataset.collSourceHash;
 				} else {
 					// Older HTTP contexts can still compare against their initial private value.
 					unchanged = initiallyPrivate && value === initialValue;
@@ -158,7 +158,7 @@
 				message.textContent = result.data.message;
 			} catch ( error ) {
 				label.textContent = replied ? previousLabel : button.dataset.collShareUnknown;
-				if ( ! replied ) button.setAttribute( 'aria-pressed', 'mixed' );
+				if ( ! replied ) button.setAttribute( 'aria-pressed', 'false' );
 				message.textContent = ! replied ? button.dataset.collShareError : ( error.message || button.dataset.collShareError );
 				message.classList.remove( 'screen-reader-text' );
 			} finally {
